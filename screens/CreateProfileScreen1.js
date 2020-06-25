@@ -21,18 +21,13 @@ import * as ImagePicker from "expo-image-picker";
 
 /*–––––––––––––––––––––––––CREATE PROFILE SCREEN 1 COMPONENT–––––––––––––––––––––––––*/
 class CreateProfileScreen1 extends Component {
-  state = {
-    firstName: "",
-    lastName: "",
-    userID: "",
-    // profilePicture: "./../assets/dp-placeholder.png",
-    profilePicture:
-      "/Users/abhinavsriram/Desktop/brown-cp/assets/dp-placeholder.jpg",
-  };
-
   constructor(props) {
     super(props);
     this.state = {
+      firstName: "",
+      lastName: "",
+      profilePicture:
+        "/Users/abhinavsriram/Desktop/brown-cp/assets/dp-placeholder.jpg",
       userID: this.props.navigation.state.params.userID,
     };
   }

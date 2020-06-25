@@ -13,7 +13,7 @@ import { Header } from "react-native-elements";
 import firebase from "firebase";
 
 import CourseCard from "./../components/CourseCard";
-import { SemesterCard } from "./../components/SemesterCard";
+import SemesterCard from "./../components/SemesterCard";
 
 /*–––––––––––––––––––––––––DASHBOARD SCREEN COMPONENT–––––––––––––––––––––––––*/
 class DashboardScreen extends Component {
@@ -44,8 +44,8 @@ class DashboardScreen extends Component {
             <Button
               title="Sign Out"
               onPress={() => {
-                firebase.auth().signOut();
                 this.props.navigation.navigate("LandingScreen");
+                firebase.auth().signOut();
               }}
             ></Button>
             <Button

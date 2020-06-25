@@ -18,20 +18,17 @@ import "firebase/firestore";
 
 /*–––––––––––––––––––––––––CREATE PROFILE SCREEN 2 COMPONENT–––––––––––––––––––––––––*/
 class CreateProfileScreen2 extends Component {
-  state = {
-    concentrationPickerValue: "Click to Choose",
-    concentrationPickerVisible: false,
-    degreePickerValue: "Click to Choose",
-    degreePickerVisible: false,
-    classYearPickerValue: "Click to Choose",
-    classYearPickerVisible: false,
-    semesterLevelPickerValue: "Click to Choose",
-    semesterLevelPickerVisible: false,
-  };
-
   constructor(props) {
     super(props);
     this.state = {
+      concentrationPickerValue: "Click to Choose",
+      concentrationPickerVisible: false,
+      degreePickerValue: "Click to Choose",
+      degreePickerVisible: false,
+      classYearPickerValue: "Click to Choose",
+      classYearPickerVisible: false,
+      semesterLevelPickerValue: "Click to Choose",
+      semesterLevelPickerVisible: false,
       userID: this.props.navigation.state.params.userID,
     };
   }
@@ -165,7 +162,7 @@ class CreateProfileScreen2 extends Component {
     if (this.state.semesterLevelPickerValue === "Click to Choose") {
       this.setState({ semesterLevelPickerValue: "S01" });
     }
-    if (this.state.semesterLevelPickerValue === "S0Nan") {
+    if (this.state.semesterLevelPickerValue === "S0NaN") {
       this.setState({ semesterLevelPickerValue: "S01" });
     }
   };

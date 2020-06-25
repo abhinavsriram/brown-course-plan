@@ -8,14 +8,22 @@ import * as firebase from "firebase";
 /*–––––––––––––––––––––––––VERIFICATION SCREEN COMPONENT–––––––––––––––––––––––––*/
 class VerificationScreen extends Component {
   sendVerificationEmail = () => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        user
-          .sendEmailVerification()
-          .then(() => {})
-          .catch((error) => console.log(error.message));
-      }
-    });
+    authFlag = true;
+    emailFlag = true;
+    if (authFlag) {
+      authFlag = false;
+      firebase.auth().onAuthStateChanged((user) => {
+        if (emailFlag) {
+          emailFlag = false;
+          if (user) {
+            user
+              .sendEmailVerification()
+              .then(() => {})
+              .catch((error) => console.log(error.message));
+          }
+        }
+      });
+    }
   };
 
   componentDidMount() {
