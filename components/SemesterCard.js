@@ -2,23 +2,35 @@ import React, { Component } from "react";
 import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+import CourseCard from "./../components/CourseCard";
+import AddCourseCard from "./../components/AddCourseCard";
+
 const SemesterCard = () => (
   <View style={styles.mainContainer}>
     <Text style={styles.title}>Spring 2020</Text>
     <Text></Text>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
+    <CourseCard
+      courseCode="CSCI 0160"
+      courseName="Introduction to Algorithms and Data Structures"
+      grading="Graded A/B/C/NC"
+      credit="1 Credit"
+      concentrationRequirement="Concentration Requirement"
+      writRequirement="WRIT Requirement"
+    ></CourseCard>
+    <AddCourseCard></AddCourseCard>
     {/* <TouchableOpacity style={styles.addCourseCard}>
+      <Text style={styles.addCourse}>Add Course</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.addCourseCard}>
+      <Text style={styles.addCourse}>Add Course</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.addCourseCard}>
+      <Text style={styles.addCourse}>Add Course</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.addCourseCard}>
+      <Text style={styles.addCourse}>Add Course</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.addCourseCard}>
       <Text style={styles.addCourse}>Add Course</Text>
     </TouchableOpacity> */}
   </View>
@@ -62,4 +74,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { SemesterCard };
+export default SemesterCard;
