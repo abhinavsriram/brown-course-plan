@@ -5,11 +5,11 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import CourseCard from "./../components/CourseCard";
 import AddCourseCard from "./../components/AddCourseCard";
 
-const SemesterCard = () => (
+const SemesterCard = ({ title }) => (
   <View style={styles.mainContainer}>
-    <Text style={styles.title}>Spring 2020</Text>
+    <Text style={styles.title}>{title}</Text>
     <Text></Text>
-    <CourseCard
+    {/* <CourseCard
       courseCode="CSCI 0160"
       courseName="Introduction to Algorithms and Data Structures"
       grading="Graded A/B/C/NC"
@@ -17,22 +17,14 @@ const SemesterCard = () => (
       concentrationRequirement="Concentration Requirement"
       writRequirement="WRIT Requirement"
     ></CourseCard>
+    <CourseCard
+      courseCode="ECON 1130"
+      courseName="Intermediate Microeconomics (Mathematical) This name is long"
+      grading="Graded A/B/C/NC"
+      credit="1 Credit"
+      writRequirement="WRIT Requirement"
+    ></CourseCard> */}
     <AddCourseCard></AddCourseCard>
-    {/* <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addCourseCard}>
-      <Text style={styles.addCourse}>Add Course</Text>
-    </TouchableOpacity> */}
   </View>
 );
 
@@ -41,10 +33,9 @@ const styles = StyleSheet.create({
     borderColor: "#E3E3E3",
     borderWidth: 3,
     borderRadius: 15,
-    // height: 600,
     width: 0.9 * Dimensions.get("window").width,
     alignItems: "center",
-    marginBottom: 20,
+    marginVertical: 10,
   },
   title: {
     marginLeft: 10,
