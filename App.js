@@ -11,6 +11,7 @@ import CustomSignUpScreen from "./screens/CustomSignUpScreen";
 import VerificationScreen from "./screens/VerificationScreen";
 import CreateProfileScreen1 from "./screens/CreateProfileScreen1";
 import CreateProfileScreen2 from "./screens/CreateProfileScreen2";
+import DashboardScreen from "./screens/DashboardScreen";
 import TabNavigator from "./screens/BottomTabNavigator";
 
 /*–––––––––––––––––––––––––BASE-64 IMPORT–––––––––––––––––––––––––*/
@@ -49,6 +50,7 @@ const AppSwitchNavigator = createSwitchNavigator(
     VerificationScreen: VerificationScreen,
     CreateProfileScreen1: CreateProfileScreen1,
     CreateProfileScreen2: CreateProfileScreen2,
+    DashboardScreen: DashboardScreen,
     TabNavigator: TabNavigator,
   },
   {
