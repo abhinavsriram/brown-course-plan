@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 26,
+    fontSize: 30,
     color: "#fafafa",
     fontWeight: "700",
-    letterSpacing: 1.5,
+    letterSpacing: 1,
   },
 });
 

@@ -16,7 +16,7 @@ import * as firebase from "firebase";
 /*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––VERIFICATION SCREEN COMPONENT–––––––––––––––––––––––––*/
+/*–––––––––––––––––––––––––FORGOT PASSWORD SCREEN COMPONENT–––––––––––––––––––––––––*/
 class ForgotPasswordScreen extends Component {
   state = {
     email: "",
