@@ -1,7 +1,17 @@
 /*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Button,
+  Keyboard,
+} from "react-native";
+import {
+  TextInput,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 import { Header } from "react-native-elements";
 
 /*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
@@ -12,40 +22,24 @@ import "firebase/firestore";
 import Icon from "react-native-vector-icons/Ionicons";
 
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
-import courseData from "./../data/spring2020CourseInformation.json";
+import CourseData from "./../data/Spring2020CourseInformation.json";
+import stopWordsList from "./../data/StopWordsList";
+import CourseCard from "../components/CourseCardSearch";
+import CourseList from "./../data/CourseList";
 
 /*–––––––––––––––––––––––––SEARCH SCREEN COMPONENT–––––––––––––––––––––––––*/
 class SearchScreen extends Component {
-  state = {
-    searchValue: "",
-  };
-
-  // 1614
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchResults: [],
+      searchValue: "",
+      navigation: this.props.navigation,
+    };
+  }
 
   getPropertyByIndex = (obj, index) => {
     return obj[Object.keys(obj)[index]];
-  };
-
-  createKeywordArrayMaster = () => {
-    let courseCodeList = [];
-    let courseNameList = [];
-    let courseInstrList = [];
-    for (let i = 0; i < Object.keys(courseData).length; i++) {
-      const courseCode = this.getPropertyByIndex(courseData, i)["Course Code"];
-      const courseName = this.getPropertyByIndex(courseData, i)["Course Name"];
-      const courseInstr = this.getPropertyByIndex(courseData, i)[
-        "Course Instr"
-      ];
-      courseCodeList.push(courseCode);
-      courseNameList.push(courseName);
-      courseInstrList.push(courseInstr);
-    }
-    // loop
-    // course.keywords = createKeywordArray([courseCodeList[i], courseNameList[i], courseInstrList[i]])
-
-    // for (let j = 100; j < 500; j++) {
-    //   this.writeToDatabase(courseCodeList[j]);
-    // }
   };
 
   createKeywordArrayHelper = (toSplit) => {
@@ -58,85 +52,107 @@ class SearchScreen extends Component {
     return keywordArray;
   };
 
-  createKeywordArray = (toSplit) => {
+  createKeywordArrayOneCourse = (toSplit) => {
     const [courseCode, courseName, courseInstr] = toSplit;
     const keywordArrayCourseCodeWithSpace = this.createKeywordArrayHelper(
       courseCode.toLowerCase()
     );
     const keywordArrayCourseCodeWithoutSpace = this.createKeywordArrayHelper(
-      courseCode.split(" ").join("").toLowerCase()
+      courseCode.toLowerCase().split(" ").join("")
     );
-    const keywordArrayCourseName = this.createKeywordArrayHelper(
+    const keywordArrayCourseNameWithStopWords = this.createKeywordArrayHelper(
       courseName.toLowerCase()
     );
+    const tempValue = courseName
+      .toLowerCase()
+      .split(" ")
+      .filter((xYz) => !stopWordsList.includes(xYz))
+      .map((currWord) => this.createKeywordArrayHelper(currWord));
+    const keywordArrayCourseNameWithoutStopWords = [].concat(...tempValue);
     const keywordArrayCourseInstrFullName = this.createKeywordArrayHelper(
       courseInstr.toLowerCase()
     );
     const keywordArrayCourseInstrLastName = this.createKeywordArrayHelper(
-      courseInstr.split(" ").pop().toLowerCase()
+      courseInstr.toLowerCase().split(" ").pop()
     );
     return [
       ...new Set([
         "",
         ...keywordArrayCourseCodeWithSpace,
         ...keywordArrayCourseCodeWithoutSpace,
-        ...keywordArrayCourseName,
+        ...keywordArrayCourseNameWithStopWords,
+        ...keywordArrayCourseNameWithoutStopWords,
         ...keywordArrayCourseInstrFullName,
         ...keywordArrayCourseInstrLastName,
       ]),
     ];
   };
 
-  readFromDatabase = (courseCode) => {
-    const keywordArray = [];
-    keywordArray.push(courseCode);
-    var courseName = "";
-    var courseInstr = "";
-    firebase
-      .firestore()
-      .collection("spring-2020")
-      .doc(courseCode)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          courseName = doc.data()["Course Name"];
-          courseInstr = doc.data()["Course Instructor"];
-          keywordArray.push(courseName);
-          keywordArray.push(courseInstr);
-        } else {
-          console.log("Error");
-        }
-      });
-    return keywordArray;
+  createKeywordArrayAllCourses = () => {
+    let courseKeywordsList = [];
+    for (let i = 0; i < Object.keys(CourseData).length; i++) {
+      const courseCode = this.getPropertyByIndex(CourseData, i)["Course_Code"];
+      const courseName = this.getPropertyByIndex(CourseData, i)["Course Name"];
+      const courseInstr = this.getPropertyByIndex(CourseData, i)[
+        "Course Instructor"
+      ];
+      const courseKeyword = this.createKeywordArrayOneCourse([
+        courseCode,
+        courseName,
+        courseInstr,
+      ]);
+      courseKeywordsList.push(courseKeyword);
+    }
+    return courseKeywordsList;
   };
 
-  writeToDatabase = (courseCode) => {
-    const keywordArray = this.readFromDatabase(courseCode);
-    setTimeout(() => {
-      firebase
-        .firestore()
-        .collection("spring-2020")
-        .doc(courseCode)
-        .set(
-          {
-            Keywords: this.createKeywordArray(keywordArray),
-          },
-          { merge: true }
-        );
-    }, 5000);
+  createFullDatabase = () => {
+    const courseKeywordsList = this.createKeywordArrayAllCourses();
+    for (let i = 0; i < Object.keys(CourseData).length; i++) {
+      this.getPropertyByIndex(CourseData, i)["Keywords"] =
+        courseKeywordsList[i];
+    }
+    return CourseData;
+  };
+
+  // call onKeyPress={() => this.writeToFirestore(this.createFullDatabase())} to upload information
+
+  writeToFirestore = (data) => {
+    if (data && typeof data === "object") {
+      Object.keys(data).forEach((docKey) => {
+        firebase
+          .firestore()
+          .collection("spring-2020")
+          .doc(docKey)
+          .set(data[docKey])
+          .then((res) => {
+            console.log("document " + docKey + " successfully written!");
+          })
+          .catch((error) => {
+            console.error("error writing document: ", error);
+          });
+      });
+    }
   };
 
   searchEngine = async (searchInput) => {
+    if (CourseList.includes(searchInput.toUpperCase())) {
+      searchInput = searchInput + " ";
+    }
     const querySnapshot = await firebase
       .firestore()
       .collection("spring-2020")
       .where("Keywords", "array-contains", searchInput.toLowerCase())
       .orderBy("Course_Code")
+      .limit(10)
       .get();
     const result = querySnapshot.docs;
+    var localSearchResults = [];
+
     result.forEach((course) => {
-      console.log(course.get("Course_Code"));
+      localSearchResults.push(course.get("Course_Code"));
     });
+    this.setState({ searchResults: localSearchResults });
   };
 
   render() {
@@ -150,24 +166,37 @@ class SearchScreen extends Component {
         <View style={styles.searchBox}>
           <Icon name="ios-search" size={20} />
           <TextInput
-            placeholder="Course Code, Name, Field, Instructor "
+            placeholder="Course Code, Name, Instructor "
             placeholderTextColor="dimgrey"
             style={styles.textInput}
-            onChangeText={(text) => this.setState({ searchValue: text })}
+            onChangeText={(text) =>
+              this.setState({ searchValue: text }, async () => {
+                await this.searchEngine(this.state.searchValue);
+              })
+            }
             value={this.state.searchValue}
-            onKeyPress={async () => {
-              await this.searchEngine(this.state.searchValue);
-            }}
-            // onKeyPress={() => this.createKeywordArrayMaster()}
+            autoCorrect={false}
           />
         </View>
-        <ScrollView contentContainerStyle={styles.text}></ScrollView>
+        <ScrollView contentContainerStyle={styles.text}>
+          {this.state.searchResults.map((courseCode, index) => {
+            return (
+              <CourseCard
+                key={index}
+                navigation={this.props.navigation}
+                courseCode={courseCode}
+                courseName={CourseData[courseCode]["Course Name"]}
+                instructor={CourseData[courseCode]["Course Instructor"]}
+                meetingTime={CourseData[courseCode]["Course Meeting Time"]}
+              ></CourseCard>
+            );
+          })}
+        </ScrollView>
       </View>
     );
   }
 }
 
-/*–––––––––––––––––––––––––SEARCH SCREEN STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -183,6 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBEBEB",
     borderRadius: 15,
     alignItems: "center",
+    marginBottom: 7,
   },
   textInput: {
     flex: 1,
@@ -193,7 +223,6 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   text: {
-    flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",

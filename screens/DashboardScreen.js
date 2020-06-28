@@ -84,9 +84,12 @@ class DashboardScreen extends Component {
       .doc(this.state.userID)
       .collection("course-information")
       .doc("semesters")
-      .update({
-        semesters: this.state.semestersList,
-      });
+      .set(
+        {
+          semesters: this.state.semestersList,
+        },
+        { merge: true }
+      );
   };
 
   sortSemestersChronologically = (list) => {
@@ -263,16 +266,24 @@ class DashboardScreen extends Component {
   };
 
   performRemainingActions = () => {
-    if (
-      this.state.semesterPickerValue !== "Click to Choose" &&
-      this.state.yearPickerValue !== "Click to Choose"
-    ) {
-      this.setState({ isModalVisible: false });
-      this.CreateSemesterCard();
-      this.resetPickers();
-    } else {
-      this.setState({ errorMessage: "Please Choose All Values" });
+    const currentChoice =
+      this.state.semesterPickerValue + " " + this.state.yearPickerValue;
+    if (this.state.semestersList.includes(currentChoice)) {
+      this.setState({ errorMessage: "You Have Already Added This Semester" });
       this.setState({ isModalVisible: true });
+    } else {
+      if (
+        this.state.semesterPickerValue !== "Click to Choose" &&
+        this.state.yearPickerValue !== "Click to Choose"
+      ) {
+        this.setState({ isModalVisible: false });
+        this.CreateSemesterCard();
+        this.resetPickers();
+        this.setState({ errorMessage: null });
+      } else {
+        this.setState({ errorMessage: "Please Choose All Values" });
+        this.setState({ isModalVisible: true });
+      }
     }
   };
 
@@ -283,7 +294,10 @@ class DashboardScreen extends Component {
           {/* /*–––––––––––––––––––––––––BACK BUTTON–––––––––––––––––––––––––*/}
           <TouchableOpacity
             style={popUpStyles.backArrow}
-            onPress={() => this.ShowHidePopUp()}
+            onPress={() => {
+              this.ShowHidePopUp();
+              this.setState({ errorMessage: null });
+            }}
           >
             <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
           </TouchableOpacity>
