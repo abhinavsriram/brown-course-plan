@@ -13,6 +13,9 @@ import CreateProfileScreen1 from "./screens/CreateProfileScreen1";
 import CreateProfileScreen2 from "./screens/CreateProfileScreen2";
 import DashboardScreen from "./screens/DashboardScreen";
 import TabNavigator from "./screens/BottomTabNavigator";
+import CourseInformationScreen from "./screens/CourseInformationScreen";
+import SearchScreen from "./screens/SearchScreen";
+import TabNavigatorSearch from "./screens/BottomTabNavigatorSearch";
 
 /*–––––––––––––––––––––––––BASE-64 IMPORT–––––––––––––––––––––––––*/
 import { decode, encode } from "base-64";
@@ -52,6 +55,9 @@ const AppSwitchNavigator = createSwitchNavigator(
     CreateProfileScreen2: CreateProfileScreen2,
     DashboardScreen: DashboardScreen,
     TabNavigator: TabNavigator,
+    TabNavigatorSearch: TabNavigatorSearch,
+    CourseInformationScreen: CourseInformationScreen,
+    SearchScreen: SearchScreen,
   },
   {
     initialRouteName: "LoadingScreen",
