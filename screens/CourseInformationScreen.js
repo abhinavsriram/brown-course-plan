@@ -7,6 +7,7 @@ import {
   ScrollView,
   Button,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { Header } from "react-native-elements";
 
@@ -14,7 +15,7 @@ import { Header } from "react-native-elements";
 import Icon from "react-native-vector-icons/Ionicons";
 
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
-import CourseData from "./../data/Spring2020CourseInformation.json";
+import CourseData from "./../data/CourseData.json";
 
 /*–––––––––––––––––––––––––CUSTOM INFORMATION SCREEN COMPONENT–––––––––––––––––––––––––*/
 class CourseInformationScreen extends Component {
@@ -22,7 +23,24 @@ class CourseInformationScreen extends Component {
     super(props);
     this.state = {
       courseCode: this.props.navigation.state.params.courseCode,
+      semesterCode: this.props.navigation.state.params.semesterCode,
+      semester: "",
     };
+  }
+
+  semesterDeterminer = () => {
+    switch (this.state.semesterCode) {
+      case 0:
+        this.setState({ semester: "Spring 2020" });
+        break;
+      case 1:
+        this.setState({ semester: "Summer 2020" });
+        break;
+    }
+  };
+
+  componentDidMount() {
+    this.semesterDeterminer();
   }
 
   render() {
@@ -45,71 +63,139 @@ class CourseInformationScreen extends Component {
         ></Header>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Text style={styles.courseName}>
-            {CourseData[this.state.courseCode]["Course Name"]}
+            {
+              CourseData[this.state.semesterCode][this.state.courseCode][
+                "Course Name"
+              ]
+            }
           </Text>
-          <Text style={styles.semester}>Spring 2020</Text>
-          {CourseData[this.state.courseCode]["Course Capacity"] !== "" && (
+          <Text style={styles.semester}>{this.state.semester}</Text>
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Course Capacity"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Course Capacity:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Course Capacity"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Course Capacity"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Course Description"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Course Description"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Course Description:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Course Description"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Course Description"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Course Restrictions"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Course Restrictions"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Course Restrictions:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Course Restrictions"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Course Restrictions"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-
-          {CourseData[this.state.courseCode]["Critical Review"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Critical Review"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Critical Review:</Text>
-              <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Critical Review"]}
-              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  Linking.openURL(
+                    CourseData[this.state.semesterCode][this.state.courseCode][
+                      "Critical Review"
+                    ]
+                  )
+                }
+              >
+                <Text
+                  style={{
+                    textDecorationLine: "underline",
+                    marginTop: 3,
+                    color: "#757575",
+                    fontSize: 17,
+                  }}
+                >
+                  {
+                    CourseData[this.state.semesterCode][this.state.courseCode][
+                      "Critical Review"
+                    ]
+                  }
+                </Text>
+              </TouchableOpacity>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Exam Time"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Exam Time"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Final Exam:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Exam Time"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Exam Time"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Course Meeting Time"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Course Meeting Time"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Schedule and Location:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Course Meeting Time"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Course Meeting Time"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Course Instructor"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Course Instructor"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Instructor:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Course Instructor"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Course Instructor"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
-          {CourseData[this.state.courseCode]["Section(s)"] !== "" && (
+          {CourseData[this.state.semesterCode][this.state.courseCode][
+            "Section(s)"
+          ] !== "" && (
             <React.Fragment>
               <Text style={styles.subHeader}>Sections:</Text>
               <Text style={styles.description}>
-                {CourseData[this.state.courseCode]["Section(s)"]}
+                {
+                  CourseData[this.state.semesterCode][this.state.courseCode][
+                    "Section(s)"
+                  ]
+                }
               </Text>
             </React.Fragment>
           )}
