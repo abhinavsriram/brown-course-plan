@@ -35,6 +35,7 @@ class SearchScreen extends Component {
       searchResults: [],
       searchValue: "",
       navigation: this.props.navigation,
+      yOffset: 0,
     };
   }
 
@@ -155,6 +156,35 @@ class SearchScreen extends Component {
     this.setState({ searchResults: localSearchResults });
   };
 
+  lazyLoading = async () => {
+    var y = this.state.searchResults.length / 10;
+    if (y < 4) {
+      if(this.state.yOffset > 575 * y){
+        this.searchEngineStartAfter(this.state.searchValue, y + 1)
+      }
+    }
+  }
+
+  searchEngineStartAfter = async (searchInput, searchResultNum) => {
+    if (CourseList.includes(searchInput.toUpperCase())) {
+      searchInput = searchInput + " ";
+    }
+    const querySnapshot = await firebase
+      .firestore()
+      .collection("spring-2020")
+      .where("Keywords", "array-contains", searchInput.toLowerCase())
+      .orderBy("Course_Code")
+      .limit(10 * searchResultNum)
+      .get();
+    const result = querySnapshot.docs;
+    var localSearchResults = [];
+
+    result.forEach((course) => {
+      localSearchResults.push(course.get("Course_Code"));
+    });
+    this.setState({ searchResults: localSearchResults });
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -166,7 +196,7 @@ class SearchScreen extends Component {
         <View style={styles.searchBox}>
           <Icon name="ios-search" size={20} />
           <TextInput
-            placeholder="Course Code, Name, Instructor "
+            placeholder="Course Code, Name, Instructor"
             placeholderTextColor="dimgrey"
             style={styles.textInput}
             onChangeText={(text) =>
@@ -178,7 +208,13 @@ class SearchScreen extends Component {
             autoCorrect={false}
           />
         </View>
-        <ScrollView contentContainerStyle={styles.text}>
+        <ScrollView
+          contentContainerStyle={styles.text}
+          showsVerticalScrollIndicator={"false"}
+          keyboardDismissMode={"on-drag"}
+          onScroll={(event) => this.setState({yOffset: event.nativeEvent.contentOffset.y}, () => {this.lazyLoading()})}
+          scrollEventThrottle={16}
+        >
           {this.state.searchResults.map((courseCode, index) => {
             return (
               <CourseCard
