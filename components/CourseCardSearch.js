@@ -12,12 +12,14 @@ const CourseCard = ({
   instructor,
   meetingTime,
   navigation,
+  semesterCode,
 }) => (
   <View style={styles.mainContainer}>
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("CourseInformationScreen", {
           courseCode: courseCode,
+          semesterCode: semesterCode,
         })
       }
       activeOpacity={0.4}
