@@ -7,6 +7,7 @@ import {
   ScrollView,
   Button,
   Keyboard,
+  Modal,
   Picker,
   TouchableOpacity,
   TextInput,
@@ -36,6 +37,7 @@ class SearchScreen extends Component {
       searchBoxValue: "",
       navigation: this.props.navigation,
       yOffset: 0,
+      isModalVisible: false,
       semesterPickerValue: "Spring 2020",
       semesterPickerVisible: false,
       currentSemesterCode: 0,
@@ -246,22 +248,23 @@ class SearchScreen extends Component {
     return this.state.searchResults.map((courseCode, index) => {
       return (
         <CourseCard
+          onPress={() => { this.CourseInformationPopUp(courseCode); this.ShowHidePopUp() }}
           key={index}
           navigation={this.props.navigation}
           courseCode={courseCode}
           courseName={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Name"
+            "Course Name"
             ]
           }
           instructor={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Instructor"
+            "Course Instructor"
             ]
           }
           meetingTime={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Meeting Time"
+            "Course Meeting Time"
             ]
           }
           semesterCode={this.state.currentSemesterCode}
@@ -269,6 +272,15 @@ class SearchScreen extends Component {
       );
     });
   };
+
+  ShowHidePopUp = () => {
+    if (this.state.isModalVisible === true) {
+      this.setState({ isModalVisible: false });
+    } else {
+      this.setState({ isModalVisible: true });
+    }
+  };
+
 
   render() {
     return (
@@ -393,10 +405,192 @@ class SearchScreen extends Component {
         >
           {this.createCards()}
         </ScrollView>
+        <CourseInformationPopUp
+          courseCode={"CSCI 0160"}></CourseInformationPopUp>
       </View>
     );
   }
 }
+
+const CourseInformationPopUp = (courseCode) => (
+  <View style={popUpStyles.container}>
+    <Modal animationType={"fade"} visible={this.state.isModalVisible}>
+      <View style={popUpStyles.modal}>
+        <Header
+          backgroundColor="#4E342E"
+          leftComponent={
+            <TouchableOpacity
+              onPress={() =>
+                this.ShowHidePopUp()
+              }
+            >
+              <Icon name="ios-arrow-back" color="#fafafa" size={35} />
+            </TouchableOpacity>
+          }
+          centerComponent={
+            <Text style={popUpStyles.headerTitle}>{courseCode}</Text>
+          }
+        ></Header>
+        <ScrollView contentContainerStyle={popUpStyles.scrollContainer}>
+          <Text style={popUpStyles.courseName}>
+            {
+              CourseData[this.state.currentSemesterCode][courseCode][
+              "Course Name"
+              ]
+            }
+          </Text>
+          <Text style={popUpStyles.semester}>{this.state.semester}</Text>
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Course Capacity"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Course Capacity"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Course Description"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Course Description:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Course Description"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Course Restrictions"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Course Restrictions:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Course Restrictions"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Critical Review"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    Linking.openURL(
+                      CourseData[this.state.currentSemesterCode][courseCode][
+                      "Critical Review"
+                      ]
+                    )
+                  }
+                >
+                  <Text
+                    style={{
+                      textDecorationLine: "underline",
+                      marginTop: 3,
+                      color: "#757575",
+                      fontSize: 17,
+                    }}
+                  >
+                    {
+                      CourseData[this.state.currentSemesterCode][courseCode][
+                      "Critical Review"
+                      ]
+                    }
+                  </Text>
+                </TouchableOpacity>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Exam Time"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Final Exam:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Exam Time"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Course Meeting Time"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Schedule and Location:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Course Meeting Time"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Course Instructor"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Instructor:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Course Instructor"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          {CourseData[this.state.currentSemesterCode][courseCode][
+            "Section(s)"
+          ] !== "" && (
+              <React.Fragment>
+                <Text style={popUpStyles.subHeader}>Sections:</Text>
+                <Text style={popUpStyles.description}>
+                  {
+                    CourseData[this.state.currentSemesterCode][courseCode][
+                    "Section(s)"
+                    ]
+                  }
+                </Text>
+              </React.Fragment>
+            )}
+          <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
+          <Text style={popUpStyles.description}>Coming Soon...</Text>
+          <View
+            style={{ alignItems: "center", marginTop: 15, marginBottom: 10 }}
+          >
+            <CustomButton title="Add Course"></CustomButton>
+          </View>
+        </ScrollView>
+      </View>
+    </Modal>
+  </View>
+);
+
+const CustomButton = ({ onPress, title }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={styles.customButtonContainer}
+    activeOpacity={0.8}
+  >
+    <Text style={styles.customButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
 
 /*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
@@ -459,6 +653,67 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "dimgrey",
     fontSize: 11,
+  },
+});
+
+const popUpStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: "#4E342E",
+    padding: 20,
+    alignItems: "center",
+  },
+  scrollContainer: {
+    backgroundColor: "#fff",
+    padding: 14,
+  },
+  headerTitle: {
+    fontSize: 30,
+    color: "#fafafa",
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  courseName: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#757575",
+  },
+  semester: {
+    marginTop: 3,
+    fontWeight: "bold",
+    color: "#757575",
+    fontSize: 23,
+  },
+  subHeader: {
+    marginTop: 15,
+    fontWeight: "bold",
+    color: "#757575",
+    fontSize: 20,
+  },
+  description: {
+    marginTop: 3,
+    color: "#757575",
+    fontSize: 17,
+  },
+  customButtonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#5ED483",
+    borderRadius: 15,
+    paddingVertical: 17,
+    paddingHorizontal: 12,
+    width: "80%",
+  },
+  customButtonText: {
+    fontSize: 18,
+    color: "#fafafa",
+    fontWeight: "bold",
+    alignSelf: "center",
   },
 });
 
