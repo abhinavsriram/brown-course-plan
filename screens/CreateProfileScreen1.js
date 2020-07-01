@@ -39,7 +39,6 @@ class CreateProfileScreen1 extends Component {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          console.log("data accquired is", doc.data());
           this.setState({ firstName: doc.data().first_name });
           this.setState({ lastName: doc.data().last_name });
         } else {

@@ -5,7 +5,6 @@ import {
   Text,
   View,
   ScrollView,
-  Button,
   Keyboard,
   Picker,
   TouchableOpacity,
@@ -34,6 +33,7 @@ class SearchScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      userID: "",
       searchResults: [],
       searchBoxValue: "",
       yOffset: 0,
@@ -43,12 +43,24 @@ class SearchScreen extends Component {
       isCourseInfoModalVisible: false,
       courseCode: "Placeholder Course",
       isCourseAddModalVisible: false,
-      popUpGradeMode: "abc",
-      popUpConcentrationRequirement: "yes",
-      popUpWritRequirement: "yes",
-      popUpfullhalfCredit: "full",
+      popUpGradeMode: true,
+      popUpConcentrationRequirement: true,
+      popUpWritRequirement: true,
+      popUpfullhalfCredit: true,
+      popUpShopping: true,
     };
   }
+
+  getUserID = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const email = user.email;
+        const userID = email.split("@")[0];
+        this.setState({ userID: userID });
+      } else {
+      }
+    });
+  };
 
   getPropertyByIndex = (obj, index) => {
     return obj[Object.keys(obj)[index]];
@@ -247,6 +259,7 @@ class SearchScreen extends Component {
   };
 
   componentDidMount() {
+    this.getUserID();
     switch (this.state.semesterPickerValue) {
       case "Spring 2020":
         this.setState({ currentSemesterCode: 0 });
@@ -499,7 +512,10 @@ class SearchScreen extends Component {
           <View style={courseAddPopUpStyles.modal}>
             <TouchableOpacity
               style={popUpStyles.backArrow}
-              onPress={() => this.closeCourseAddPopUp()}
+              onPress={() => {
+                this.closeCourseAddPopUp();
+                this.setState({ isCourseInfoModalVisible: true });
+              }}
             >
               <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
             </TouchableOpacity>
@@ -518,8 +534,8 @@ class SearchScreen extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "S/NC", value: "snc" },
-                      { label: "A/B/C/NC", value: "abc" },
+                      { label: "S/NC", value: false },
+                      { label: "A/B/C/NC", value: true },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -541,8 +557,8 @@ class SearchScreen extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "No", value: "no" },
-                      { label: "Yes", value: "yes" },
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -564,8 +580,8 @@ class SearchScreen extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "No", value: "no" },
-                      { label: "Yes", value: "yes" },
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -587,13 +603,32 @@ class SearchScreen extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "0.5", value: "half" },
-                      { label: "1", value: "full" },
+                      { label: "0.5", value: false },
+                      { label: "1", value: true },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
                       this.setState({ popUpfullhalfCredit: value })
                     }
+                  />
+                </View>
+              </View>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>Shopping</Text>
+                  <SwitchSelector
+                    initial={1}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) => this.setState({ popUpShopping: value })}
                   />
                 </View>
               </View>
@@ -607,13 +642,57 @@ class SearchScreen extends Component {
             >
               <CustomButton
                 title="Add Course"
-                onPress={() => this.closeCourseAddPopUp()}
+                onPress={() => {
+                  this.closeCourseAddPopUp();
+                  this.addCourseToDatabase();
+                  this.addSemesterIfNeeded();
+                }}
               ></CustomButton>
             </View>
           </View>
         </Modal>
       </View>
     );
+  };
+
+  addCourseToDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.semesterPickerValue)
+      .set(
+        {
+          [this.state.courseCode]: {
+            course_code: this.state.courseCode,
+            grade_mode: this.state.popUpGradeMode,
+            concentration_1_requirement: this.state
+              .popUpConcentrationRequirement,
+            writ_requirement: this.state.popUpWritRequirement,
+            full_half_credit: this.state.popUpfullhalfCredit,
+            shopping: this.state.popUpShopping,
+          },
+        },
+        { merge: true }
+      );
+  };
+
+  addSemesterIfNeeded = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc("Semesters List")
+      .set(
+        {
+          semestersList: firebase.firestore.FieldValue.arrayUnion(
+            this.state.semesterPickerValue
+          ),
+        },
+        { merge: true }
+      );
   };
 
   showHideCourseAddPopUp = () => {
@@ -626,7 +705,6 @@ class SearchScreen extends Component {
   };
 
   closeCourseAddPopUp = () => {
-    this.setState({ isCourseInfoModalVisible: true });
     if (this.state.isCourseAddModalVisible === true) {
       this.setState({ isCourseAddModalVisible: false });
     }
@@ -850,6 +928,7 @@ const styles = StyleSheet.create({
   },
 });
 
+/*–––––––––––––––––––––––––COURSE INFROMATION POP-UP STYLING–––––––––––––––––––––––––*/
 const popUpStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -916,6 +995,7 @@ const popUpStyles = StyleSheet.create({
   },
 });
 
+/*–––––––––––––––––––––––––COURSE ADD POP-UP STYLING–––––––––––––––––––––––––*/
 const courseAddPopUpStyles = StyleSheet.create({
   container: {
     flex: 1,

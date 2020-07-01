@@ -4,12 +4,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   Dimensions,
   ScrollView,
   Modal,
   TouchableOpacity,
   Picker,
+  Button,
 } from "react-native";
 import { Header } from "react-native-elements";
 
@@ -59,11 +59,22 @@ class DashboardScreen extends Component {
       .collection("user-information")
       .doc(this.state.userID)
       .collection("course-information")
-      .doc("semesters")
+      .doc("Semesters List")
       .get()
       .then((doc) => {
         if (doc.exists) {
-          this.setState({ semestersList: doc.data().semesters });
+          this.setState({ semestersList: doc.data().semestersList }, () => {
+            this.setState(
+              {
+                semestersList: this.sortSemestersChronologically(
+                  this.state.semestersList
+                ),
+              },
+              () => {
+                this.writeToDatabase();
+              }
+            );
+          });
         } else {
           console.log("no data accquired");
         }
@@ -75,6 +86,7 @@ class DashboardScreen extends Component {
 
   componentDidMount() {
     this.getUserID();
+    this.props.navigation.addListener("willFocus", () => this.getUserID());
   }
 
   writeToDatabase = () => {
@@ -83,10 +95,10 @@ class DashboardScreen extends Component {
       .collection("user-information")
       .doc(this.state.userID)
       .collection("course-information")
-      .doc("semesters")
+      .doc("Semesters List")
       .set(
         {
-          semesters: this.state.semestersList,
+          semestersList: this.state.semestersList,
         },
         { merge: true }
       );
@@ -433,7 +445,7 @@ class DashboardScreen extends Component {
           contentContainerStyle={styles.container}
         >
           {/* /*–––––––––––––––––––––––––debugging buttons–––––––––––––––––––––––––*/}
-          <View style={{ flexDirection: "row" }}>
+          {/* <View style={{ flexDirection: "row" }}>
             <Button
               title="Sign Out"
               color="#4E342E"
@@ -442,14 +454,19 @@ class DashboardScreen extends Component {
                 firebase.auth().signOut();
               }}
             ></Button>
-          </View>
+          </View> */}
           {/* /*–––––––––––––––––––––––––CARDS–––––––––––––––––––––––––*/}
           <View>
             {/* this is the pop-up that always exists but remains invisible until add semester is clicked */}
             <this.AddSemesterPopUp></this.AddSemesterPopUp>
             {/* this function returns semester cards based on the number the user has created */}
-            {this.state.semestersList.map((semester, index) => {
-              return <SemesterCard key={index} title={semester}></SemesterCard>;
+            {this.state.semestersList.map((semester) => {
+              return (
+                <SemesterCard
+                  key={Math.random()}
+                  title={semester}
+                ></SemesterCard>
+              );
             })}
             {/* this is the add semester card that always exists at the end of all semesters added */}
             <AddSemesterCard
