@@ -1,6 +1,8 @@
+/*–––––––––––––––––––––––––PERMISSIONS IMPORTS–––––––––––––––––––––––––*/
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 
+/*–––––––––––––––––––––––––CAMERA PERMISSIONS CLASS–––––––––––––––––––––––––*/
 class UserPermissions {
   getCameraPermission = async () => {
     if (Constants.platform.ios) {
