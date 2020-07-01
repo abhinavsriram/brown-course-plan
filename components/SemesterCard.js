@@ -10,6 +10,9 @@ import AddCourseCard from "./../components/AddCourseCard";
 import * as firebase from "firebase";
 import "firebase/firestore";
 
+/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
+import CourseData from "./../data/CourseData.json";
+
 /*–––––––––––––––––––––––––SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
 class SemesterCard extends Component {
   constructor(props) {
@@ -19,8 +22,26 @@ class SemesterCard extends Component {
       title: this.props.title,
       data: {},
       trigger: false,
+      currentSemesterCode: 0,
     };
   }
+
+  determineSemesterCode = () => {
+    switch (this.state.title) {
+      case "Spring 2020":
+        this.setState({ currentSemesterCode: 0 });
+        break;
+      case "Summer 2020":
+        this.setState({ currentSemesterCode: 1 });
+        break;
+      case "Fall 2019":
+        this.setState({ currentSemesterCode: 2 });
+        break;
+      case "Winter 2019":
+        this.setState({ currentSemesterCode: 3 });
+        break;
+    }
+  };
 
   getUserID = () => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -58,6 +79,7 @@ class SemesterCard extends Component {
 
   componentDidMount() {
     this.getUserID();
+    this.determineSemesterCode();
   }
 
   triggerRenderCourseCards = () => {
@@ -73,7 +95,11 @@ class SemesterCard extends Component {
           <CourseCard
             key={i}
             courseCode={currentCourse["course_code"]}
-            courseName="Introduction to Algorithms and Data Structures"
+            courseName={
+              CourseData[this.state.currentSemesterCode][
+                currentCourse["course_code"]
+              ]["Course Name"]
+            }
             grading={
               currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
             }
