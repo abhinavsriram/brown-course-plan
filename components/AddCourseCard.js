@@ -1,13 +1,16 @@
-import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
+/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
+import React from "react";
+import { StyleSheet, Text, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+/*–––––––––––––––––––––––––"ADD COURSE" CARD COMPONENT–––––––––––––––––––––––––*/
 const AddCourseCard = () => (
   <TouchableOpacity style={styles.addCourseCard}>
     <Text style={styles.addCourse}>Add Course</Text>
   </TouchableOpacity>
 );
 
+/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   addCourseCard: {
     height: 100,

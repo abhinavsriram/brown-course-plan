@@ -1,33 +1,112 @@
+/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
-import CourseCard from "./../components/CourseCard";
+/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
+import CourseCard from "./../components/CourseCardDashboard";
 import AddCourseCard from "./../components/AddCourseCard";
 
-const SemesterCard = ({ title }) => (
-  <View style={styles.mainContainer}>
-    <Text style={styles.title}>{title}</Text>
-    <Text></Text>
-    <CourseCard
-      courseCode="CSCI 0160"
-      courseName="Introduction to Algorithms and Data Structures"
-      grading="Graded A/B/C/NC"
-      credit="1 Credit"
-      concentrationRequirement="Concentration Requirement"
-      writRequirement="WRIT Requirement"
-    ></CourseCard>
-    <CourseCard
-      courseCode="ECON 1130"
-      courseName="Intermediate Microeconomics (Mathematical) This name is long"
-      grading="Graded A/B/C/NC"
-      credit="1 Credit"
-      writRequirement="WRIT Requirement"
-    ></CourseCard>
-    <AddCourseCard></AddCourseCard>
-  </View>
-);
+/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
+import * as firebase from "firebase";
+import "firebase/firestore";
 
+/*–––––––––––––––––––––––––SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
+class SemesterCard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      userID: "",
+      title: this.props.title,
+      data: {},
+      trigger: false,
+    };
+  }
+
+  getUserID = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const email = user.email;
+        const userID = email.split("@")[0];
+        this.setState({ userID: userID }, () => {
+          this.pullFromDatabase();
+        });
+      } else {
+      }
+    });
+  };
+
+  pullFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ data: doc.data() }, () => {
+            this.triggerRenderCourseCards();
+          });
+        } else {
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  componentDidMount() {
+    this.getUserID();
+  }
+
+  triggerRenderCourseCards = () => {
+    this.setState({ trigger: true });
+  };
+
+  renderCourseCards = () => {
+    var results = [];
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        results.push(
+          <CourseCard
+            key={i}
+            courseCode={currentCourse["course_code"]}
+            courseName="Introduction to Algorithms and Data Structures"
+            grading={
+              currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
+            }
+            credit={
+              currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
+            }
+            concentrationRequirement={
+              currentCourse["concentration_1_requirement"]
+                ? "Concentration Requirement"
+                : ""
+            }
+            writRequirement={
+              currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
+            }
+          ></CourseCard>
+        );
+      }
+      return results;
+    }
+  };
+
+  render() {
+    return (
+      <View style={styles.mainContainer}>
+        <Text style={styles.title}>{this.state.title}</Text>
+        {this.renderCourseCards()}
+        <AddCourseCard></AddCourseCard>
+      </View>
+    );
+  }
+}
+
+/*–––––––––––––––––––––––––STYLING FOR SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   mainContainer: {
     borderColor: "#E3E3E3",
@@ -45,6 +124,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     alignSelf: "stretch",
     justifyContent: "space-around",
+    marginBottom: 4,
   },
   addCourseCard: {
     height: 100,

@@ -2,17 +2,16 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
-/*–––––––––––––––––––––––––COURSE CARD (SERACH) COMPONENT–––––––––––––––––––––––––*/
+/*–––––––––––––––––––––––––COURSE CARD COMPONENT–––––––––––––––––––––––––*/
 const CourseCard = ({
   onPress,
   courseCode,
   courseName,
-  instructor,
-  meetingTime,
-  navigation,
-  semesterCode,
+  grading,
+  credit,
+  concentrationRequirement,
+  writRequirement,
 }) => (
   <View style={styles.mainContainer}>
     <TouchableOpacity
@@ -38,20 +37,26 @@ const CourseCard = ({
           {courseName}
         </Text>
         <View style={styles.line3Container}>
-          <Text style={styles.line3}>{instructor}</Text>
+          <Text style={styles.line3}>{grading} | </Text>
+          <Text style={styles.line3}>{credit}</Text>
         </View>
         <View style={styles.line4Container}>
-          <Text style={styles.line4}>{meetingTime}</Text>
+          <Text style={styles.line4}>{concentrationRequirement}</Text>
+          <Text style={styles.line4}>
+            {writRequirement !== "" && concentrationRequirement !== ""
+              ? "| WRIT Requirement"
+              : writRequirement}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
   </View>
 );
 
-/*–––––––––––––––––––––––––STYLING FOR COURSE CARD (SEARCH) COMPONENT–––––––––––––––––––––––––*/
+/*–––––––––––––––––––––––––STYLING FOR COURSE CARD COMPONENT–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   mainContainer: {
-    marginVertical: 7,
+    marginBottom: 7,
   },
   courseCard: {
     height: 100,
