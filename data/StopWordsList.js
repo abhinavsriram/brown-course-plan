@@ -1,4 +1,4 @@
-let stopWordsList = [
+const stopWordsList = [
   "a",
   "about",
   "above",

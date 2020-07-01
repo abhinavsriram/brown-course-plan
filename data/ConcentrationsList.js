@@ -1,4 +1,4 @@
-let completeConcentrationsList = [
+const completeConcentrationsList = [
   "Yet To Declare",
   "American Studies - AB",
   "Anthropology - AB (Anthropological Archaeology)",
