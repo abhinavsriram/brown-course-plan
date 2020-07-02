@@ -13,6 +13,10 @@ import {
 } from "react-native";
 import { Header } from "react-native-elements";
 
+import { Ionicons } from '@expo/vector-icons';
+import { withNavigation } from 'react-navigation';
+import { DrawerActions } from 'react-navigation-drawer';
+
 /*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
@@ -434,11 +438,23 @@ class DashboardScreen extends Component {
     return (
       <View style={{ flex: 1 }}>
         {/* /*–––––––––––––––––––––––––HEADER–––––––––––––––––––––––––*/}
+        {/* leftComponent={{ icon: "menu", color: "#fff", size: 30 }} */}
         <Header
           backgroundColor="#4E342E"
-          leftComponent={{ icon: "menu", color: "#fff", size: 30 }}
           centerComponent={<Text style={styles.title}>Dashboard</Text>}
-        ></Header>
+        >
+          <TouchableOpacity style={styles.trigger}
+            onPress={() => {
+              this.props.navigation.dispatch(DrawerActions.openDrawer())
+            }}
+          >
+            <Ionicons
+              name={'md-arrow-round-forward'}
+              size={30}
+              color={'white'}
+            />
+          </TouchableOpacity>
+        </Header>
         {/* /*–––––––––––––––––––––––––SCROLL VIEW–––––––––––––––––––––––––*/}
         <ScrollView
           style={{ flex: 1 }}

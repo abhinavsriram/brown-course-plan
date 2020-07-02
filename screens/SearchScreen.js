@@ -644,6 +644,7 @@ class SearchScreen extends Component {
                 title="Add Course"
                 onPress={() => {
                   this.closeCourseAddPopUp();
+                  this.setDefaultValues();
                   this.addCourseToDatabase();
                   this.addSemesterIfNeeded();
                 }}
@@ -711,10 +712,11 @@ class SearchScreen extends Component {
   };
 
   setDefaultValues = () => {
-    this.setState({ popUpGradeMode: "abc" });
-    this.setState({ popUpConcentrationRequirement: "yes" });
-    this.setState({ popUpWritRequirement: "yes" });
-    this.setState({ popUpfullhalfCredit: "full" });
+    this.setState({ popUpGradeMode: true });
+    this.setState({ popUpConcentrationRequirement: true });
+    this.setState({ popUpWritRequirement: true });
+    this.setState({ popUpfullhalfCredit: true });
+    this.setState({ popUpShopping: true });
   };
 
   render() {
