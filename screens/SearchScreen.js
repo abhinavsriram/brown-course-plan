@@ -11,9 +11,12 @@ import {
   TextInput,
   Modal,
   Linking,
+  Dimensions,
 } from "react-native";
 import { Header } from "react-native-elements";
 import SwitchSelector from "react-native-switch-selector";
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions } from "react-navigation-drawer";
 
 /*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import * as firebase from "firebase";
@@ -27,6 +30,7 @@ import CourseData from "./../data/CourseData.json";
 import StopWordsList from "./../data/StopWordsList";
 import CourseCard from "../components/CourseCardSearch";
 import CourseList from "./../data/CourseList";
+import Colors from "./../data/Colors";
 
 /*–––––––––––––––––––––––––SEARCH SCREEN COMPONENT–––––––––––––––––––––––––*/
 class SearchScreen extends Component {
@@ -255,6 +259,9 @@ class SearchScreen extends Component {
       case "Winter 2019":
         this.setState({ currentSemesterCode: 3 });
         break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 2 });
+        break;
     }
   };
 
@@ -272,6 +279,9 @@ class SearchScreen extends Component {
         break;
       case "Winter 2019":
         this.setState({ currentSemesterCode: 3 });
+        break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 2 });
         break;
     }
   }
@@ -301,6 +311,13 @@ class SearchScreen extends Component {
             ]
           }
           semesterCode={this.state.currentSemesterCode}
+          style={[
+            styles.courseCard,
+            {
+              borderColor:
+                Colors[CourseList.indexOf(courseCode.toString().split(" ")[0])],
+            },
+          ]}
         ></CourseCard>
       );
     });
@@ -726,9 +743,17 @@ class SearchScreen extends Component {
           {/* /*–––––––––––––––––––––––––HEADER–––––––––––––––––––––––––*/}
           <Header
             backgroundColor="#4E342E"
-            leftComponent={{ icon: "menu", color: "#fff", size: 30 }}
             centerComponent={<Text style={styles.title}>Search</Text>}
-          ></Header>
+          >
+            <TouchableOpacity
+              style={styles.trigger}
+              onPress={() => {
+                this.props.navigation.dispatch(DrawerActions.openDrawer());
+              }}
+            >
+              <Ionicons name={"md-menu"} size={32} color={"white"} />
+            </TouchableOpacity>
+          </Header>
           {/* /*–––––––––––––––––––––––––SEARCH BOX–––––––––––––––––––––––––*/}
           <View style={styles.searchBox}>
             <Icon name="ios-search" size={20} />
@@ -750,6 +775,14 @@ class SearchScreen extends Component {
               value={this.state.searchBoxValue}
               autoCorrect={false}
             />
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({ searchBoxValue: "" });
+                this.setState({ searchResults: [] });
+              }}
+            >
+              <Icon name="ios-backspace" size={22} />
+            </TouchableOpacity>
           </View>
           {/* /*–––––––––––––––––––––––––SEMESTER PICKER BOX–––––––––––––––––––––––––*/}
           <TouchableOpacity
@@ -927,6 +960,13 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "dimgrey",
     fontSize: 11,
+  },
+  courseCard: {
+    height: 100,
+    backgroundColor: "#fafafa",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 0.85 * Dimensions.get("window").width,
   },
 });
 

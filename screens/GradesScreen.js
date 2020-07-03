@@ -1,16 +1,27 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Header } from "react-native-elements";
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions } from "react-navigation-drawer";
 
 class GradesScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
+        {/* /*–––––––––––––––––––––––––HEADER–––––––––––––––––––––––––*/}
         <Header
           backgroundColor="#4E342E"
-          leftComponent={{ icon: "menu", color: "#fff", size: 30 }}
           centerComponent={<Text style={styles.title}>Grades</Text>}
-        ></Header>
+        >
+          <TouchableOpacity
+            style={styles.trigger}
+            onPress={() => {
+              this.props.navigation.dispatch(DrawerActions.openDrawer());
+            }}
+          >
+            <Ionicons name={"md-menu"} size={32} color={"white"} />
+          </TouchableOpacity>
+        </Header>
         <View></View>
       </View>
     );
