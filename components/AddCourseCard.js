@@ -1,14 +1,28 @@
 /*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
-import React from "react";
+import React, { Component } from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 /*–––––––––––––––––––––––––"ADD COURSE" CARD COMPONENT–––––––––––––––––––––––––*/
-const AddCourseCard = () => (
-  <TouchableOpacity style={styles.addCourseCard}>
-    <Text style={styles.addCourse}>Add Course</Text>
-  </TouchableOpacity>
-);
+class AddCourseCard extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <TouchableOpacity
+        style={styles.addCourseCard}
+        onPress={() => {
+          this.props.navprops.navigation.navigate("TabNavigator");
+          this.props.navprops.navigation.navigate("SearchTabNavigator");
+        }}
+      >
+        <Text style={styles.addCourse}>Add Course</Text>
+      </TouchableOpacity>
+    );
+  }
+}
 
 /*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({

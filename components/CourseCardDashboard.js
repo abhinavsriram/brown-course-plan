@@ -10,35 +10,24 @@ const CourseCard = ({
   courseName,
   grading,
   credit,
+  shopping,
   concentrationRequirement,
   writRequirement,
+  style,
 }) => (
   <View style={styles.mainContainer}>
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.4}
-      style={[
-        styles.courseCard,
-        {
-          borderColor:
-            "rgb(" +
-            Math.floor(Math.random() * 256) +
-            "," +
-            Math.floor(Math.random() * 256) +
-            "," +
-            Math.floor(Math.random() * 256) +
-            ")",
-        },
-      ]}
-    >
+    <TouchableOpacity onPress={onPress} activeOpacity={0.4} style={style}>
       <View style={styles.container}>
         <Text style={styles.line1}>{courseCode}</Text>
         <Text numberOfLines={1} style={styles.line2}>
           {courseName}
         </Text>
         <View style={styles.line3Container}>
-          <Text style={styles.line3}>{grading} | </Text>
+          <Text style={styles.line3}>
+            {grading !== "" ? grading + " | " : grading}
+          </Text>
           <Text style={styles.line3}>{credit}</Text>
+          <Text style={styles.line3}>{shopping}</Text>
         </View>
         <View style={styles.line4Container}>
           <Text style={styles.line4}>{concentrationRequirement}</Text>

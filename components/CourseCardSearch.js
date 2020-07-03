@@ -4,6 +4,11 @@ import { StyleSheet, Text, View, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
+/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
+import CourseData from "./../data/CourseData.json";
+import Colors from "./../data/Colors";
+import CourseList from "./../data/CourseList";
+
 /*–––––––––––––––––––––––––COURSE CARD (SERACH) COMPONENT–––––––––––––––––––––––––*/
 const CourseCard = ({
   onPress,
@@ -11,27 +16,10 @@ const CourseCard = ({
   courseName,
   instructor,
   meetingTime,
-  navigation,
-  semesterCode,
+  style,
 }) => (
   <View style={styles.mainContainer}>
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.4}
-      style={[
-        styles.courseCard,
-        {
-          borderColor:
-            "rgb(" +
-            Math.floor(Math.random() * 256) +
-            "," +
-            Math.floor(Math.random() * 256) +
-            "," +
-            Math.floor(Math.random() * 256) +
-            ")",
-        },
-      ]}
-    >
+    <TouchableOpacity onPress={onPress} activeOpacity={0.4} style={style}>
       <View style={styles.container}>
         <Text style={styles.line1}>{courseCode}</Text>
         <Text numberOfLines={1} style={styles.line2}>

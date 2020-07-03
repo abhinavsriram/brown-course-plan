@@ -12,6 +12,8 @@ import "firebase/firestore";
 
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import CourseData from "./../data/CourseData.json";
+import Colors from "./../data/Colors";
+import CourseList from "./../data/CourseList";
 
 /*–––––––––––––––––––––––––SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
 class SemesterCard extends Component {
@@ -23,6 +25,7 @@ class SemesterCard extends Component {
       data: {},
       trigger: false,
       currentSemesterCode: 0,
+      navprops: this.props.navprops,
     };
   }
 
@@ -86,47 +89,175 @@ class SemesterCard extends Component {
     this.setState({ trigger: true });
   };
 
+  bubbleSort1 = (arr, mainArr) => {
+    var len = arr.length;
+    for (var i = len - 1; i >= 0; i--) {
+      for (var j = 1; j <= i; j++) {
+        if (arr[j - 1].toLowerCase() > arr[j].toLowerCase()) {
+          var temp = arr[j - 1];
+          var mainTemp = mainArr[j - 1];
+          arr[j - 1] = arr[j];
+          mainArr[j - 1] = mainArr[j];
+          arr[j] = temp;
+          mainArr[j] = mainTemp;
+        }
+      }
+    }
+    return mainArr;
+  };
+
   renderCourseCards = () => {
     var results = [];
+    var courseObjects = [];
+    var courseNames = [];
+    var sortedCourseObjects = [];
     if (this.state.trigger) {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
-        results.push(
-          <CourseCard
-            key={i}
-            courseCode={currentCourse["course_code"]}
-            courseName={
-              CourseData[this.state.currentSemesterCode][
-                currentCourse["course_code"]
-              ]["Course Name"]
-            }
-            grading={
-              currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
-            }
-            credit={
-              currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
-            }
-            concentrationRequirement={
-              currentCourse["concentration_1_requirement"]
-                ? "Concentration Requirement"
-                : ""
-            }
-            writRequirement={
-              currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
-            }
-          ></CourseCard>
-        );
+        courseObjects.push(currentCourse);
+        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+      }
+      sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
+      for (let i = 0; i < sortedCourseObjects.length; i++) {
+        currentCourse = sortedCourseObjects[i];
+        if (!currentCourse["shopping"]) {
+          results.push(
+            <CourseCard
+              key={i}
+              courseCode={currentCourse["course_code"]}
+              courseName={
+                CourseData[this.state.currentSemesterCode][
+                  currentCourse["course_code"]
+                ]["Course Name"]
+              }
+              grading={
+                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
+              }
+              credit={
+                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
+              }
+              concentrationRequirement={
+                currentCourse["concentration_1_requirement"]
+                  ? "Concentration Requirement"
+                  : ""
+              }
+              writRequirement={
+                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
+              }
+              style={[
+                styles.courseCard,
+                {
+                  borderColor:
+                    Colors[
+                      CourseList.indexOf(
+                        currentCourse["course_code"].split(" ")[0]
+                      )
+                    ],
+                },
+              ]}
+            ></CourseCard>
+          );
+        }
       }
       return results;
     }
+  };
+
+  returnCredits = () => {
+    var results = 0;
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        if (!currentCourse["shopping"] && currentCourse["full_half_credit"]) {
+          results = results + 1;
+        }
+        if (!currentCourse["shopping"] && !currentCourse["full_half_credit"]) {
+          results = results + 0.5;
+        }
+      }
+    }
+    return results;
+  };
+
+  returnEnrollmentUnits = () => {
+    if (this.returnCredits() >= 3) {
+      return 4;
+    } else {
+      return "N/A";
+    }
+  };
+
+  renderShoppingCourseCards = () => {
+    var results = [];
+    var courseObjects = [];
+    var courseNames = [];
+    var sortedCourseObjects = [];
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        courseObjects.push(currentCourse);
+        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+      }
+      sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
+      for (let i = 0; i < sortedCourseObjects.length; i++) {
+        currentCourse = sortedCourseObjects[i];
+        if (currentCourse["shopping"]) {
+          results.push(
+            <CourseCard
+              key={i}
+              courseCode={currentCourse["course_code"]}
+              courseName={
+                CourseData[this.state.currentSemesterCode][
+                  currentCourse["course_code"]
+                ]["Course Name"]
+              }
+              grading={
+                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
+              }
+              credit={
+                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
+              }
+              concentrationRequirement={
+                currentCourse["concentration_1_requirement"]
+                  ? "Concentration Requirement"
+                  : ""
+              }
+              writRequirement={
+                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
+              }
+              style={[
+                styles.courseCard,
+                {
+                  borderColor: "#E3E3E3",
+                },
+              ]}
+            ></CourseCard>
+          );
+        }
+      }
+    }
+    return results;
   };
 
   render() {
     return (
       <View style={styles.mainContainer}>
         <Text style={styles.title}>{this.state.title}</Text>
+        <Text style={styles.credits}>
+          Course Credits: {this.returnCredits()}, Enrollment Units:{" "}
+          {this.returnEnrollmentUnits()}
+        </Text>
         {this.renderCourseCards()}
-        <AddCourseCard></AddCourseCard>
+        <AddCourseCard
+          navprops={this.state.navprops}
+          semester={this.state.title}
+        ></AddCourseCard>
+        <Text style={styles.shoppingTitle}>Shopping</Text>
+        {this.renderShoppingCourseCards()}
+        <AddCourseCard
+          navprops={this.state.navprops}
+          semester={this.state.title}
+        ></AddCourseCard>
       </View>
     );
   }
@@ -168,6 +299,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#ABABAB",
+  },
+  courseCard: {
+    height: 100,
+    backgroundColor: "#fafafa",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 0.85 * Dimensions.get("window").width,
+  },
+  shoppingTitle: {
+    marginLeft: 10,
+    color: "#757575",
+    fontSize: 24,
+    fontStyle: "italic",
+    fontWeight: "700",
+    alignSelf: "stretch",
+    justifyContent: "space-around",
+    marginBottom: 4,
+  },
+  credits: {
+    marginLeft: 10,
+    color: "#757575",
+    fontSize: 16,
+    fontWeight: "600",
+    alignSelf: "stretch",
+    justifyContent: "space-around",
+    marginBottom: 4,
   },
 });
 
