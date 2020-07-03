@@ -90,6 +90,7 @@ class CreateProfileScreen2 extends Component {
       this.state.classYearPickerValue !== "Click to Choose" &&
       this.state.semesterLevelPickerValue !== "Click to Choose"
     ) {
+      this.writeToDatabase();
       this.props.navigation.navigate("VerificationScreen");
     } else {
       alert("Please Choose All Values");
@@ -369,7 +370,6 @@ class CreateProfileScreen2 extends Component {
         <CreateProfileButton
           title="Let's Go"
           onPress={() => {
-            this.writeToDatabase();
             this.navigateToNextScreen();
           }}
         ></CreateProfileButton>
