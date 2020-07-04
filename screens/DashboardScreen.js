@@ -459,7 +459,7 @@ class DashboardScreen extends Component {
       if (this.state.semestersList[i]) {
         results.push(
           <SemesterPiece
-            key={Math.random()}
+            key={i}
             title={this.state.semestersList[i]}
             navprops={this.props}
             visibility={true}
@@ -627,7 +627,6 @@ class DashboardScreen extends Component {
   );
 
   handleRefresh(bool) {
-    console.log("boolean is reset to", bool);
     this.setState({ refresh: bool });
   }
 
@@ -678,7 +677,7 @@ class DashboardScreen extends Component {
             {/* this is the pop-up that always exists but remains invisible until add semester is clicked */}
             <this.AddSemesterPopUp></this.AddSemesterPopUp>
             {/* this function returns semester cards based on the number the user has created */}
-            {this.state.semestersList.map((semester) => {
+            {this.state.semestersList.map((semester, index) => {
               return (
                 <SemesterCard
                   key={Math.random()}

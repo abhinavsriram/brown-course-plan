@@ -28,14 +28,15 @@ const pullInformationFromDatabase = () => {
   var firstName;
   var lastName;
   var fullName;
+  var photoURL;
   var result = ["Placeholder Name", "Placeholder Result"];
 
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       email = user.email;
       userID = email.split("@")[0];
-      console.log("email is", email);
-      console.log("userID is", userID);
+      // console.log("email is", email);
+      // console.log("userID is", userID);
       if (email !== "" && userID !== "") {
         firebase
           .firestore()
@@ -44,12 +45,14 @@ const pullInformationFromDatabase = () => {
           .get()
           .then((doc) => {
             if (doc.exists) {
-              console.log("reached");
+              // console.log("reached");
               firstName = doc.data().first_name;
               lastName = doc.data().last_name;
+              photoURL = doc.data().profile_picture_url;
               fullName = firstName + " " + lastName;
               result.push(fullName);
               result.push(email);
+              result.push(photoURL);
               return result;
             } else {
               console.log("no data accquired");
@@ -119,33 +122,38 @@ const DrawerNavigator = createDrawerNavigator(
     },
   },
   {
-    contentComponent: (props) => (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.profilePictureContainer}>
-          <Image
-            style={styles.profilePicture}
-            source={require("./../assets/dp-placeholder.jpg")}
-          ></Image>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Hello,</Text>
-          <Text style={styles.text}>
-            {pullInformationFromDatabase()[0]}!
-          </Text>
-          <Text style={styles.email}>
-            {pullInformationFromDatabase()[1]}
-          </Text>
-        </View>
-        <ScrollView>
-          <View style={styles.items}>
-            <DrawerItems
-              {...props}
-              labelStyle={{ fontSize: 15, fontWeight: "400" }}
-            />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    ),
+    contentComponent: (props) => {
+      var flag = false;
+      if (flag) {
+        return (
+          <SafeAreaView style={styles.container}>
+            <View style={styles.profilePictureContainer}>
+              <Image
+                style={styles.profilePicture}
+                source={require("./../assets/dp-placeholder.jpg")}
+              ></Image>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Hello,</Text>
+              <Text style={styles.text}>
+                {pullInformationFromDatabase()[0]}!
+              </Text>
+              <Text style={styles.email}>
+                {pullInformationFromDatabase()[1]}
+              </Text>
+            </View>
+            <ScrollView>
+              <View style={styles.items}>
+                <DrawerItems
+                  {...props}
+                  labelStyle={{ fontSize: 15, fontWeight: "400" }}
+                />
+              </View>
+            </ScrollView>
+          </SafeAreaView>
+        );
+      }
+    },
   }
 );
 
