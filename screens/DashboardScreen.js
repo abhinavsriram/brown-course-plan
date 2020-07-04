@@ -36,6 +36,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 class DashboardScreen extends Component {
   constructor(props) {
     super(props);
+    this.handleRefresh = this.handleRefresh.bind(this);
     this.state = {
       semestersList: [],
       isModalVisible: false,
@@ -51,6 +52,7 @@ class DashboardScreen extends Component {
       degree: "",
       concentration_1: "",
       concentration_2: "",
+      refresh: false,
     };
   }
 
@@ -460,6 +462,19 @@ class DashboardScreen extends Component {
             key={Math.random()}
             title={this.state.semestersList[i]}
             navprops={this.props}
+            visibility={true}
+          ></SemesterPiece>
+        );
+      }
+    }
+    if (results.length < 4) {
+      while (results.length < 4) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[0]}
+            navprops={this.props}
+            visibility={false}
           ></SemesterPiece>
         );
       }
@@ -476,6 +491,18 @@ class DashboardScreen extends Component {
             key={Math.random()}
             title={this.state.semestersList[i]}
             navprops={this.props}
+          ></SemesterPiece>
+        );
+      }
+    }
+    if (results.length < 4) {
+      while (results.length < 4) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[0]}
+            navprops={this.props}
+            visibility={false}
           ></SemesterPiece>
         );
       }
@@ -585,8 +612,12 @@ class DashboardScreen extends Component {
             scrollEnabled={false}
           >
             <View style={summaryStyles.container}>
-              <View style={summaryStyles.row1}>{this.createRow1Semesters()}</View>
-              <View style={summaryStyles.row2}>{this.createRow2Semesters()}</View>
+              <View style={summaryStyles.row1}>
+                {this.createRow1Semesters()}
+              </View>
+              <View style={summaryStyles.row2}>
+                {this.createRow2Semesters()}
+              </View>
               {/* <View style={summaryStyles.row3}>{this.createRow3Semesters()}</View> */}
             </View>
           </ScrollView>
@@ -594,6 +625,18 @@ class DashboardScreen extends Component {
       </Modal>
     </View>
   );
+
+  handleRefresh(bool) {
+    console.log("boolean is reset to", bool);
+    this.setState({ refresh: bool });
+  }
+
+  performRefresh = () => {
+    if (this.state.refresh) {
+      this.getUserID();
+      this.setState({ refresh: false });
+    }
+  };
 
   /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
@@ -618,6 +661,8 @@ class DashboardScreen extends Component {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.container}
+          onScroll={this.performRefresh()}
+          scrollEventThrottle={0}
         >
           {/* /*–––––––––––––––––––––––––CARDS–––––––––––––––––––––––––*/}
           <View>
@@ -639,7 +684,7 @@ class DashboardScreen extends Component {
                   key={Math.random()}
                   title={semester}
                   navprops={this.props}
-                  function={this.getUserID()}
+                  refresh={this.handleRefresh}
                 ></SemesterCard>
               );
             })}
