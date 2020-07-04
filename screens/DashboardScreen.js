@@ -12,10 +12,8 @@ import {
   Button,
 } from "react-native";
 import { Header } from "react-native-elements";
-
-import { Ionicons } from '@expo/vector-icons';
-import { withNavigation } from 'react-navigation';
-import { DrawerActions } from 'react-navigation-drawer';
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions } from "react-navigation-drawer";
 
 /*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
@@ -24,9 +22,15 @@ import "firebase/firestore";
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import SemesterCard from "./../components/SemesterCard";
 import AddSemesterCard from "./../components/AddSemesterCard";
+import CourseList from "./../data/CourseList";
+import CoursePiece from "./../components/CoursePiece";
+import SemesterPiece from "./../components/SemesterPiece";
 
 /*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
+import courseList from "./../data/CourseList";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 /*–––––––––––––––––––––––––DASHBOARD SCREEN COMPONENT–––––––––––––––––––––––––*/
 class DashboardScreen extends Component {
@@ -41,6 +45,12 @@ class DashboardScreen extends Component {
       yearPickerValue: "Click to Choose",
       errorMessage: null,
       userID: "",
+      triggerDrawer: false,
+      isSummaryVisible: false,
+      firstName: "",
+      degree: "",
+      concentration_1: "",
+      concentration_2: "",
     };
   }
 
@@ -51,6 +61,8 @@ class DashboardScreen extends Component {
         const userID = email.split("@")[0];
         this.setState({ userID: userID }, () => {
           this.pullSemestersFromDatabase();
+          this.getNameFromDatabase();
+          this.getAcademicObjective();
         });
       } else {
       }
@@ -90,6 +102,12 @@ class DashboardScreen extends Component {
 
   componentDidMount() {
     this.getUserID();
+    // var randomColor = require("randomcolor");
+    // const colors = randomColor({
+    //   count: 95,
+    //   luminosity: "dark",
+    // });
+    // console.log(colors);
     this.props.navigation.addListener("willFocus", () => this.getUserID());
   }
 
@@ -433,26 +451,167 @@ class DashboardScreen extends Component {
     </View>
   );
 
+  createRow1Semesters = () => {
+    var results = [];
+    for (let i = 0; i < 4; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+          ></SemesterPiece>
+        );
+      }
+    }
+    return results;
+  };
+
+  createRow2Semesters = () => {
+    var results = [];
+    for (let i = 4; i < 8; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+          ></SemesterPiece>
+        );
+      }
+    }
+    return results;
+  };
+
+  createRow3Semesters = () => {
+    var results = [];
+    for (let i = 8; i < 12; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+          ></SemesterPiece>
+        );
+      }
+    }
+    return results;
+  };
+
+  getNameFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ firstName: doc.data().first_name + "'s" });
+        } else {
+          console.log("no data accquired");
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  ShowHideSummaryPopUp = () => {
+    if (this.state.isSummaryVisible) {
+      this.setState({ isSummaryVisible: false });
+    } else {
+      this.setState({ isSummaryVisible: true });
+    }
+  };
+
+  getAcademicObjective = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ degree: doc.data().degree }, () => {
+            if (this.state.degree === "Sc.B.") {
+              this.setState({ degree: "Sc.B. (Bachelor of Science): " });
+            } else {
+              this.setState({ degree: "A.B. (Bachelor of Arts): " });
+            }
+          });
+          this.setState({ concentration_1: doc.data().concentration });
+          if (doc.data().second_concentration !== undefined) {
+            this.setState({
+              concentration_2: " and " + doc.data().second_concentration,
+            });
+          }
+        } else {
+          console.log("no data accquired");
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  SummaryPopUp = () => (
+    <View style={summaryStyles.container}>
+      <Modal visible={this.state.isSummaryVisible}>
+        <View style={summaryStyles.container}>
+          <Header
+            backgroundColor="#4E342E"
+            leftComponent={
+              <TouchableOpacity onPress={() => this.ShowHideSummaryPopUp()}>
+                <Icon name="ios-arrow-back" color="#fafafa" size={35} />
+              </TouchableOpacity>
+            }
+            centerComponent={
+              <Text style={summaryStyles.title}>The Big Picture</Text>
+            }
+          ></Header>
+          <Text style={summaryStyles.academicObjectiveTitle}>
+            Academic Objective
+          </Text>
+          <Text style={summaryStyles.academicObjective}>
+            {this.state.degree}
+          </Text>
+          <Text style={summaryStyles.academicObjectivePt2}>
+            {this.state.concentration_1 + this.state.concentration_2}
+          </Text>
+          <ScrollView
+            // contentContainerStyle={summaryStyles.container}
+            directionalLockEnabled={true}
+            scrollEnabled={false}
+          >
+            <View style={summaryStyles.container}>
+              <View style={summaryStyles.row1}>{this.createRow1Semesters()}</View>
+              <View style={summaryStyles.row2}>{this.createRow2Semesters()}</View>
+              {/* <View style={summaryStyles.row3}>{this.createRow3Semesters()}</View> */}
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+    </View>
+  );
+
   /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
       <View style={{ flex: 1 }}>
         {/* /*–––––––––––––––––––––––––HEADER–––––––––––––––––––––––––*/}
-        {/* leftComponent={{ icon: "menu", color: "#fff", size: 30 }} */}
         <Header
           backgroundColor="#4E342E"
           centerComponent={<Text style={styles.title}>Dashboard</Text>}
         >
-          <TouchableOpacity style={styles.trigger}
+          <TouchableOpacity
+            style={styles.trigger}
             onPress={() => {
-              this.props.navigation.dispatch(DrawerActions.openDrawer())
+              this.props.navigation.dispatch(DrawerActions.openDrawer());
+              this.setState({ triggerDrawer: true });
             }}
           >
-            <Ionicons
-              name={'md-arrow-round-forward'}
-              size={30}
-              color={'white'}
-            />
+            <Ionicons name={"md-menu"} size={32} color={"white"} />
           </TouchableOpacity>
         </Header>
         {/* /*–––––––––––––––––––––––––SCROLL VIEW–––––––––––––––––––––––––*/}
@@ -460,19 +619,17 @@ class DashboardScreen extends Component {
           style={{ flex: 1 }}
           contentContainerStyle={styles.container}
         >
-          {/* /*–––––––––––––––––––––––––debugging buttons–––––––––––––––––––––––––*/}
-          {/* <View style={{ flexDirection: "row" }}>
-            <Button
-              title="Sign Out"
-              color="#4E342E"
-              onPress={() => {
-                this.props.navigation.navigate("LandingScreen");
-                firebase.auth().signOut();
-              }}
-            ></Button>
-          </View> */}
           {/* /*–––––––––––––––––––––––––CARDS–––––––––––––––––––––––––*/}
           <View>
+            <CustomButton
+              style={summaryStyles.summaryButtonContainer}
+              textStyle={summaryStyles.summaryButtonText}
+              title={"The Big Picture"}
+              onPress={() => {
+                this.ShowHideSummaryPopUp();
+                this.getAcademicObjective();
+              }}
+            ></CustomButton>
             {/* this is the pop-up that always exists but remains invisible until add semester is clicked */}
             <this.AddSemesterPopUp></this.AddSemesterPopUp>
             {/* this function returns semester cards based on the number the user has created */}
@@ -481,6 +638,8 @@ class DashboardScreen extends Component {
                 <SemesterCard
                   key={Math.random()}
                   title={semester}
+                  navprops={this.props}
+                  function={this.getUserID()}
                 ></SemesterCard>
               );
             })}
@@ -488,6 +647,7 @@ class DashboardScreen extends Component {
             <AddSemesterCard
               onPress={() => this.ShowHidePopUp()}
             ></AddSemesterCard>
+            <this.SummaryPopUp></this.SummaryPopUp>
           </View>
         </ScrollView>
       </View>
@@ -495,14 +655,91 @@ class DashboardScreen extends Component {
   }
 }
 
+const summaryStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 28,
+    color: "#fafafa",
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  row1: {
+    flex: 1,
+    flexDirection: "row",
+    top: "14%",
+  },
+  row2: {
+    flex: 1,
+    flexDirection: "row",
+    top: "7%",
+  },
+  // row3: {
+  //   flex: 1,
+  //   flexDirection: "row",
+  //   top: "7%",
+  // },
+  summaryButtonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E3E3E3",
+    borderRadius: 15,
+    paddingVertical: 17,
+    paddingHorizontal: 12,
+    width: 0.9 * Dimensions.get("window").width,
+    top: 10,
+    marginBottom: 10,
+    zIndex: 3,
+  },
+  summaryButtonText: {
+    fontSize: 18,
+    color: "#4E342E",
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+  academicObjectiveTitle: {
+    color: "#4E342E",
+    fontWeight: "bold",
+    fontStyle: "italic",
+    margin: 7,
+    fontSize: 15,
+  },
+  academicObjective: {
+    position: "absolute",
+    top: "13.9%",
+    zIndex: 5,
+    color: "#4E342E",
+    marginHorizontal: 20,
+    fontSize: 13,
+  },
+  academicObjectivePt2: {
+    position: "absolute",
+    top: "16%",
+    zIndex: 5,
+    color: "#4E342E",
+    marginHorizontal: 20,
+    fontSize: 13,
+  },
+});
+
 /*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CreateProfileButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
     style={popUpStyles.createProfileButtonContainer}
-    activeOpacity={0.8}
+    activeOpacity={0.6}
   >
     <Text style={popUpStyles.createProfileButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
+
+/*–––––––––––––––––––––––––CUSTOM BUTTON 2 COMPONENT–––––––––––––––––––––––––*/
+const CustomButton = ({ onPress, title, style, textStyle }) => (
+  <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.8}>
+    <Text style={textStyle}>{title}</Text>
   </TouchableOpacity>
 );
 
