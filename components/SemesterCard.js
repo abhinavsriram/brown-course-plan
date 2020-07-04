@@ -1,6 +1,7 @@
 /*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
+import { StyleSheet, Text, View, Button, Dimensions, Modal, Header, TouchableOpacity, ScrollView, Alert } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import CourseCard from "./../components/CourseCardDashboard";
@@ -26,6 +27,9 @@ class SemesterCard extends Component {
       trigger: false,
       currentSemesterCode: 0,
       navprops: this.props.navprops,
+      function: this.props.function,
+      // courseCode: "Placeholder Course",
+      // isCourseInfoModalVisible: false,
     };
   }
 
@@ -106,6 +110,201 @@ class SemesterCard extends Component {
     return mainArr;
   };
 
+  // showHideCourseInfoPopUp = (courseCode) => {
+  //   this.setState({ courseCode: courseCode }, () => {
+  //     if (this.state.isCourseInfoModalVisible === true) {
+  //       this.setState({ isCourseInfoModalVisible: false });
+  //     } else {
+  //       this.setState({ isCourseInfoModalVisible: true });
+  //     }
+  //   });
+  // };
+
+  // closeCourseInfoPopUp = () => {
+  //   if (this.state.isCourseInfoModalVisible === true) {
+  //     this.setState({ isCourseInfoModalVisible: false });
+  //   }
+  // };
+
+  // createCourseInfoPopUp = () => {
+  //   return (
+  //     <View style={popUpStyles.container}>
+  //       <Modal visible={this.state.isCourseInfoModalVisible}>
+  //         <View style={popUpStyles.modal}>
+  //           <Header
+  //             backgroundColor="#4E342E"
+  //             leftComponent={
+  //               <TouchableOpacity onPress={() => this.closeCourseInfoPopUp()}>
+  //                 <Icon name="ios-arrow-back" color="#fafafa" size={35} />
+  //               </TouchableOpacity>
+  //             }
+  //             centerComponent={
+  //               <Text style={popUpStyles.headerTitle}>
+  //                 {this.state.courseCode}
+  //               </Text>
+  //             }
+  //           ></Header>
+  //           <ScrollView contentContainerStyle={popUpStyles.scrollContainer}>
+  //             <Text style={popUpStyles.courseName}>
+  //               {
+  //                 CourseData[this.state.currentSemesterCode][
+  //                 this.state.courseCode
+  //                 ]["Course Name"]
+  //               }
+  //             </Text>
+  //             <Text style={popUpStyles.semester}>
+  //               {this.state.semesterPickerValue}
+  //             </Text>
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Course Capacity"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Course Capacity"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Course Description"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Course Description:</Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Course Description"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Course Restrictions"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>
+  //                     Course Restrictions:
+  //                 </Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Course Restrictions"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Critical Review"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+  //                   <TouchableOpacity
+  //                     onPress={() =>
+  //                       Linking.openURL(
+  //                         CourseData[this.state.currentSemesterCode][
+  //                         this.state.courseCode
+  //                         ]["Critical Review"]
+  //                       )
+  //                     }
+  //                   >
+  //                     <Text
+  //                       style={{
+  //                         textDecorationLine: "underline",
+  //                         marginTop: 3,
+  //                         color: "#757575",
+  //                         fontSize: 17,
+  //                       }}
+  //                     >
+  //                       {
+  //                         CourseData[this.state.currentSemesterCode][
+  //                         this.state.courseCode
+  //                         ]["Critical Review"]
+  //                       }
+  //                     </Text>
+  //                   </TouchableOpacity>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Exam Time"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Final Exam:</Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Exam Time"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Course Meeting Time"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>
+  //                     Schedule and Location:
+  //                 </Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Course Meeting Time"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Course Instructor"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Instructor:</Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Course Instructor"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             {CourseData[this.state.currentSemesterCode][
+  //               this.state.courseCode
+  //             ]["Section(s)"] !== "" && (
+  //                 <React.Fragment>
+  //                   <Text style={popUpStyles.subHeader}>Sections:</Text>
+  //                   <Text style={popUpStyles.description}>
+  //                     {
+  //                       CourseData[this.state.currentSemesterCode][
+  //                       this.state.courseCode
+  //                       ]["Section(s)"]
+  //                     }
+  //                   </Text>
+  //                 </React.Fragment>
+  //               )}
+  //             <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
+  //             <Text style={popUpStyles.description}>Coming Soon...</Text>
+  //             <View
+  //               style={{
+  //                 alignItems: "center",
+  //                 marginTop: 15,
+  //                 marginBottom: 10,
+  //               }}
+  //             >
+  //             </View>
+  //           </ScrollView>
+  //         </View>
+  //       </Modal>
+  //     </View>
+  //   );
+  // };
+
   renderCourseCards = () => {
     var results = [];
     var courseObjects = [];
@@ -125,9 +324,10 @@ class SemesterCard extends Component {
             <CourseCard
               key={i}
               courseCode={currentCourse["course_code"]}
+              // onPress={() => this.showHideCourseInfoPopUp["course_code"]}
               courseName={
                 CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
+                currentCourse["course_code"]
                 ]["Course Name"]
               }
               grading={
@@ -149,9 +349,9 @@ class SemesterCard extends Component {
                 {
                   borderColor:
                     Colors[
-                      CourseList.indexOf(
-                        currentCourse["course_code"].split(" ")[0]
-                      )
+                    CourseList.indexOf(
+                      currentCourse["course_code"].split(" ")[0]
+                    )
                     ],
                 },
               ]}
@@ -208,7 +408,7 @@ class SemesterCard extends Component {
               courseCode={currentCourse["course_code"]}
               courseName={
                 CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
+                currentCourse["course_code"]
                 ]["Course Name"]
               }
               grading={
@@ -239,26 +439,86 @@ class SemesterCard extends Component {
     return results;
   };
 
+  deleteSemesterFromDatabase1 = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .delete()
+      .then(function () {
+        console.log("Document successfully deleted!");
+      }).catch(function (error) {
+        console.error("Error removing document: ", error);
+      })
+  }
+
+  deleteSemesterFromDatabase2 = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc("Semesters List")
+      .update({
+        "semestersList":
+          firebase.firestore.FieldValue.arrayRemove(this.state.title)
+      })
+      .then(function () {
+        console.log("Document successfully deleted!");
+      }).catch(function (error) {
+        console.error("Error removing document: ", error);
+      })
+  }
+
+  deleteSemesterAlert = () => {
+    Alert.alert(
+      "Delete Semester",
+      "Are you sure you want to delete the following Semester: " + this.state.title + "?",
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "OK", onPress: () => {
+            this.deleteSemesterFromDatabase1();
+            this.deleteSemesterFromDatabase2();
+            this.state.function;
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
   render() {
     return (
-      <View style={styles.mainContainer}>
-        <Text style={styles.title}>{this.state.title}</Text>
-        <Text style={styles.credits}>
-          Course Credits: {this.returnCredits()}, Enrollment Units:{" "}
-          {this.returnEnrollmentUnits()}
-        </Text>
-        {this.renderCourseCards()}
-        <AddCourseCard
-          navprops={this.state.navprops}
-          semester={this.state.title}
-        ></AddCourseCard>
-        <Text style={styles.shoppingTitle}>Shopping</Text>
-        {this.renderShoppingCourseCards()}
-        <AddCourseCard
-          navprops={this.state.navprops}
-          semester={this.state.title}
-        ></AddCourseCard>
-      </View>
+      <TouchableOpacity
+        onLongPress={() => {
+          this.deleteSemesterAlert();
+        }
+        }>
+        <View style={styles.mainContainer}>
+          <Text style={styles.title}>{this.state.title}</Text>
+          <Text style={styles.credits}>
+            Course Credits: {this.returnCredits()}, Enrollment Units:{" "}
+            {this.returnEnrollmentUnits()}
+          </Text>
+          {this.renderCourseCards()}
+          <AddCourseCard
+            navprops={this.state.navprops}
+            semester={this.state.title}
+          ></AddCourseCard>
+          <Text style={styles.shoppingTitle}>Shopping</Text>
+          {this.renderShoppingCourseCards()}
+          <AddCourseCard
+            navprops={this.state.navprops}
+            semester={this.state.title}
+          ></AddCourseCard>
+          {/* <this.createCourseInfoPopUp></this.createCourseInfoPopUp> */}
+        </View>
+      </TouchableOpacity>
     );
   }
 }
@@ -325,6 +585,72 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     justifyContent: "space-around",
     marginBottom: 4,
+  },
+});
+
+const popUpStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  scrollContainer: {
+    backgroundColor: "#fff",
+    padding: 14,
+  },
+  headerTitle: {
+    fontSize: 30,
+    color: "#fafafa",
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  courseName: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#757575",
+  },
+  semester: {
+    marginTop: 3,
+    fontWeight: "bold",
+    color: "#757575",
+    fontSize: 23,
+  },
+  subHeader: {
+    marginTop: 15,
+    fontWeight: "bold",
+    color: "#757575",
+    fontSize: 20,
+  },
+  description: {
+    marginTop: 3,
+    color: "#757575",
+    fontSize: 17,
+  },
+  customButtonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#5ED483",
+    borderRadius: 15,
+    paddingVertical: 17,
+    paddingHorizontal: 12,
+    width: "80%",
+  },
+  customButtonText: {
+    fontSize: 18,
+    color: "#fafafa",
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+  backArrow: {
+    position: "absolute",
+    top: "6%",
+    left: "6%",
+    zIndex: 2,
   },
 });
 
