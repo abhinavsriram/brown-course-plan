@@ -14,9 +14,15 @@ const CourseCard = ({
   concentrationRequirement,
   writRequirement,
   style,
+  onLongPress,
 }) => (
   <View style={styles.mainContainer}>
-    <TouchableOpacity onPress={onPress} activeOpacity={0.4} style={style}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.4}
+      style={style}
+      onLongPress={onLongPress}
+    >
       <View style={styles.container}>
         <Text style={styles.line1}>{courseCode}</Text>
         <Text numberOfLines={1} style={styles.line2}>

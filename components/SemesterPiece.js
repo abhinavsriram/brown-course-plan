@@ -22,6 +22,7 @@ class SemesterPiece extends Component {
       trigger: false,
       currentSemesterCode: 0,
       navprops: this.props.navprops,
+      visibility: this.props.visibility,
     };
   }
 
@@ -136,21 +137,41 @@ class SemesterPiece extends Component {
 
   render() {
     return (
-      <View style={styles.mainContainer}>
-        <Text style={styles.title}>{this.state.title}</Text>
-        <View style={{ flexDirection: "column" }}>
-          {this.renderCourseCards()}
-        </View>
-        <Text style={styles.hours1}>Avg. Hrs: 12</Text>
-        <Text style={styles.hours2}>Max. Hrs: 12</Text>
-      </View>
+      <React.Fragment>
+        {this.state.visibility ? (
+          <View style={[styles.mainContainer, { borderColor: "#E3E3E3" }]}>
+            {this.state.visibility ? (
+              <React.Fragment>
+                <Text style={styles.title}>{this.state.title}</Text>
+                <View style={{ flexDirection: "column" }}>
+                  {this.renderCourseCards()}
+                </View>
+                <Text style={styles.hours1}>Avg. Hrs: 12</Text>
+                <Text style={styles.hours2}>Max. Hrs: 12</Text>
+              </React.Fragment>
+            ) : null}
+          </View>
+        ) : (
+          <View style={[styles.mainContainer, { borderColor: "#fff" }]}>
+            {this.state.visibility ? (
+              <React.Fragment>
+                <Text style={styles.title}>{this.state.title}</Text>
+                <View style={{ flexDirection: "column" }}>
+                  {this.renderCourseCards()}
+                </View>
+                <Text style={styles.hours1}>Avg. Hrs: 12</Text>
+                <Text style={styles.hours2}>Max. Hrs: 12</Text>
+              </React.Fragment>
+            ) : null}
+          </View>
+        )}
+      </React.Fragment>
     );
   }
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
-    borderColor: "#E3E3E3",
     borderWidth: 2,
     margin: 2,
     height: 253,
