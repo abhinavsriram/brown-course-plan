@@ -325,16 +325,16 @@ class SemesterCard extends Component {
         courseNames.push(currentCourse["course_code"].split(" ")[0]);
       }
       sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
-      for (let i = 0; i < sortedCourseObjects.length; i++) {
-        currentCourse = sortedCourseObjects[i];
+      sortedCourseObjects.map((currentCourse, index) => {
         if (!currentCourse["shopping"]) {
           results.push(
             <CourseCard
-              key={i}
+              key={index}
               courseCode={currentCourse["course_code"]}
-              onPress={() =>
-                this.showHideCourseInfoPopUp(currentCourse["course_code"])
-              }
+              onPress={() => {
+                this.determineSemesterCode();
+                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
+              }}
               courseName={
                 CourseData[this.state.currentSemesterCode][
                   currentCourse["course_code"]
@@ -368,7 +368,7 @@ class SemesterCard extends Component {
             ></CourseCard>
           );
         }
-      }
+      });
       return results;
     }
   };
@@ -409,17 +409,16 @@ class SemesterCard extends Component {
         courseNames.push(currentCourse["course_code"].split(" ")[0]);
       }
       sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
-      for (let i = 0; i < sortedCourseObjects.length; i++) {
-        currentCourse = sortedCourseObjects[i];
+      sortedCourseObjects.map((currentCourse, index) => {
         if (currentCourse["shopping"]) {
           results.push(
             <CourseCard
-              key={i}
+              key={index}
               courseCode={currentCourse["course_code"]}
-              onPress={() =>
-                this.showHideCourseInfoPopUp(currentCourse["course_code"])
-              }
-              onLongPress={() => console.log("WORKS")}
+              onPress={() => {
+                this.determineSemesterCode();
+                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
+              }}
               courseName={
                 CourseData[this.state.currentSemesterCode][
                   currentCourse["course_code"]
@@ -448,9 +447,9 @@ class SemesterCard extends Component {
             ></CourseCard>
           );
         }
-      }
+      });
+      return results;
     }
-    return results;
   };
 
   deleteSemesterFromDatabase1 = () => {
@@ -481,9 +480,7 @@ class SemesterCard extends Component {
           this.state.title
         ),
       })
-      .then(function () {
-        console.log("Document successfully deleted!");
-      })
+      .then(function () {})
       .catch(function (error) {
         console.error("Error removing document: ", error);
       });
@@ -522,6 +519,7 @@ class SemesterCard extends Component {
             this.deleteSemesterAlert();
           }}
           delayLongPress={1000}
+          style={{ flex: 1 }}
         >
           <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.credits}>
@@ -529,20 +527,21 @@ class SemesterCard extends Component {
             {this.returnEnrollmentUnits()}
           </Text>
         </TouchableOpacity>
-        {this.renderCourseCards()}
-        <AddCourseCard
-          navprops={this.state.navprops}
-          semester={this.state.title}
-        ></AddCourseCard>
-        <Text style={styles.shoppingTitle}>Shopping</Text>
-        {this.renderShoppingCourseCards()}
-        <AddCourseCard
-          navprops={this.state.navprops}
-          semester={this.state.title}
-        ></AddCourseCard>
-        <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
+        <View style={{ alignItems: "center" }}>
+          {this.renderCourseCards()}
+          <AddCourseCard
+            navprops={this.state.navprops}
+            semester={this.state.title}
+          ></AddCourseCard>
+          <Text style={styles.shoppingTitle}>Shopping</Text>
+          {this.renderShoppingCourseCards()}
+          <AddCourseCard
+            navprops={this.state.navprops}
+            semester={this.state.title}
+          ></AddCourseCard>
+          <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
+        </View>
       </View>
-      // </TouchableOpacity>
     );
   }
 }
@@ -554,7 +553,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 15,
     width: 0.9 * Dimensions.get("window").width,
-    alignItems: "center",
     marginVertical: 10,
   },
   title: {
