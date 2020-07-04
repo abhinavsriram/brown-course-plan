@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { Header } from "react-native-elements";
+import SwitchSelector from "react-native-switch-selector";
 import Icon from "react-native-vector-icons/Ionicons";
 
 /*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
@@ -41,6 +42,17 @@ class SemesterCard extends Component {
       function: this.props.function,
       courseCode: "Placeholder Course",
       isCourseInfoModalVisible: false,
+      isCourseAddModalVisible: false,
+      popUpGradeMode: true,
+      popUpConcentrationRequirement: true,
+      popUpWritRequirement: true,
+      popUpfullhalfCredit: true,
+      initialpopUpShopping: 1,
+      initialpopUpGradeMode: 1,
+      initialpopUpConcentrationRequirement: 1,
+      initialpopUpWritRequirement: 1,
+      initialpopUpfullhalfCredit: 1,
+      initialpopUpShopping: 1,
     };
   }
 
@@ -159,7 +171,7 @@ class SemesterCard extends Component {
               <Text style={popUpStyles.courseName}>
                 {
                   CourseData[this.state.currentSemesterCode][
-                    this.state.courseCode
+                  this.state.courseCode
                   ]["Course Name"]
                 }
               </Text>
@@ -167,136 +179,136 @@ class SemesterCard extends Component {
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Capacity"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Capacity"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Capacity"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Description"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Description:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Course Description:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Description"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Description"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Restrictions"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
-                    Course Restrictions:
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>
+                      Course Restrictions:
                   </Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Restrictions"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Restrictions"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Critical Review"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Critical Review:</Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      Linking.openURL(
-                        CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL(
+                          CourseData[this.state.currentSemesterCode][
                           this.state.courseCode
-                        ]["Critical Review"]
-                      )
-                    }
-                  >
-                    <Text
-                      style={{
-                        textDecorationLine: "underline",
-                        marginTop: 3,
-                        color: "#757575",
-                        fontSize: 17,
-                      }}
-                    >
-                      {
-                        CourseData[this.state.currentSemesterCode][
-                          this.state.courseCode
-                        ]["Critical Review"]
+                          ]["Critical Review"]
+                        )
                       }
-                    </Text>
-                  </TouchableOpacity>
-                </React.Fragment>
-              )}
+                    >
+                      <Text
+                        style={{
+                          textDecorationLine: "underline",
+                          marginTop: 3,
+                          color: "#757575",
+                          fontSize: 17,
+                        }}
+                      >
+                        {
+                          CourseData[this.state.currentSemesterCode][
+                          this.state.courseCode
+                          ]["Critical Review"]
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Exam Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Final Exam:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Final Exam:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Exam Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Exam Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Meeting Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
-                    Schedule and Location:
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>
+                      Schedule and Location:
                   </Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Meeting Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Meeting Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Instructor"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Instructor:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Instructor:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Instructor"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Instructor"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Section(s)"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Sections:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Sections:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Section(s)"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Section(s)"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
               <Text style={popUpStyles.description}>Coming Soon...</Text>
               <View
@@ -335,9 +347,15 @@ class SemesterCard extends Component {
                 this.determineSemesterCode();
                 this.showHideCourseInfoPopUp(currentCourse["course_code"]);
               }}
+              onLongPress={() => {
+                this.resetState();
+                console.log(currentCourse["course_code"])
+                this.showHideCourseAddPopUp(currentCourse["course_code"]);
+              }
+              }
               courseName={
                 CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
+                currentCourse["course_code"]
                 ]["Course Name"]
               }
               grading={
@@ -359,9 +377,9 @@ class SemesterCard extends Component {
                 {
                   borderColor:
                     Colors[
-                      CourseList.indexOf(
-                        currentCourse["course_code"].split(" ")[0]
-                      )
+                    CourseList.indexOf(
+                      currentCourse["course_code"].split(" ")[0]
+                    )
                     ],
                 },
               ]}
@@ -419,9 +437,14 @@ class SemesterCard extends Component {
                 this.determineSemesterCode();
                 this.showHideCourseInfoPopUp(currentCourse["course_code"]);
               }}
+              onLongPress={() => {
+                this.resetState();
+                console.log(currentCourse["course_code"])
+                this.showHideCourseAddPopUp(currentCourse["course_code"]);
+              }}
               courseName={
                 CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
+                currentCourse["course_code"]
                 ]["Course Name"]
               }
               grading={
@@ -480,7 +503,9 @@ class SemesterCard extends Component {
           this.state.title
         ),
       })
-      .then(function () {})
+      .then(function () {
+        console.log("Document successfully deleted!");
+      })
       .catch(function (error) {
         console.error("Error removing document: ", error);
       });
@@ -490,8 +515,8 @@ class SemesterCard extends Component {
     Alert.alert(
       "Delete Semester",
       "Are you sure you want to delete the following Semester: " +
-        this.state.title +
-        "?",
+      this.state.title +
+      "?",
       [
         {
           text: "Cancel",
@@ -511,6 +536,258 @@ class SemesterCard extends Component {
     );
   };
 
+  pullCourseDetailsFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          const semesterCourseDetails = doc.data()
+          for (let i = 0; i < Object.keys(semesterCourseDetails).length; i++) {
+            currentCourse = semesterCourseDetails[Object.keys(semesterCourseDetails)[i]];
+            if (currentCourse["course_code"] === this.state.courseCode) {
+              console.log("currentCourse courseCode", currentCourse["course_code"])
+              console.log("grade mode", this.state.popUpGradeMode)
+              console.log("conc", this.state.popUpConcentrationRequirement)
+              console.log("writ", this.state.popUpWritRequirement)
+              console.log("full/half", this.state.popUpfullhalfCredit)
+              console.log("shopping", this.state.popUpShopping)
+              this.setState({ popUpGradeMode: currentCourse["grade_mode"] }, () => {
+                if (!this.state.popUpGradeMode) {
+                  this.setState({ initialpopUpGradeMode: 0 })
+                };
+              });
+              this.setState({ popUpConcentrationRequirement: currentCourse["concentration_1_requirement"] }, () => {
+                if (!this.state.popUpConcentrationRequirement) {
+                  this.setState({ initialpopUpConcentrationRequirement: 0 })
+                }
+              });
+              this.setState({ popUpWritRequirement: currentCourse["write_requirement"] }, () => {
+                if (!this.state.popUpWritRequirement) {
+                  this.setState({ initialpopUpWritRequirement: 0 })
+                }
+              });
+              this.setState({ popUpfullhalfCredit: currentCourse["full_half_credit"] }, () => {
+                if (!this.state.popUpfullhalfCredit) {
+                  this.setState({ initialpopUpfullhalfCredit: 0 })
+                };
+              });
+              this.setState({ popUpShopping: currentCourse["shopping"] }, () => {
+                if (!this.state.popUpShopping) {
+                  this.setState({ initialpopUpShopping: 0 })
+                };
+              });
+            }
+          }
+        };
+      })
+  };
+
+  resetState = () => {
+    console.log("reached")
+    this.setState({ initialpopUpGradeMode: 1 })
+    this.setState({ initialpopUpConcentrationRequirement: 1 })
+    this.setState({ initialpopUpWritRequirement: 1 })
+    this.setState({ initialpopUpfullhalfCredit: 1 })
+    this.setState({ initialpopUpShopping: 1 })
+  }
+
+  initialSetState = () => {
+    console.log("reaches initialSetState")
+    if (!this.state.popUpGradeMode) {
+      this.setState({ initialpopUpGradeMode: 0 })
+    };
+    if (!this.state.popUpConcentrationRequirement) {
+      this.setState({ initialpopUpConcentrationRequirement: 0 })
+    };
+    if (!this.state.popUpWritRequirement) {
+      this.setState({ initialpopUpWritRequirement: 0 })
+    };
+    if (!this.state.popUpfullhalfCredit) {
+      this.setState({ initialpopUpfullhalfCredit: 0 })
+    };
+    if (!this.state.popUpShopping) {
+      this.setState({ initialpopUpShopping: 0 })
+    };
+    console.log("ends initialSetState")
+  }
+
+  showHideCourseAddPopUp = (courseCode) => {
+    this.setState({ courseCode: courseCode }, () => {
+      this.setState({ isCourseInfoModalVisible: false });
+      if (this.state.isCourseAddModalVisible === true) {
+        this.setState({ isCourseAddModalVisible: false });
+      } else {
+        this.pullCourseDetailsFromDatabase();
+        // this.initialSetState();
+        setTimeout(() => this.setState({ isCourseAddModalVisible: true }), 5000);
+      }
+    })
+  };
+
+  closeCourseAddPopUp = () => {
+    if (this.state.isCourseAddModalVisible === true) {
+      this.setState({ isCourseAddModalVisible: false });
+    }
+  };
+
+  createAddCoursePopUp = () => {
+    return (
+      <View style={courseAddPopUpStyles.container}>
+        <Modal visible={this.state.isCourseAddModalVisible}>
+          <View style={courseAddPopUpStyles.modal}>
+            <TouchableOpacity
+              style={popUpStyles.backArrow}
+              onPress={() => {
+                this.closeCourseAddPopUp();
+                this.setState({ isCourseInfoModalVisible: true });
+                this.resetState();
+              }}
+            >
+              <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
+            </TouchableOpacity>
+            <View style={courseAddPopUpStyles.header}>
+              <Text style={courseAddPopUpStyles.title}>Course Details</Text>
+            </View>
+            <View style={courseAddPopUpStyles.content}>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>Grade Mode</Text>
+                  <SwitchSelector
+                    initial={this.state.initialpopUpGradeMode}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "S/NC", value: false },
+                      { label: "A/B/C/NC", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) =>
+                      this.setState({ popUpGradeMode: value })
+                    }
+                  />
+                </View>
+              </View>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>
+                    Concentration Requirement
+                  </Text>
+                  <SwitchSelector
+                    initial={this.state.initialpopUpConcentrationRequirement}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) =>
+                      this.setState({ popUpConcentrationRequirement: value })
+                    }
+                  />
+                </View>
+              </View>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>
+                    WRIT Requirement
+                  </Text>
+                  <SwitchSelector
+                    initial={this.state.initialpopUpWritRequirement}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) =>
+                      this.setState({ popUpWritRequirement: value })
+                    }
+                  />
+                </View>
+              </View>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>
+                    Full Credit/Half Credit
+                  </Text>
+                  <SwitchSelector
+                    initial={this.state.initialpopUpfullhalfCredit}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "0.5", value: false },
+                      { label: "1", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) =>
+                      this.setState({ popUpfullhalfCredit: value })
+                    }
+                  />
+                </View>
+              </View>
+              <View style={courseAddPopUpStyles.rowContent}>
+                <View style={courseAddPopUpStyles.itemContainer}>
+                  <Text style={courseAddPopUpStyles.item}>Shopping</Text>
+                  <SwitchSelector
+                    initial={this.state.initialpopUpShopping}
+                    textColor={"#4E342E"}
+                    selectedColor={"white"}
+                    buttonColor={"#4E342E"}
+                    borderColor={"#4E342E"}
+                    hasPadding
+                    options={[
+                      { label: "No", value: false },
+                      { label: "Yes", value: true },
+                    ]}
+                    style={courseAddPopUpStyles.item}
+                    onPress={(value) => this.setState({ popUpShopping: value })}
+                  />
+                </View>
+              </View>
+            </View>
+            <View
+              style={{
+                alignItems: "center",
+                marginTop: 15,
+                marginBottom: 10,
+              }}
+            >
+              <CustomButton
+                title="Add Course"
+                onPress={() => {
+                  this.closeCourseAddPopUp();
+                  this.setDefaultValues();
+                  this.addCourseToDatabase();
+                  this.addSemesterIfNeeded();
+                  this.resetState();
+                }}
+              ></CustomButton>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
+  };
+
   render() {
     return (
       <View style={styles.mainContainer}>
@@ -519,7 +796,6 @@ class SemesterCard extends Component {
             this.deleteSemesterAlert();
           }}
           delayLongPress={1000}
-          style={{ flex: 1 }}
         >
           <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.credits}>
@@ -527,21 +803,21 @@ class SemesterCard extends Component {
             {this.returnEnrollmentUnits()}
           </Text>
         </TouchableOpacity>
-        <View style={{ alignItems: "center" }}>
-          {this.renderCourseCards()}
-          <AddCourseCard
-            navprops={this.state.navprops}
-            semester={this.state.title}
-          ></AddCourseCard>
-          <Text style={styles.shoppingTitle}>Shopping</Text>
-          {this.renderShoppingCourseCards()}
-          <AddCourseCard
-            navprops={this.state.navprops}
-            semester={this.state.title}
-          ></AddCourseCard>
-          <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
-        </View>
+        {this.renderCourseCards()}
+        <AddCourseCard
+          navprops={this.state.navprops}
+          semester={this.state.title}
+        ></AddCourseCard>
+        <Text style={styles.shoppingTitle}>Shopping</Text>
+        {this.renderShoppingCourseCards()}
+        <AddCourseCard
+          navprops={this.state.navprops}
+          semester={this.state.title}
+        ></AddCourseCard>
+        <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
+        <this.createAddCoursePopUp></this.createAddCoursePopUp>
       </View>
+      // </TouchableOpacity>
     );
   }
 }
@@ -553,6 +829,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 15,
     width: 0.9 * Dimensions.get("window").width,
+    alignItems: "center",
     marginVertical: 10,
   },
   title: {
@@ -674,6 +951,63 @@ const popUpStyles = StyleSheet.create({
     top: "6%",
     left: "6%",
     zIndex: 2,
+  },
+});
+
+const CustomButton = ({ onPress, title }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={popUpStyles.customButtonContainer}
+    activeOpacity={0.8}
+  >
+    <Text style={popUpStyles.customButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
+
+const courseAddPopUpStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: "#4E342E",
+    padding: 20,
+  },
+  header: {
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 25,
+    color: "white",
+    fontWeight: "600",
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rowContent: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+  itemContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  item: {
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    color: "white",
+    marginBottom: 4,
   },
 });
 
