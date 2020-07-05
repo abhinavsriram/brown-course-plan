@@ -52,6 +52,7 @@ class SearchScreen extends Component {
       popUpWritRequirement: true,
       popUpfullhalfCredit: true,
       popUpShopping: true,
+      errorMessage: null,
     };
   }
 
@@ -172,12 +173,14 @@ class SearchScreen extends Component {
   searchEngine = async (searchInput, currentSemester) => {
     var hyphenate = currentSemester.replace(/ /g, "-");
     var collection = hyphenate.toLowerCase();
+    var newCollection = this.handleFutureSemester(currentSemester);
+    console.log(newCollection)
     if (CourseList.includes(searchInput.toUpperCase())) {
       searchInput = searchInput + " ";
     }
     const querySnapshot = await firebase
       .firestore()
-      .collection(collection)
+      .collection(newCollection)
       .where("Keywords", "array-contains", searchInput.toLowerCase())
       .orderBy("Course_Code")
       .limit(10)
@@ -286,6 +289,42 @@ class SearchScreen extends Component {
     }
   }
 
+  handleFutureSemester = (anySemester) => {
+    const semesterSplit = anySemester.split(" ");
+    const semesterSeason = semesterSplit[0];
+    const semesterYear = semesterSplit[1];
+    if (parseInt(semesterYear, 10) > 2020 && (semesterSeason === "Spring" || semesterSeason === "Summer")) {
+      if (semesterSeason === "Spring") {
+        this.setState({ currentSemesterCode: 0 })
+        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2020]).join().replace(/,/g, " ") 
+        + " because Brown has not released the course schedule for this semester." })
+        return ([semesterSeason, 2020]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+      }
+      if (semesterSeason === "Summer") {
+        this.setState({ currentSemesterCode: 1 })
+        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2020]).join().replace(/,/g, " ") 
+        + " because Brown has not released the course schedule for this semester." })
+        return ([semesterSeason, 2020]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+      }
+    } else if (parseInt(semesterYear, 10) > 2019 && (semesterSeason === "Fall" || semesterSeason === "Winter")) {
+      if (semesterSeason === "Fall") {
+        this.setState({ currentSemesterCode: 2 })
+        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2019]).join().replace(/,/g, " ")
+        + " because Brown has not released the course schedule for this semester." })
+        return ([semesterSeason, 2019]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+      }
+      if (semesterSeason === "Winter") {
+        this.setState({ currentSemesterCode: 3 })
+        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2019]).join().replace(/,/g, " ")
+        + " because Brown has not released the course schedule for this semester." })
+        return ([semesterSeason, 2019]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+      }
+    } else {
+      this.setState({ errorMessage: null })
+      return ([semesterSeason, semesterYear]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+    }
+  }
+
   createCards = () => {
     return this.state.searchResults.map((courseCode, index) => {
       return (
@@ -297,17 +336,17 @@ class SearchScreen extends Component {
           courseCode={courseCode}
           courseName={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Name"
+            "Course Name"
             ]
           }
           instructor={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Instructor"
+            "Course Instructor"
             ]
           }
           meetingTime={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Meeting Time"
+            "Course Meeting Time"
             ]
           }
           semesterCode={this.state.currentSemesterCode}
@@ -345,7 +384,7 @@ class SearchScreen extends Component {
               <Text style={popUpStyles.courseName}>
                 {
                   CourseData[this.state.currentSemesterCode][
-                    this.state.courseCode
+                  this.state.courseCode
                   ]["Course Name"]
                 }
               </Text>
@@ -355,136 +394,136 @@ class SearchScreen extends Component {
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Capacity"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Capacity"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Capacity"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Description"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Description:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Course Description:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Description"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Description"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Restrictions"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
-                    Course Restrictions:
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>
+                      Course Restrictions:
                   </Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Restrictions"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Restrictions"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Critical Review"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Critical Review:</Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      Linking.openURL(
-                        CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL(
+                          CourseData[this.state.currentSemesterCode][
                           this.state.courseCode
-                        ]["Critical Review"]
-                      )
-                    }
-                  >
-                    <Text
-                      style={{
-                        textDecorationLine: "underline",
-                        marginTop: 3,
-                        color: "#757575",
-                        fontSize: 17,
-                      }}
-                    >
-                      {
-                        CourseData[this.state.currentSemesterCode][
-                          this.state.courseCode
-                        ]["Critical Review"]
+                          ]["Critical Review"]
+                        )
                       }
-                    </Text>
-                  </TouchableOpacity>
-                </React.Fragment>
-              )}
+                    >
+                      <Text
+                        style={{
+                          textDecorationLine: "underline",
+                          marginTop: 3,
+                          color: "#757575",
+                          fontSize: 17,
+                        }}
+                      >
+                        {
+                          CourseData[this.state.currentSemesterCode][
+                          this.state.courseCode
+                          ]["Critical Review"]
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Exam Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Final Exam:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Final Exam:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Exam Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Exam Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Meeting Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
-                    Schedule and Location:
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>
+                      Schedule and Location:
                   </Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Meeting Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Meeting Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Instructor"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Instructor:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Instructor:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Instructor"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Instructor"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Section(s)"] !== "" && (
-                <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Sections:</Text>
-                  <Text style={popUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={popUpStyles.subHeader}>Sections:</Text>
+                    <Text style={popUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Section(s)"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Section(s)"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
               <Text style={popUpStyles.description}>Coming Soon...</Text>
               <View
@@ -849,6 +888,58 @@ class SearchScreen extends Component {
                   label="Winter 2020"
                   value="Winter 2020"
                 ></Picker.Item>
+                <Picker.Item label="Fall 2021" value="Fall 2021"></Picker.Item>
+                <Picker.Item
+                  label="Winter 2021"
+                  value="Winter 2021"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Spring 2021"
+                  value="Spring 2021"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Summer 2021"
+                  value="Summer 2021"
+                ></Picker.Item>
+                <Picker.Item label="Fall 2022" value="Fall 2022"></Picker.Item>
+                <Picker.Item
+                  label="Winter 2022"
+                  value="Winter 2022"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Spring 2022"
+                  value="Spring 2022"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Summer 2022"
+                  value="Summer 2022"
+                ></Picker.Item>
+                <Picker.Item label="Fall 2023" value="Fall 2023"></Picker.Item>
+                <Picker.Item
+                  label="Winter 2023"
+                  value="Winter 2023"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Spring 2023"
+                  value="Spring 2023"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Summer 2023"
+                  value="Summer 2023"
+                ></Picker.Item>
+                <Picker.Item label="Fall 2024" value="Fall 2024"></Picker.Item>
+                <Picker.Item
+                  label="Winter 2024"
+                  value="Winter 2024"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Spring 2024"
+                  value="Spring 2024"
+                ></Picker.Item>
+                <Picker.Item
+                  label="Summer 2024"
+                  value="Summer 2024"
+                ></Picker.Item>
               </Picker>
               <TouchableOpacity
                 style={styles.cancelButton}
@@ -878,6 +969,9 @@ class SearchScreen extends Component {
             }
             scrollEventThrottle={0}
           >
+            <Text>
+              {this.state.errorMessage}
+            </Text>
             {this.createCards()}
           </ScrollView>
           <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
