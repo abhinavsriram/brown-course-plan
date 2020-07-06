@@ -1,5 +1,6 @@
 const completeConcentrationsList = [
   "Yet To Declare",
+  "Not Declaring",
   "Independent Concentration - AB",
   "Independent Concentration - SCB",
   "American Studies - AB",
