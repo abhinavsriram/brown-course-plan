@@ -1,8 +1,6 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import LoadingScreen from "./screens/LoadingScreen";
 import LandingScreen from "./screens/LandingScreen";
 import CustomLoginScreen from "./screens/CustomLoginScreen";
@@ -16,7 +14,7 @@ import TabNavigator from "./screens/BottomTabNavigator";
 import DrawerNavigator from "./screens/DrawerNavigator";
 import SearchTabNavigator from "./screens/BottomTabNavigatorSearch";
 
-/*–––––––––––––––––––––––––BASE-64 IMPORT–––––––––––––––––––––––––*/
+// import helps solve a weird decoding bug
 import { decode, encode } from "base-64";
 if (!global.btoa) {
   global.btoa = encode;
@@ -25,7 +23,8 @@ if (!global.atob) {
   global.atob = decode;
 }
 
-/*–––––––––––––––––––––––––FIREBASE (brown-cp)–––––––––––––––––––––––––*/
+// initializes our firebase (can be called on using firebase)
+// confidential information - apiKey and appId
 import * as firebase from "firebase";
 
 var firebaseConfig = {
@@ -41,7 +40,6 @@ var firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-/*–––––––––––––––––––––––––NAVIGATOR–––––––––––––––––––––––––*/
 const AppSwitchNavigator = createSwitchNavigator(
   {
     LoadingScreen: LoadingScreen,
@@ -64,7 +62,6 @@ const AppSwitchNavigator = createSwitchNavigator(
 
 const AppNavigator = createAppContainer(AppSwitchNavigator);
 
-/*–––––––––––––––––––––––––APP COMPONENT–––––––––––––––––––––––––*/
 export default function App() {
   return <AppNavigator></AppNavigator>;
 }
