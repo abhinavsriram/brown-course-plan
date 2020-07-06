@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   View,
@@ -11,22 +10,19 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
 
-/*–––––––––––––––––––––––––IMAGE PICKER IMPORT–––––––––––––––––––––––––*/
 import UserPermissions from "./../utilities/UserPermissions.js";
 import * as ImagePicker from "expo-image-picker";
 
-/*–––––––––––––––––––––––––CREATE PROFILE SCREEN 1 COMPONENT–––––––––––––––––––––––––*/
 class CreateProfileScreen1 extends Component {
   constructor(props) {
     super(props);
     this.state = {
       firstName: "",
       lastName: "",
-      profilePicture: require("./../assets/dp-placeholder.jpg"),
+      profilePicture: "/Users/abhinavsriram/Desktop/brown-cp/assets/dp-placeholder.jpg",
       userID: this.props.navigation.state.params.userID,
     };
   }
@@ -85,13 +81,11 @@ class CreateProfileScreen1 extends Component {
       this.props.navigation.navigate("CreateProfileScreen2", {
         userID: this.state.userID,
       });
-      console.log("the userID is", this.state.userID);
     } else {
       alert("Please Fill All Fields");
     }
   };
 
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
       <KeyboardAvoidingView
@@ -155,7 +149,6 @@ class CreateProfileScreen1 extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CreateProfileButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
@@ -166,9 +159,6 @@ const CreateProfileButton = ({ onPress, title }) => (
   </TouchableOpacity>
 );
 
-const inputWidth = 0.8 * Dimensions.get("window").width;
-
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -188,12 +178,12 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "absolute",
     top: "42%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form2: {
     position: "absolute",
     top: "52%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",

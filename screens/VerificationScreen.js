@@ -1,15 +1,12 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import * as firebase from "firebase";
 
-/*–––––––––––––––––––––––––VERIFICATION SCREEN COMPONENT–––––––––––––––––––––––––*/
 class VerificationScreen extends Component {
   sendVerificationEmail = () => {
-    authFlag = true;
-    emailFlag = true;
+    var authFlag = true;
+    var emailFlag = true;
     if (authFlag) {
       authFlag = false;
       firebase.auth().onAuthStateChanged((user) => {
@@ -28,9 +25,8 @@ class VerificationScreen extends Component {
 
   componentDidMount() {
     this.sendVerificationEmail();
-    firebase.auth().signOut();
   }
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
+
   render() {
     return (
       <View style={styles.container}>
@@ -51,7 +47,6 @@ class VerificationScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
@@ -62,7 +57,6 @@ const CustomButton = ({ onPress, title }) => (
   </TouchableOpacity>
 );
 
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,

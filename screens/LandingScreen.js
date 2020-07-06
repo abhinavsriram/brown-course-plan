@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   StyleSheet,
@@ -9,9 +8,7 @@ import {
   ImageBackground,
 } from "react-native";
 
-/*–––––––––––––––––––––––––LANDING SCREEN COMPONENT–––––––––––––––––––––––––*/
 class LoginScreen extends Component {
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
       <View style={styles.wholeScreen}>
@@ -35,7 +32,6 @@ class LoginScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   wholeScreen: {
     flex: 1,
@@ -92,7 +88,6 @@ const styles = StyleSheet.create({
   },
 });
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title, buttonStyle }) => (
   <TouchableOpacity onPress={onPress} style={buttonStyle} activeOpacity={0.8}>
     <Text style={styles.customButtonText}>{title}</Text>

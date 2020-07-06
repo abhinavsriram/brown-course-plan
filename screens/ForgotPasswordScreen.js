@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   StyleSheet,
@@ -10,13 +9,10 @@ import {
   Keyboard,
 } from "react-native";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import * as firebase from "firebase";
 
-/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––FORGOT PASSWORD SCREEN COMPONENT–––––––––––––––––––––––––*/
 class ForgotPasswordScreen extends Component {
   state = {
     email: "",
@@ -44,7 +40,7 @@ class ForgotPasswordScreen extends Component {
       this.setState({ visible: true });
     }
   };
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
+
   render() {
     return (
       <View style={styles.container}>
@@ -114,16 +110,12 @@ class ForgotPasswordScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title, buttonStyle }) => (
   <TouchableOpacity onPress={onPress} style={buttonStyle} activeOpacity={0.8}>
     <Text style={styles.customButtonText}>{title}</Text>
   </TouchableOpacity>
 );
 
-const inputWidth = 0.8 * Dimensions.get("window").width;
-
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -179,7 +171,7 @@ const styles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "31%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",
@@ -202,7 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "absolute",
     top: "25%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
     justifyContent: "center",
     alignItems: "center",
   },

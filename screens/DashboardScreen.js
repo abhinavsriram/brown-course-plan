@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Picker,
   Button,
+  Alert,
 } from "react-native";
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
@@ -545,10 +546,23 @@ class DashboardScreen extends Component {
   };
 
   ShowHideSummaryPopUp = () => {
-    if (this.state.isSummaryVisible) {
-      this.setState({ isSummaryVisible: false });
+    if (this.state.semestersList[0]) {
+      if (this.state.isSummaryVisible) {
+        this.setState({ isSummaryVisible: false });
+      } else {
+        this.setState({ isSummaryVisible: true });
+      }
     } else {
-      this.setState({ isSummaryVisible: true });
+      Alert.alert(
+        "Patience",
+        "Good Things Come To Those Who Wait",
+        [
+          {
+            text: "I Shall Wait",
+          },
+        ],
+        { cancelable: false }
+      );
     }
   };
 
@@ -563,15 +577,36 @@ class DashboardScreen extends Component {
           this.setState({ degree: doc.data().degree }, () => {
             if (this.state.degree === "Sc.B.") {
               this.setState({ degree: "Sc.B. (Bachelor of Science): " });
-            } else {
+            }
+            if (this.state.degree === "A.B.") {
               this.setState({ degree: "A.B. (Bachelor of Arts): " });
             }
+            if (this.state.degree === "Yet To Declare") {
+              this.setState({ degree: "Yet To Declare" });
+            }
           });
-          this.setState({ concentration_1: doc.data().concentration });
+          if (
+            doc.data().concentration === "Yet To Declare" ||
+            doc.data().concentration === "Click to Choose"
+          ) {
+            this.setState({ concentration_1: "" });
+          } else {
+            this.setState({ concentration_1: doc.data().concentration });
+          }
           if (doc.data().second_concentration !== undefined) {
-            this.setState({
-              concentration_2: " and " + doc.data().second_concentration,
-            });
+            if (
+              doc.data().second_concentration !== "Yet To Declare" &&
+              doc.data().second_concentration !== "Click to Choose" &&
+              doc.data().second_concentration !== "Not Declaring"
+            ) {
+              this.setState({
+                concentration_2: " and " + doc.data().second_concentration,
+              });
+            } else {
+              this.setState({
+                concentration_2: "",
+              });
+            }
           }
         } else {
           console.log("no data accquired");

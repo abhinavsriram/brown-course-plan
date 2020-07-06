@@ -17,7 +17,6 @@ class LogOutScreen extends Component {
         <TouchableOpacity
           style={styles.backArrow}
           onPress={() => {
-            // this.props.navigation.navigate("TabNavigator");
             this.props.navigation.dispatch(DrawerActions.openDrawer());
           }}
         >
@@ -28,7 +27,7 @@ class LogOutScreen extends Component {
         <CustomButton
           title="Log Out"
           onPress={() => {
-            this.props.navigation.navigate("LandingScreen");
+            this.props.navigation.navigate("LoadingScreen");
             firebase.auth().signOut();
           }}
           style={styles.LogOutButtonContainer}

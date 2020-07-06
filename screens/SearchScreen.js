@@ -48,20 +48,55 @@ class SearchScreen extends Component {
       courseCode: "Placeholder Course",
       isCourseAddModalVisible: false,
       popUpGradeMode: true,
-      popUpConcentrationRequirement: true,
-      popUpWritRequirement: true,
+      popUpConcentrationRequirement: false,
+      popUpConcentration2Requirement: false,
+      popUpWritRequirement: false,
       popUpfullhalfCredit: true,
-      popUpShopping: true,
+      popUpShopping: false,
       errorMessage: null,
+      firstConcentration: null,
+      secondConcentartion: null,
     };
   }
+
+  getConcentrations = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          if (doc.data().concentration !== undefined) {
+            if (
+              doc.data().concentration !== "Yet To Declare" &&
+              doc.data().concentration !== "Not Declaring"
+            ) {
+              this.setState({ firstConcentration: doc.data().concentration });
+            }
+          }
+          if (
+            doc.data().second_concentration !== undefined &&
+            doc.data().second_concentration !== "Not Declaring"
+          ) {
+            if (doc.data().second_concentration !== "Yet To Declare") {
+              this.setState({
+                secondConcentartion: doc.data().second_concentration,
+              });
+            }
+          }
+        }
+      });
+  };
 
   getUserID = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         const email = user.email;
         const userID = email.split("@")[0];
-        this.setState({ userID: userID });
+        this.setState({ userID: userID }, () => {
+          this.getConcentrations();
+        });
       } else {
       }
     });
@@ -119,14 +154,14 @@ class SearchScreen extends Component {
 
   createKeywordArrayAllCourses = () => {
     let courseKeywordsList = [];
-    for (let i = 0; i < Object.keys(CourseData[3]).length; i++) {
-      const courseCode = this.getPropertyByIndex(CourseData[3], i)[
+    for (let i = 0; i < Object.keys(CourseData[7]).length; i++) {
+      const courseCode = this.getPropertyByIndex(CourseData[7], i)[
         "Course_Code"
       ];
-      const courseName = this.getPropertyByIndex(CourseData[3], i)[
+      const courseName = this.getPropertyByIndex(CourseData[7], i)[
         "Course Name"
       ];
-      const courseInstr = this.getPropertyByIndex(CourseData[3], i)[
+      const courseInstr = this.getPropertyByIndex(CourseData[7], i)[
         "Course Instructor"
       ];
       const courseKeyword = this.createKeywordArrayOneCourse([
@@ -141,11 +176,11 @@ class SearchScreen extends Component {
 
   createFullDatabase = () => {
     const courseKeywordsList = this.createKeywordArrayAllCourses();
-    for (let i = 0; i < Object.keys(CourseData[3]).length; i++) {
-      this.getPropertyByIndex(CourseData[3], i)["Keywords"] =
+    for (let i = 0; i < Object.keys(CourseData[7]).length; i++) {
+      this.getPropertyByIndex(CourseData[7], i)["Keywords"] =
         courseKeywordsList[i];
     }
-    return CourseData[3];
+    return CourseData[7];
   };
 
   writeToFirestore = (data) => {
@@ -153,7 +188,7 @@ class SearchScreen extends Component {
       Object.keys(data).forEach((docKey) => {
         firebase
           .firestore()
-          .collection("winter-2019")
+          .collection("summer-2019")
           .doc(docKey)
           .set(data[docKey])
           .then((res) => {
@@ -174,7 +209,6 @@ class SearchScreen extends Component {
     var hyphenate = currentSemester.replace(/ /g, "-");
     var collection = hyphenate.toLowerCase();
     var newCollection = this.handleFutureSemester(currentSemester);
-    console.log(newCollection)
     if (CourseList.includes(searchInput.toUpperCase())) {
       searchInput = searchInput + " ";
     }
@@ -200,12 +234,13 @@ class SearchScreen extends Component {
   ) => {
     var hyphenate = currentSemester.replace(/ /g, "-");
     var collection = hyphenate.toLowerCase();
+    var newCollection = this.handleFutureSemester(currentSemester);
     if (CourseList.includes(searchInput.toUpperCase())) {
       searchInput = searchInput + " ";
     }
     const querySnapshot = await firebase
       .firestore()
-      .collection(collection)
+      .collection(newCollection)
       .where("Keywords", "array-contains", searchInput.toLowerCase())
       .orderBy("Course_Code")
       .limit(10 * searchResultNum)
@@ -250,20 +285,41 @@ class SearchScreen extends Component {
 
   pickSemester = () => {
     switch (this.state.semesterPickerValue) {
-      case "Spring 2020":
+      case "Fall 2017":
         this.setState({ currentSemesterCode: 0 });
         break;
-      case "Summer 2020":
+      case "Winter 2017":
         this.setState({ currentSemesterCode: 1 });
         break;
-      case "Fall 2019":
+      case "Spring 2018":
         this.setState({ currentSemesterCode: 2 });
         break;
-      case "Winter 2019":
+      case "Summer 2018":
         this.setState({ currentSemesterCode: 3 });
         break;
-      case "Fall 2020":
-        this.setState({ currentSemesterCode: 2 });
+      case "Fall 2018":
+        this.setState({ currentSemesterCode: 4 });
+        break;
+      case "Winter 2018":
+        this.setState({ currentSemesterCode: 5 });
+        break;
+      case "Spring 2019":
+        this.setState({ currentSemesterCode: 6 });
+        break;
+      case "Summer 2019":
+        this.setState({ currentSemesterCode: 7 });
+        break;
+      case "Fall 2019":
+        this.setState({ currentSemesterCode: 8 });
+        break;
+      case "Winter 2019":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Spring 2020":
+        this.setState({ currentSemesterCode: 10 });
+        break;
+      case "Summer 2020":
+        this.setState({ currentSemesterCode: 11 });
         break;
     }
   };
@@ -271,20 +327,41 @@ class SearchScreen extends Component {
   componentDidMount() {
     this.getUserID();
     switch (this.state.semesterPickerValue) {
-      case "Spring 2020":
+      case "Fall 2017":
         this.setState({ currentSemesterCode: 0 });
         break;
-      case "Summer 2020":
+      case "Winter 2017":
         this.setState({ currentSemesterCode: 1 });
         break;
-      case "Fall 2019":
+      case "Spring 2018":
         this.setState({ currentSemesterCode: 2 });
         break;
-      case "Winter 2019":
+      case "Summer 2018":
         this.setState({ currentSemesterCode: 3 });
         break;
-      case "Fall 2020":
-        this.setState({ currentSemesterCode: 2 });
+      case "Fall 2018":
+        this.setState({ currentSemesterCode: 4 });
+        break;
+      case "Winter 2018":
+        this.setState({ currentSemesterCode: 5 });
+        break;
+      case "Spring 2019":
+        this.setState({ currentSemesterCode: 6 });
+        break;
+      case "Summer 2019":
+        this.setState({ currentSemesterCode: 7 });
+        break;
+      case "Fall 2019":
+        this.setState({ currentSemesterCode: 8 });
+        break;
+      case "Winter 2019":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Spring 2020":
+        this.setState({ currentSemesterCode: 10 });
+        break;
+      case "Summer 2020":
+        this.setState({ currentSemesterCode: 11 });
         break;
     }
   }
@@ -293,37 +370,79 @@ class SearchScreen extends Component {
     const semesterSplit = anySemester.split(" ");
     const semesterSeason = semesterSplit[0];
     const semesterYear = semesterSplit[1];
-    if (parseInt(semesterYear, 10) > 2020 && (semesterSeason === "Spring" || semesterSeason === "Summer")) {
+    if (
+      parseInt(semesterYear, 10) > 2020 &&
+      (semesterSeason === "Spring" || semesterSeason === "Summer")
+    ) {
       if (semesterSeason === "Spring") {
-        this.setState({ currentSemesterCode: 0 })
-        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2020]).join().replace(/,/g, " ") 
-        + " because Brown has not released the course schedule for this semester." })
-        return ([semesterSeason, 2020]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+        this.setState({ currentSemesterCode: 10 });
+        this.setState({
+          errorMessage:
+            "Warning: The information being displayed is from " +
+            [semesterSeason, 2020].join().replace(/,/g, " ") +
+            " because Brown has not released the course schedule for this semester.",
+        });
+        return [semesterSeason, 2020]
+          .join()
+          .replace(/,/g, " ")
+          .replace(/ /g, "-")
+          .toLowerCase();
       }
       if (semesterSeason === "Summer") {
-        this.setState({ currentSemesterCode: 1 })
-        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2020]).join().replace(/,/g, " ") 
-        + " because Brown has not released the course schedule for this semester." })
-        return ([semesterSeason, 2020]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+        this.setState({ currentSemesterCode: 11 });
+        this.setState({
+          errorMessage:
+            "Warning: The information being displayed is from " +
+            [semesterSeason, 2020].join().replace(/,/g, " ") +
+            " because Brown has not released the course schedule for this semester.",
+        });
+        return [semesterSeason, 2020]
+          .join()
+          .replace(/,/g, " ")
+          .replace(/ /g, "-")
+          .toLowerCase();
       }
-    } else if (parseInt(semesterYear, 10) > 2019 && (semesterSeason === "Fall" || semesterSeason === "Winter")) {
+    } else if (
+      parseInt(semesterYear, 10) > 2019 &&
+      (semesterSeason === "Fall" || semesterSeason === "Winter")
+    ) {
       if (semesterSeason === "Fall") {
-        this.setState({ currentSemesterCode: 2 })
-        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2019]).join().replace(/,/g, " ")
-        + " because Brown has not released the course schedule for this semester." })
-        return ([semesterSeason, 2019]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+        this.setState({ currentSemesterCode: 8 });
+        this.setState({
+          errorMessage:
+            "Warning: The information being displayed is from " +
+            [semesterSeason, 2019].join().replace(/,/g, " ") +
+            " because Brown has not released the course schedule for this semester.",
+        });
+        return [semesterSeason, 2019]
+          .join()
+          .replace(/,/g, " ")
+          .replace(/ /g, "-")
+          .toLowerCase();
       }
       if (semesterSeason === "Winter") {
-        this.setState({ currentSemesterCode: 3 })
-        this.setState({ errorMessage: "Warning: The information being displayed is from " + ([semesterSeason, 2019]).join().replace(/,/g, " ")
-        + " because Brown has not released the course schedule for this semester." })
-        return ([semesterSeason, 2019]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+        this.setState({ currentSemesterCode: 9 });
+        this.setState({
+          errorMessage:
+            "Warning: The information being displayed is from " +
+            [semesterSeason, 2019].join().replace(/,/g, " ") +
+            " because Brown has not released the course schedule for this semester.",
+        });
+        return [semesterSeason, 2019]
+          .join()
+          .replace(/,/g, " ")
+          .replace(/ /g, "-")
+          .toLowerCase();
       }
     } else {
-      this.setState({ errorMessage: null })
-      return ([semesterSeason, semesterYear]).join().replace(/,/g, " ").replace(/ /g, "-").toLowerCase();
+      this.setState({ errorMessage: null });
+      return [semesterSeason, semesterYear]
+        .join()
+        .replace(/,/g, " ")
+        .replace(/ /g, "-")
+        .toLowerCase();
     }
-  }
+  };
 
   createCards = () => {
     return this.state.searchResults.map((courseCode, index) => {
@@ -336,17 +455,17 @@ class SearchScreen extends Component {
           courseCode={courseCode}
           courseName={
             CourseData[this.state.currentSemesterCode][courseCode][
-            "Course Name"
+              "Course Name"
             ]
           }
           instructor={
             CourseData[this.state.currentSemesterCode][courseCode][
-            "Course Instructor"
+              "Course Instructor"
             ]
           }
           meetingTime={
             CourseData[this.state.currentSemesterCode][courseCode][
-            "Course Meeting Time"
+              "Course Meeting Time"
             ]
           }
           semesterCode={this.state.currentSemesterCode}
@@ -384,7 +503,7 @@ class SearchScreen extends Component {
               <Text style={popUpStyles.courseName}>
                 {
                   CourseData[this.state.currentSemesterCode][
-                  this.state.courseCode
+                    this.state.courseCode
                   ]["Course Name"]
                 }
               </Text>
@@ -394,136 +513,136 @@ class SearchScreen extends Component {
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Capacity"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Course Capacity"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Course Capacity"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Description"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Course Description:</Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Course Description:</Text>
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Course Description"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Course Description"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Restrictions"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>
-                      Course Restrictions:
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>
+                    Course Restrictions:
                   </Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Course Restrictions"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Course Restrictions"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Critical Review"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Critical Review:</Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL(
-                          CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      Linking.openURL(
+                        CourseData[this.state.currentSemesterCode][
                           this.state.courseCode
-                          ]["Critical Review"]
-                        )
-                      }
+                        ]["Critical Review"]
+                      )
+                    }
+                  >
+                    <Text
+                      style={{
+                        textDecorationLine: "underline",
+                        marginTop: 3,
+                        color: "#757575",
+                        fontSize: 17,
+                      }}
                     >
-                      <Text
-                        style={{
-                          textDecorationLine: "underline",
-                          marginTop: 3,
-                          color: "#757575",
-                          fontSize: 17,
-                        }}
-                      >
-                        {
-                          CourseData[this.state.currentSemesterCode][
+                      {
+                        CourseData[this.state.currentSemesterCode][
                           this.state.courseCode
-                          ]["Critical Review"]
-                        }
-                      </Text>
-                    </TouchableOpacity>
-                  </React.Fragment>
-                )}
+                        ]["Critical Review"]
+                      }
+                    </Text>
+                  </TouchableOpacity>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Exam Time"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Final Exam:</Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Final Exam:</Text>
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Exam Time"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Exam Time"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Meeting Time"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>
-                      Schedule and Location:
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>
+                    Schedule and Location:
                   </Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Course Meeting Time"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Course Meeting Time"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Instructor"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Instructor:</Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Instructor:</Text>
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Course Instructor"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Course Instructor"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Section(s)"] !== "" && (
-                  <React.Fragment>
-                    <Text style={popUpStyles.subHeader}>Sections:</Text>
-                    <Text style={popUpStyles.description}>
-                      {
-                        CourseData[this.state.currentSemesterCode][
+                <React.Fragment>
+                  <Text style={popUpStyles.subHeader}>Sections:</Text>
+                  <Text style={popUpStyles.description}>
+                    {
+                      CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                        ]["Section(s)"]
-                      }
-                    </Text>
-                  </React.Fragment>
-                )}
+                      ]["Section(s)"]
+                    }
+                  </Text>
+                </React.Fragment>
+              )}
               <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
               <Text style={popUpStyles.description}>Coming Soon...</Text>
               <View
@@ -583,15 +702,15 @@ class SearchScreen extends Component {
                 <View style={courseAddPopUpStyles.itemContainer}>
                   <Text style={courseAddPopUpStyles.item}>Grade Mode</Text>
                   <SwitchSelector
-                    initial={1}
+                    initial={0}
                     textColor={"#4E342E"}
                     selectedColor={"white"}
                     buttonColor={"#4E342E"}
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "S/NC", value: false },
                       { label: "A/B/C/NC", value: true },
+                      { label: "S/NC", value: false },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -600,36 +719,63 @@ class SearchScreen extends Component {
                   />
                 </View>
               </View>
-              <View style={courseAddPopUpStyles.rowContent}>
-                <View style={courseAddPopUpStyles.itemContainer}>
-                  <Text style={courseAddPopUpStyles.item}>
-                    Concentration Requirement
-                  </Text>
-                  <SwitchSelector
-                    initial={1}
-                    textColor={"#4E342E"}
-                    selectedColor={"white"}
-                    buttonColor={"#4E342E"}
-                    borderColor={"#4E342E"}
-                    hasPadding
-                    options={[
-                      { label: "No", value: false },
-                      { label: "Yes", value: true },
-                    ]}
-                    style={courseAddPopUpStyles.item}
-                    onPress={(value) =>
-                      this.setState({ popUpConcentrationRequirement: value })
-                    }
-                  />
+              {this.state.firstConcentration ? (
+                <View style={courseAddPopUpStyles.rowContent}>
+                  <View style={courseAddPopUpStyles.itemContainer}>
+                    <Text style={courseAddPopUpStyles.item}>
+                      {this.state.firstConcentration} Requirement
+                    </Text>
+                    <SwitchSelector
+                      initial={0}
+                      textColor={"#4E342E"}
+                      selectedColor={"white"}
+                      buttonColor={"#4E342E"}
+                      borderColor={"#4E342E"}
+                      hasPadding
+                      options={[
+                        { label: "No", value: false },
+                        { label: "Yes", value: true },
+                      ]}
+                      style={courseAddPopUpStyles.item}
+                      onPress={(value) =>
+                        this.setState({ popUpConcentrationRequirement: value })
+                      }
+                    />
+                  </View>
                 </View>
-              </View>
+              ) : null}
+              {this.state.secondConcentartion ? (
+                <View style={courseAddPopUpStyles.rowContent}>
+                  <View style={courseAddPopUpStyles.itemContainer}>
+                    <Text style={courseAddPopUpStyles.item}>
+                      {this.state.secondConcentartion} Requirement
+                    </Text>
+                    <SwitchSelector
+                      initial={0}
+                      textColor={"#4E342E"}
+                      selectedColor={"white"}
+                      buttonColor={"#4E342E"}
+                      borderColor={"#4E342E"}
+                      hasPadding
+                      options={[
+                        { label: "No", value: false },
+                        { label: "Yes", value: true },
+                      ]}
+                      style={courseAddPopUpStyles.item}
+                      onPress={(value) =>
+                        this.setState({ popUpConcentration2Requirement: value })
+                      }
+                    />
+                  </View>
+                </View>
+              ) : null}
               <View style={courseAddPopUpStyles.rowContent}>
                 <View style={courseAddPopUpStyles.itemContainer}>
                   <Text style={courseAddPopUpStyles.item}>
                     WRIT Requirement
                   </Text>
                   <SwitchSelector
-                    initial={1}
+                    initial={0}
                     textColor={"#4E342E"}
                     selectedColor={"white"}
                     buttonColor={"#4E342E"}
@@ -652,15 +798,15 @@ class SearchScreen extends Component {
                     Full Credit/Half Credit
                   </Text>
                   <SwitchSelector
-                    initial={1}
+                    initial={0}
                     textColor={"#4E342E"}
                     selectedColor={"white"}
                     buttonColor={"#4E342E"}
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "0.5", value: false },
                       { label: "1", value: true },
+                      { label: "0.5", value: false },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -673,7 +819,7 @@ class SearchScreen extends Component {
                 <View style={courseAddPopUpStyles.itemContainer}>
                   <Text style={courseAddPopUpStyles.item}>Shopping</Text>
                   <SwitchSelector
-                    initial={1}
+                    initial={0}
                     textColor={"#4E342E"}
                     selectedColor={"white"}
                     buttonColor={"#4E342E"}
@@ -700,8 +846,8 @@ class SearchScreen extends Component {
                 title="Add Course"
                 onPress={() => {
                   this.closeCourseAddPopUp();
-                  this.setDefaultValues();
                   this.addCourseToDatabase();
+                  this.setDefaultValues();
                   this.addSemesterIfNeeded();
                 }}
               ></CustomButton>
@@ -726,6 +872,8 @@ class SearchScreen extends Component {
             grade_mode: this.state.popUpGradeMode,
             concentration_1_requirement: this.state
               .popUpConcentrationRequirement,
+            concentration_2_requirement: this.state
+              .popUpConcentration2Requirement,
             writ_requirement: this.state.popUpWritRequirement,
             full_half_credit: this.state.popUpfullhalfCredit,
             shopping: this.state.popUpShopping,
@@ -769,10 +917,11 @@ class SearchScreen extends Component {
 
   setDefaultValues = () => {
     this.setState({ popUpGradeMode: true });
-    this.setState({ popUpConcentrationRequirement: true });
-    this.setState({ popUpWritRequirement: true });
+    this.setState({ popUpConcentrationRequirement: false });
+    this.setState({ popUpConcentration2Requirement: false });
+    this.setState({ popUpWritRequirement: false });
     this.setState({ popUpfullhalfCredit: true });
-    this.setState({ popUpShopping: true });
+    this.setState({ popUpShopping: false });
   };
 
   render() {
@@ -818,6 +967,7 @@ class SearchScreen extends Component {
               onPress={() => {
                 this.setState({ searchBoxValue: "" });
                 this.setState({ searchResults: [] });
+                this.setState({ errorMessage: null });
               }}
             >
               <Icon name="ios-backspace" size={22} />
@@ -825,7 +975,10 @@ class SearchScreen extends Component {
           </View>
           {/* /*–––––––––––––––––––––––––SEMESTER PICKER BOX–––––––––––––––––––––––––*/}
           <TouchableOpacity
-            onPress={() => this.showHideSemesterPicker()}
+            onPress={() => {
+              this.showHideSemesterPicker();
+              this.setState({ errorMessage: null });
+            }}
             style={styles.searchBox}
           >
             <Icon name="ios-arrow-dropdown" size={20} />
@@ -844,6 +997,7 @@ class SearchScreen extends Component {
                 }}
                 itemStyle={{ color: "#333333", borderColor: "#fafafa" }}
               >
+                {/* 2017-2018 Academic Year */}
                 <Picker.Item label="Fall 2017" value="Fall 2017"></Picker.Item>
                 <Picker.Item
                   label="Winter 2017"
@@ -857,6 +1011,7 @@ class SearchScreen extends Component {
                   label="Summer 2018"
                   value="Summer 2018"
                 ></Picker.Item>
+                {/* 2018-2019 Academic Year */}
                 <Picker.Item label="Fall 2018" value="Fall 2018"></Picker.Item>
                 <Picker.Item
                   label="Winter 2018"
@@ -870,6 +1025,7 @@ class SearchScreen extends Component {
                   label="Summer 2019"
                   value="Summer 2019"
                 ></Picker.Item>
+                {/* 2019-2020 Academic Year */}
                 <Picker.Item label="Fall 2019" value="Fall 2019"></Picker.Item>
                 <Picker.Item
                   label="Winter 2019"
@@ -883,15 +1039,11 @@ class SearchScreen extends Component {
                   label="Summer 2020"
                   value="Summer 2020"
                 ></Picker.Item>
+                {/* 2020-2021 Academic Year */}
                 <Picker.Item label="Fall 2020" value="Fall 2020"></Picker.Item>
                 <Picker.Item
                   label="Winter 2020"
                   value="Winter 2020"
-                ></Picker.Item>
-                <Picker.Item label="Fall 2021" value="Fall 2021"></Picker.Item>
-                <Picker.Item
-                  label="Winter 2021"
-                  value="Winter 2021"
                 ></Picker.Item>
                 <Picker.Item
                   label="Spring 2021"
@@ -901,10 +1053,11 @@ class SearchScreen extends Component {
                   label="Summer 2021"
                   value="Summer 2021"
                 ></Picker.Item>
-                <Picker.Item label="Fall 2022" value="Fall 2022"></Picker.Item>
+                {/* 2021-2022 Academic Year */}
+                <Picker.Item label="Fall 2021" value="Fall 2021"></Picker.Item>
                 <Picker.Item
-                  label="Winter 2022"
-                  value="Winter 2022"
+                  label="Winter 2021"
+                  value="Winter 2021"
                 ></Picker.Item>
                 <Picker.Item
                   label="Spring 2022"
@@ -914,10 +1067,11 @@ class SearchScreen extends Component {
                   label="Summer 2022"
                   value="Summer 2022"
                 ></Picker.Item>
-                <Picker.Item label="Fall 2023" value="Fall 2023"></Picker.Item>
+                {/* 2022-2023 Academic Year */}
+                <Picker.Item label="Fall 2022" value="Fall 2022"></Picker.Item>
                 <Picker.Item
-                  label="Winter 2023"
-                  value="Winter 2023"
+                  label="Winter 2022"
+                  value="Winter 2022"
                 ></Picker.Item>
                 <Picker.Item
                   label="Spring 2023"
@@ -927,10 +1081,11 @@ class SearchScreen extends Component {
                   label="Summer 2023"
                   value="Summer 2023"
                 ></Picker.Item>
-                <Picker.Item label="Fall 2024" value="Fall 2024"></Picker.Item>
+                {/* 2023-2024 Academic Year */}
+                <Picker.Item label="Fall 2023" value="Fall 2023"></Picker.Item>
                 <Picker.Item
-                  label="Winter 2024"
-                  value="Winter 2024"
+                  label="Winter 2023"
+                  value="Winter 2023"
                 ></Picker.Item>
                 <Picker.Item
                   label="Spring 2024"
@@ -969,7 +1124,10 @@ class SearchScreen extends Component {
             }
             scrollEventThrottle={0}
           >
-            <Text>
+            <Text style={styles.errorMessage}>
+              {this.state.errorMessage && (
+                <Icon name="ios-warning" color="#ffae42" size={18} />
+              )}{" "}
               {this.state.errorMessage}
             </Text>
             {this.createCards()}
@@ -1062,6 +1220,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: 0.85 * Dimensions.get("window").width,
   },
+  errorMessage: {
+    width: 0.85 * Dimensions.get("window").width,
+    color: "#ffae42",
+  },
 });
 
 /*–––––––––––––––––––––––––COURSE INFROMATION POP-UP STYLING–––––––––––––––––––––––––*/
@@ -1149,9 +1311,11 @@ const courseAddPopUpStyles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 25,
+    fontSize: 30,
     color: "white",
     fontWeight: "600",
+    position: "absolute",
+    top: "40%",
   },
   content: {
     flex: 1,

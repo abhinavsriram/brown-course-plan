@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   View,
@@ -9,14 +8,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-/*–––––––––––––––––––––––––DATA IMPORT–––––––––––––––––––––––––*/
 import completeConcentrationsList from "./../data/ConcentrationsList.js";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
 
-/*–––––––––––––––––––––––––CREATE PROFILE SCREEN 2 COMPONENT–––––––––––––––––––––––––*/
 class CreateProfileScreen2 extends Component {
   constructor(props) {
     super(props);
@@ -143,7 +139,7 @@ class CreateProfileScreen2 extends Component {
 
   defaultConcentration = () => {
     if (this.state.concentrationPickerValue === "Click to Choose") {
-      this.setState({ concentrationPickerValue: "Yet to Declare" });
+      this.setState({ concentrationPickerValue: "Yet To Declare" });
     }
   };
 
@@ -163,20 +159,16 @@ class CreateProfileScreen2 extends Component {
     if (this.state.semesterLevelPickerValue === "Click to Choose") {
       this.setState({ semesterLevelPickerValue: "S01" });
     }
-    if (this.state.semesterLevelPickerValue === "S0NaN") {
-      this.setState({ semesterLevelPickerValue: "S01" });
-    }
   };
 
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
-      <View style={profileStyles.container}>
+      <View style={styles.container}>
         {/* /*–––––––––––––––––––––––––FORM 1 - CONCENTRATION–––––––––––––––––––––––––*/}
-        <View style={profileStyles.form1}>
-          <Text style={profileStyles.inputTitle}>Concentration</Text>
+        <View style={styles.form1}>
+          <Text style={styles.inputTitle}>Concentration</Text>
           <TouchableOpacity
-            style={profileStyles.chooseConcentration}
+            style={styles.chooseConcentration}
             onPress={this.ShowHideConcentrationPicker}
           >
             <Text
@@ -193,7 +185,7 @@ class CreateProfileScreen2 extends Component {
         {this.state.concentrationPickerVisible ? (
           <React.Fragment>
             <Picker
-              style={profileStyles.concentrationPicker}
+              style={styles.concentrationPicker}
               selectedValue={this.state.concentrationPickerValue}
               onValueChange={(itemValue) => {
                 this.setState({ concentrationPickerValue: itemValue });
@@ -211,21 +203,21 @@ class CreateProfileScreen2 extends Component {
               })}
             </Picker>
             <TouchableOpacity
-              style={profileStyles.cancelButton}
+              style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideConcentrationPicker();
                 this.defaultConcentration();
               }}
             >
-              <Text style={profileStyles.cancelButtonText}>DONE</Text>
+              <Text style={styles.cancelButtonText}>DONE</Text>
             </TouchableOpacity>
           </React.Fragment>
         ) : null}
         {/* /*–––––––––––––––––––––––––FORM 2 - DEGREE–––––––––––––––––––––––––*/}
-        <View style={profileStyles.form2}>
-          <Text style={profileStyles.inputTitle}>Degree</Text>
+        <View style={styles.form2}>
+          <Text style={styles.inputTitle}>Degree</Text>
           <TouchableOpacity
-            style={profileStyles.chooseConcentration}
+            style={styles.chooseConcentration}
             onPress={this.ShowHideDegreePicker}
           >
             <Text
@@ -242,7 +234,7 @@ class CreateProfileScreen2 extends Component {
         {this.state.degreePickerVisible ? (
           <React.Fragment>
             <Picker
-              style={profileStyles.concentrationPicker}
+              style={styles.concentrationPicker}
               selectedValue={this.state.degreePickerValue}
               onValueChange={(itemValue) => {
                 this.setState({ degreePickerValue: itemValue });
@@ -257,21 +249,21 @@ class CreateProfileScreen2 extends Component {
               <Picker.Item label="Sc.B." value="Sc.B."></Picker.Item>
             </Picker>
             <TouchableOpacity
-              style={profileStyles.cancelButton}
+              style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideDegreePicker();
                 this.defaultDegree();
               }}
             >
-              <Text style={profileStyles.cancelButtonText}>DONE</Text>
+              <Text style={styles.cancelButtonText}>DONE</Text>
             </TouchableOpacity>
           </React.Fragment>
         ) : null}
         {/* /*–––––––––––––––––––––––––FORM 3 - CLASS YEAR–––––––––––––––––––––––––*/}
-        <View style={profileStyles.form3}>
-          <Text style={profileStyles.inputTitle}>Class Year</Text>
+        <View style={styles.form3}>
+          <Text style={styles.inputTitle}>Class Year</Text>
           <TouchableOpacity
-            style={profileStyles.chooseConcentration}
+            style={styles.chooseConcentration}
             onPress={this.ShowHideClassYearPicker}
           >
             <Text
@@ -289,7 +281,7 @@ class CreateProfileScreen2 extends Component {
         {this.state.classYearPickerVisible ? (
           <React.Fragment>
             <Picker
-              style={profileStyles.concentrationPicker}
+              style={styles.concentrationPicker}
               selectedValue={this.state.classYearPickerValue}
               onValueChange={(itemValue) => {
                 this.setState({ classYearPickerValue: itemValue });
@@ -302,7 +294,7 @@ class CreateProfileScreen2 extends Component {
               <Picker.Item label="2024" value="2024"></Picker.Item>
             </Picker>
             <TouchableOpacity
-              style={profileStyles.cancelButton}
+              style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideClassYearPicker();
                 this.defaultClassYear();
@@ -313,15 +305,15 @@ class CreateProfileScreen2 extends Component {
                 });
               }}
             >
-              <Text style={profileStyles.cancelButtonText}>DONE</Text>
+              <Text style={styles.cancelButtonText}>DONE</Text>
             </TouchableOpacity>
           </React.Fragment>
         ) : null}
         {/* /*–––––––––––––––––––––––––FORM 4 - SEMESTER LEVEL–––––––––––––––––––––––––*/}
-        <View style={profileStyles.form4}>
-          <Text style={profileStyles.inputTitle}>Semester Level</Text>
+        <View style={styles.form4}>
+          <Text style={styles.inputTitle}>Semester Level</Text>
           <TouchableOpacity
-            style={profileStyles.chooseConcentration}
+            style={styles.chooseConcentration}
             onPress={this.ShowHideSemesterLevelPicker}
           >
             <Text
@@ -339,7 +331,7 @@ class CreateProfileScreen2 extends Component {
         {this.state.semesterLevelPickerVisible ? (
           <React.Fragment>
             <Picker
-              style={profileStyles.concentrationPicker}
+              style={styles.concentrationPicker}
               selectedValue={this.state.semesterLevelPickerValue}
               onValueChange={(itemValue) => {
                 this.setState({ semesterLevelPickerValue: itemValue });
@@ -356,13 +348,13 @@ class CreateProfileScreen2 extends Component {
               <Picker.Item label="S08" value="S08"></Picker.Item>
             </Picker>
             <TouchableOpacity
-              style={profileStyles.cancelButton}
+              style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideSemesterLevelPicker();
                 this.defaultSemesterLevel();
               }}
             >
-              <Text style={profileStyles.cancelButtonText}>DONE</Text>
+              <Text style={styles.cancelButtonText}>DONE</Text>
             </TouchableOpacity>
           </React.Fragment>
         ) : null}
@@ -378,21 +370,17 @@ class CreateProfileScreen2 extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CreateProfileButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
-    style={profileStyles.createProfileButtonContainer}
+    style={styles.createProfileButtonContainer}
     activeOpacity={0.8}
   >
-    <Text style={profileStyles.createProfileButtonText}>{title}</Text>
+    <Text style={styles.createProfileButtonText}>{title}</Text>
   </TouchableOpacity>
 );
 
-const inputWidth = 0.8 * Dimensions.get("window").width;
-
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
-const profileStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#E53935",
@@ -402,22 +390,22 @@ const profileStyles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "10%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form2: {
     position: "absolute",
     top: "22%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form3: {
     position: "absolute",
     top: "34%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form4: {
     position: "absolute",
     top: "46%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",

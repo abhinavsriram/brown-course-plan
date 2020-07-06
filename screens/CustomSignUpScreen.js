@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   View,
@@ -10,14 +9,11 @@ import {
   Keyboard,
 } from "react-native";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
 
-/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––CUSTOM SIGN UP SCREEN COMPONENT–––––––––––––––––––––––––*/
 class CustomSignUpScreen extends Component {
   state = {
     email: "",
@@ -28,22 +24,37 @@ class CustomSignUpScreen extends Component {
     errorMessage: null,
   };
 
-  /*–––––––––––––––––––––––––HANDLE SIGN UP METHOD–––––––––––––––––––––––––*/
   handleSignUp = () => {
+    var flag = true;
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.email)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({
+            errorMessage:
+              "The email address is already in use by another account.",
+          });
+          flag = false;
+        }
+      });
     const email = this.state.email + "@brown.edu";
     const password = this.state.password;
-
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredentials) => {
-        userCredentials.user.updateProfile({
-          displayName: this.state.firstName + " " + this.state.lastName,
+    if (flag) {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then((userCredentials) => {
+          userCredentials.user.updateProfile({
+            displayName: this.state.firstName + " " + this.state.lastName,
+          });
+        })
+        .catch((error) => {
+          this.setState({ errorMessage: error.message });
         });
-      })
-      .catch((error) => {
-        this.setState({ errorMessage: error.message });
-      });
+    }
   };
 
   writeToDatabase = () => {
@@ -80,7 +91,7 @@ class CustomSignUpScreen extends Component {
       this.setState({ errorMessage: "Please Fill All Fields Correctly" });
     }
   };
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
+
   render() {
     return (
       <View style={styles.container}>
@@ -179,7 +190,6 @@ class CustomSignUpScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
@@ -190,9 +200,6 @@ const CustomButton = ({ onPress, title }) => (
   </TouchableOpacity>
 );
 
-const inputWidth = 0.8 * Dimensions.get("window").width;
-
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -211,22 +218,22 @@ const styles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "26%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form2: {
     position: "absolute",
     top: "36%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form3: {
     position: "absolute",
     top: "46%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form4: {
     position: "absolute",
     top: "56%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",
@@ -267,7 +274,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "absolute",
     top: "18%",
-    width: inputWidth,
+    width: 0.8 * Dimensions.get("window").width,
     justifyContent: "center",
     alignItems: "center",
   },
