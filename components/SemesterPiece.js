@@ -29,16 +29,70 @@ class SemesterPiece extends Component {
   determineSemesterCode = () => {
     switch (this.state.title) {
       case "Spring 2020":
-        this.setState({ currentSemesterCode: 0 });
+      case "Spring 2021":
+      case "Spring 2022":
+      case "Spring 2023":
+      case "Spring 2024":
+        this.setState({ currentSemesterCode: 10 });
         break;
       case "Summer 2020":
-        this.setState({ currentSemesterCode: 1 });
+      case "Summer 2021":
+      case "Summer 2022":
+      case "Summer 2023":
+      case "Summer 2024":
+        this.setState({ currentSemesterCode: 11 });
         break;
       case "Fall 2019":
-        this.setState({ currentSemesterCode: 2 });
+      case "Fall 2020":
+      case "Fall 2021":
+      case "Fall 2022":
+      case "Fall 2023":
+      case "Fall 2024":
+        this.setState({ currentSemesterCode: 8 });
         break;
       case "Winter 2019":
+      case "Winter 2020":
+      case "Winter 2021":
+      case "Winter 2022":
+      case "Winter 2023":
+      case "Winter 2024":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Fall 2017":
+        this.setState({ currentSemesterCode: 0 });
+        break;
+      case "Winter 2017":
+        this.setState({ currentSemesterCode: 1 });
+        break;
+      case "Spring 2018":
+        this.setState({ currentSemesterCode: 2 });
+        break;
+      case "Summer 2018":
         this.setState({ currentSemesterCode: 3 });
+        break;
+      case "Fall 2018":
+        this.setState({ currentSemesterCode: 4 });
+        break;
+      case "Winter 2018":
+        this.setState({ currentSemesterCode: 5 });
+        break;
+      case "Spring 2019":
+        this.setState({ currentSemesterCode: 6 });
+        break;
+      case "Summer 2019":
+        this.setState({ currentSemesterCode: 7 });
+        break;
+      case "Fall 2019":
+        this.setState({ currentSemesterCode: 8 });
+        break;
+      case "Winter 2019":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Spring 2020":
+        this.setState({ currentSemesterCode: 10 });
+        break;
+      case "Summer 2020":
+        this.setState({ currentSemesterCode: 11 });
         break;
     }
   };
@@ -118,17 +172,21 @@ class SemesterPiece extends Component {
       for (let i = 0; i < sortedCourseObjects.length; i++) {
         currentCourse = sortedCourseObjects[i];
         if (!currentCourse["shopping"]) {
-          results.push(
-            <CoursePiece
-              key={i}
-              courseCode={currentCourse["course_code"]}
-              color={
-                Colors[
-                  CourseList.indexOf(currentCourse["course_code"].split(" ")[0])
-                ]
-              }
-            ></CoursePiece>
-          );
+          if (results.length < 5) {
+            results.push(
+              <CoursePiece
+                key={i}
+                courseCode={currentCourse["course_code"]}
+                color={
+                  Colors[
+                    CourseList.indexOf(
+                      currentCourse["course_code"].split(" ")[0]
+                    )
+                  ]
+                }
+              ></CoursePiece>
+            );
+          }
         }
       }
       return results;

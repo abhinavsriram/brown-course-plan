@@ -45,30 +45,118 @@ class SemesterCard extends Component {
       isCourseAddModalVisible: false,
       popUpGradeMode: true,
       popUpConcentrationRequirement: true,
+      popUpConcentration2Requirement: true,
       popUpWritRequirement: true,
       popUpfullhalfCredit: true,
       popUpShopping: true,
       initialpopUpGradeMode: 1,
       initialpopUpConcentrationRequirement: 1,
+      initialpopUpConcentration2Requirement: 1,
       initialpopUpWritRequirement: 1,
       initialpopUpfullhalfCredit: 1,
       initialpopUpShopping: 1,
+      firstConcentration: null,
+      secondConcentartion: null,
     };
   }
+
+  getConcentrations = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          if (doc.data().concentration !== undefined) {
+            if (
+              doc.data().concentration !== "Yet To Declare" &&
+              doc.data().concentration !== "Not Declaring"
+            ) {
+              this.setState({ firstConcentration: doc.data().concentration });
+            }
+          }
+          if (
+            doc.data().second_concentration !== undefined &&
+            doc.data().second_concentration !== "Not Declaring"
+          ) {
+            if (doc.data().second_concentration !== "Yet To Declare") {
+              this.setState({
+                secondConcentartion: doc.data().second_concentration,
+              });
+            }
+          }
+        }
+      });
+  };
 
   determineSemesterCode = () => {
     switch (this.state.title) {
       case "Spring 2020":
-        this.setState({ currentSemesterCode: 0 });
+      case "Spring 2021":
+      case "Spring 2022":
+      case "Spring 2023":
+      case "Spring 2024":
+        this.setState({ currentSemesterCode: 10 });
         break;
       case "Summer 2020":
-        this.setState({ currentSemesterCode: 1 });
+      case "Summer 2021":
+      case "Summer 2022":
+      case "Summer 2023":
+      case "Summer 2024":
+        this.setState({ currentSemesterCode: 11 });
         break;
       case "Fall 2019":
-        this.setState({ currentSemesterCode: 2 });
+      case "Fall 2020":
+      case "Fall 2021":
+      case "Fall 2022":
+      case "Fall 2023":
+      case "Fall 2024":
+        this.setState({ currentSemesterCode: 8 });
         break;
       case "Winter 2019":
+      case "Winter 2020":
+      case "Winter 2021":
+      case "Winter 2022":
+      case "Winter 2023":
+      case "Winter 2024":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Fall 2017":
+        this.setState({ currentSemesterCode: 0 });
+        break;
+      case "Winter 2017":
+        this.setState({ currentSemesterCode: 1 });
+        break;
+      case "Spring 2018":
+        this.setState({ currentSemesterCode: 2 });
+        break;
+      case "Summer 2018":
         this.setState({ currentSemesterCode: 3 });
+        break;
+      case "Fall 2018":
+        this.setState({ currentSemesterCode: 4 });
+        break;
+      case "Winter 2018":
+        this.setState({ currentSemesterCode: 5 });
+        break;
+      case "Spring 2019":
+        this.setState({ currentSemesterCode: 6 });
+        break;
+      case "Summer 2019":
+        this.setState({ currentSemesterCode: 7 });
+        break;
+      case "Fall 2019":
+        this.setState({ currentSemesterCode: 8 });
+        break;
+      case "Winter 2019":
+        this.setState({ currentSemesterCode: 9 });
+        break;
+      case "Spring 2020":
+        this.setState({ currentSemesterCode: 10 });
+        break;
+      case "Summer 2020":
+        this.setState({ currentSemesterCode: 11 });
         break;
     }
   };
@@ -80,6 +168,7 @@ class SemesterCard extends Component {
         const userID = email.split("@")[0];
         this.setState({ userID: userID }, () => {
           this.pullFromDatabase();
+          this.getConcentrations();
         });
       } else {
       }
@@ -352,8 +441,8 @@ class SemesterCard extends Component {
                 this.showHideCourseInfoPopUp(currentCourse["course_code"]);
               }}
               onLongPress={() => {
-                this.resetState();
                 this.showHideCourseAddPopUp(currentCourse["course_code"]);
+                this.resetState();
               }}
               courseName={
                 CourseData[this.state.currentSemesterCode][
@@ -367,7 +456,8 @@ class SemesterCard extends Component {
                 currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
               }
               concentrationRequirement={
-                currentCourse["concentration_1_requirement"]
+                currentCourse["concentration_1_requirement"] ||
+                currentCourse["concentration_2_requirement"]
                   ? "Concentration Requirement"
                   : ""
               }
@@ -418,8 +508,8 @@ class SemesterCard extends Component {
                 this.showHideCourseInfoPopUp(currentCourse["course_code"]);
               }}
               onLongPress={() => {
-                this.resetState();
                 this.showHideCourseAddPopUp(currentCourse["course_code"]);
+                this.resetState();
               }}
               courseName={
                 CourseData[this.state.currentSemesterCode][
@@ -619,18 +709,33 @@ class SemesterCard extends Component {
                 { popUpGradeMode: currentCourse["grade_mode"] },
                 () => {
                   if (!this.state.popUpGradeMode) {
-                    this.setState({ initialpopUpGradeMode: 0 });
+                    this.setState({ initialpopUpGradeMode: 1 });
                   }
                 }
               );
+              console.log(currentCourse["concentration_1_requirement"]);
               this.setState(
                 {
                   popUpConcentrationRequirement:
                     currentCourse["concentration_1_requirement"],
                 },
                 () => {
+                  console.log(this.state.popUpConcentrationRequirement);
                   if (!this.state.popUpConcentrationRequirement) {
+                    console.log("enters");
+                    console.log(this.state.popUpConcentrationRequirement);
                     this.setState({ initialpopUpConcentrationRequirement: 0 });
+                  }
+                }
+              );
+              this.setState(
+                {
+                  popUpConcentration2Requirement:
+                    currentCourse["concentration_2_requirement"],
+                },
+                () => {
+                  if (!this.state.popUpConcentration2Requirement) {
+                    this.setState({ initialpopUpConcentration2Requirement: 0 });
                   }
                 }
               );
@@ -646,7 +751,7 @@ class SemesterCard extends Component {
                 { popUpfullhalfCredit: currentCourse["full_half_credit"] },
                 () => {
                   if (!this.state.popUpfullhalfCredit) {
-                    this.setState({ initialpopUpfullhalfCredit: 0 });
+                    this.setState({ initialpopUpfullhalfCredit: 1 });
                   }
                 }
               );
@@ -666,19 +771,21 @@ class SemesterCard extends Component {
 
   // resets the values that are passed into "initial" of every switch selector
   resetState = () => {
-    this.setState({ initialpopUpGradeMode: 1 });
+    this.setState({ initialpopUpGradeMode: 0 });
     this.setState({ initialpopUpConcentrationRequirement: 1 });
+    this.setState({ initialpopUpConcentration2Requirement: 1 });
     this.setState({ initialpopUpWritRequirement: 1 });
-    this.setState({ initialpopUpfullhalfCredit: 1 });
+    this.setState({ initialpopUpfullhalfCredit: 0 });
     this.setState({ initialpopUpShopping: 1 });
   };
 
   setDefaultValues = () => {
     this.setState({ popUpGradeMode: true });
-    this.setState({ popUpConcentrationRequirement: true });
-    this.setState({ popUpWritRequirement: true });
+    this.setState({ popUpConcentrationRequirement: false });
+    this.setState({ popUpConcentration2Requirement: false });
+    this.setState({ popUpWritRequirement: false });
     this.setState({ popUpfullhalfCredit: true });
-    this.setState({ popUpShopping: true });
+    this.setState({ popUpShopping: false });
   };
 
   addCourseToDatabase = () => {
@@ -695,6 +802,8 @@ class SemesterCard extends Component {
             grade_mode: this.state.popUpGradeMode,
             concentration_1_requirement: this.state
               .popUpConcentrationRequirement,
+            concentration_2_requirement: this.state
+              .popUpConcentration2Requirement,
             writ_requirement: this.state.popUpWritRequirement,
             full_half_credit: this.state.popUpfullhalfCredit,
             shopping: this.state.popUpShopping,
@@ -722,7 +831,9 @@ class SemesterCard extends Component {
               <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
             </TouchableOpacity>
             <View style={courseAddPopUpStyles.header}>
-              <Text style={courseAddPopUpStyles.title}>Course Details</Text>
+              <Text style={courseAddPopUpStyles.title}>
+                {this.state.courseCode}
+              </Text>
             </View>
             <View style={courseAddPopUpStyles.content}>
               <View style={courseAddPopUpStyles.rowContent}>
@@ -736,8 +847,8 @@ class SemesterCard extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "S/NC", value: false },
                       { label: "A/B/C/NC", value: true },
+                      { label: "S/NC", value: false },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -746,29 +857,56 @@ class SemesterCard extends Component {
                   />
                 </View>
               </View>
-              <View style={courseAddPopUpStyles.rowContent}>
-                <View style={courseAddPopUpStyles.itemContainer}>
-                  <Text style={courseAddPopUpStyles.item}>
-                    Concentration Requirement
-                  </Text>
-                  <SwitchSelector
-                    initial={this.state.initialpopUpConcentrationRequirement}
-                    textColor={"#4E342E"}
-                    selectedColor={"white"}
-                    buttonColor={"#4E342E"}
-                    borderColor={"#4E342E"}
-                    hasPadding
-                    options={[
-                      { label: "No", value: false },
-                      { label: "Yes", value: true },
-                    ]}
-                    style={courseAddPopUpStyles.item}
-                    onPress={(value) =>
-                      this.setState({ popUpConcentrationRequirement: value })
-                    }
-                  />
+              {this.state.firstConcentration ? (
+                <View style={courseAddPopUpStyles.rowContent}>
+                  <View style={courseAddPopUpStyles.itemContainer}>
+                    <Text style={courseAddPopUpStyles.item}>
+                      {this.state.firstConcentration} Requirement
+                    </Text>
+                    <SwitchSelector
+                      initial={this.state.initialpopUpConcentrationRequirement}
+                      textColor={"#4E342E"}
+                      selectedColor={"white"}
+                      buttonColor={"#4E342E"}
+                      borderColor={"#4E342E"}
+                      hasPadding
+                      options={[
+                        { label: "No", value: false },
+                        { label: "Yes", value: true },
+                      ]}
+                      style={courseAddPopUpStyles.item}
+                      onPress={(value) =>
+                        this.setState({ popUpConcentrationRequirement: value })
+                      }
+                    />
+                  </View>
                 </View>
-              </View>
+              ) : null}
+              {this.state.secondConcentartion ? (
+                <View style={courseAddPopUpStyles.rowContent}>
+                  <View style={courseAddPopUpStyles.itemContainer}>
+                    <Text style={courseAddPopUpStyles.item}>
+                      {this.state.secondConcentartion} Requirement
+                    </Text>
+                    <SwitchSelector
+                      initial={this.state.initialpopUpConcentration2Requirement}
+                      textColor={"#4E342E"}
+                      selectedColor={"white"}
+                      buttonColor={"#4E342E"}
+                      borderColor={"#4E342E"}
+                      hasPadding
+                      options={[
+                        { label: "No", value: false },
+                        { label: "Yes", value: true },
+                      ]}
+                      style={courseAddPopUpStyles.item}
+                      onPress={(value) =>
+                        this.setState({ popUpConcentration2Requirement: value })
+                      }
+                    />
+                  </View>
+                </View>
+              ) : null}
               <View style={courseAddPopUpStyles.rowContent}>
                 <View style={courseAddPopUpStyles.itemContainer}>
                   <Text style={courseAddPopUpStyles.item}>
@@ -805,8 +943,8 @@ class SemesterCard extends Component {
                     borderColor={"#4E342E"}
                     hasPadding
                     options={[
-                      { label: "0.5", value: false },
                       { label: "1", value: true },
+                      { label: "0.5", value: false },
                     ]}
                     style={courseAddPopUpStyles.item}
                     onPress={(value) =>
@@ -1099,9 +1237,11 @@ const courseAddPopUpStyles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 25,
+    fontSize: 30,
     color: "white",
     fontWeight: "600",
+    position: "absolute",
+    top: "35%",
   },
   content: {
     flex: 1,
