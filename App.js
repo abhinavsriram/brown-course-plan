@@ -13,6 +13,7 @@ import DashboardScreen from "./screens/DashboardScreen";
 import TabNavigator from "./screens/BottomTabNavigator";
 import DrawerNavigator from "./screens/DrawerNavigator";
 import SearchTabNavigator from "./screens/BottomTabNavigatorSearch";
+import SearchScreen from "./screens/SearchScreenFromDashboard";
 
 // import helps solve a weird decoding bug
 import { decode, encode } from "base-64";
@@ -54,6 +55,7 @@ const AppSwitchNavigator = createSwitchNavigator(
     TabNavigator: TabNavigator,
     SearchTabNavigator: SearchTabNavigator,
     DrawerNavigator: DrawerNavigator,
+    SearchScreen: SearchScreen,
   },
   {
     initialRouteName: "LoadingScreen",
