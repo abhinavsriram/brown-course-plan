@@ -22,7 +22,7 @@ class CreateProfileScreen1 extends Component {
     this.state = {
       firstName: "",
       lastName: "",
-      profilePicture: "/Users/abhinavsriram/Desktop/brown-cp/assets/dp-placeholder.jpg",
+      profilePicture: "./../assets/dp-placeholder.jpg",
       userID: this.props.navigation.state.params.userID,
     };
   }

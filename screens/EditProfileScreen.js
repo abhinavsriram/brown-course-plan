@@ -1,4 +1,3 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   Dimensions,
@@ -9,24 +8,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 import UserPermissions from "./../utilities/UserPermissions.js";
 import * as ImagePicker from "expo-image-picker";
 import { DrawerActions } from "react-navigation-drawer";
 
-/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––DATA IMPORT–––––––––––––––––––––––––*/
 import completeConcentrationsList from "./../data/ConcentrationsList.js";
 import completeSecondConcentrationsList from "./../data/SecondConcentrationsList";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
-import { ScrollView } from "react-native-gesture-handler";
 
-/*–––––––––––––––––––––––––EDIT PROFILE SCREEN COMPONENT–––––––––––––––––––––––––*/
 class EditProfileScreen extends Component {
   constructor(props) {
     super(props);
@@ -46,28 +41,95 @@ class EditProfileScreen extends Component {
     };
   }
 
+  // called when component mounts
+  // calls on one methods that is integral to displaying information
+  getUserID = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const email = user.email;
+        const userID = email.split("@")[0];
+        this.setState({ userID: userID }, () => {
+          this.pullFromDatabase();
+        });
+      }
+    });
+  };
+
+  // called after acquiring userID
+  // pulls all details from database
+  pullFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          if (doc.data().concentration !== "Yet To Declare") {
+            this.setState({
+              concentrationPickerValue: doc.data().concentration,
+            });
+          }
+          if (doc.data().second_concentration) {
+            if (doc.data().second_concentration !== "Yet To Declare") {
+              this.setState({
+                secondConcentrationPickerValue: doc.data().second_concentration,
+              });
+            }
+          }
+          this.setState({ degreePickerValue: doc.data().degree });
+          this.setState({ classYearPickerValue: doc.data().class_year });
+          this.setState({
+            semesterLevelPickerValue: doc.data().semester_level,
+          });
+          this.setState({ profilePicture: doc.data().profile_picture_url });
+        } else {
+          console.log("no data accquired");
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  componentDidMount() {
+    this.getUserID();
+    this.props.navigation.addListener("willFocus", () => this.getUserID());
+  }
+
+  // custom method that takes in 2 params
+  // it determines the degree based on chosen concentrations
   determineDegree = (concentrationOne, concentrationTwo) => {
     var concentrationOneDegree;
     var concentrationTwoDegree;
-    if (!(concentrationOne === "Yet To Declare" || concentrationOne === "Click to Choose")) {
-      console.log("First Concentration Exists")
+    if (
+      !(
+        concentrationOne === "Yet To Declare" ||
+        concentrationOne === "Click to Choose"
+      )
+    ) {
       concentrationOneDegree = concentrationOne.split(" - ")[1].charAt(0);
     }
-    if (!(concentrationTwo === "Yet To Declare" || concentrationTwo === "Not Declaring" || concentrationTwo === "Click to Choose")) {
+    if (
+      !(
+        concentrationTwo === "Yet To Declare" ||
+        concentrationTwo === "Not Declaring" ||
+        concentrationTwo === "Click to Choose"
+      )
+    ) {
       concentrationTwoDegree = concentrationTwo.split(" - ")[1].charAt(0);
-      console.log("Second Concentration Exists")
     }
     if (concentrationOneDegree === "S" || concentrationTwoDegree === "S") {
-      console.log("SCB", this.state.degreePickerValue)
-      this.setState({ degreePickerValue: "Sc.B." }, () => {console.log(this.state.degreePickerValue)});
-    } else if (concentrationOneDegree === "A" || concentrationTwoDegree === "A") {
-      console.log("AB", this.state.degreePickerValue)
-      this.setState({ degreePickerValue: "A.B." }, () => {console.log(this.state.degreePickerValue)});
+      this.setState({ degreePickerValue: "Sc.B." });
+    } else if (
+      concentrationOneDegree === "A" ||
+      concentrationTwoDegree === "A"
+    ) {
+      this.setState({ degreePickerValue: "A.B." });
     } else {
-      console.log("Other", this.state.degreePickerValue)
-      this.setState({ degreePickerValue: "Yet To Declare" }, () => {console.log(this.state.degreePickerValue)});
+      this.setState({ degreePickerValue: "Yet To Declare" });
     }
-  }
+  };
 
   ShowHideConcentrationPicker = () => {
     if (this.state.concentrationPickerVisible == true) {
@@ -128,72 +190,6 @@ class EditProfileScreen extends Component {
     this.setState({ secondConcentrationPickerVisible: false });
   };
 
-  getUserID = () => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const email = user.email;
-        const userID = email.split("@")[0];
-        this.setState({ userID: userID }, () => {
-          this.pullFromDatabase();
-        });
-      }
-    });
-  };
-
-  componentDidMount() {
-    this.getUserID();
-    this.props.navigation.addListener("willFocus", () => this.getUserID());
-  }
-
-  handlePickProfilePicture = async () => {
-    UserPermissions.getCameraPermission();
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    if (!result.cancelled) {
-      this.setState({ profilePicture: result.uri });
-    }
-  };
-
-  pullFromDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          if (doc.data().concentration !== "Yet To Declare") {
-            this.setState({
-              concentrationPickerValue: doc.data().concentration,
-            });
-          }
-          if (doc.data().second_concentration) {
-            if (doc.data().second_concentration !== "Yet To Declare") {
-              this.setState({
-                secondConcentrationPickerValue: doc.data().second_concentration,
-              });
-            }
-          }
-          this.setState({ degreePickerValue: doc.data().degree });
-          this.setState({ classYearPickerValue: doc.data().class_year });
-          this.setState({
-            semesterLevelPickerValue: doc.data().semester_level,
-          });
-          this.setState({ profilePicture: doc.data().profile_picture_url });
-        } else {
-          console.log("no data accquired");
-        }
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  };
-
   defaultConcentration = () => {
     if (
       this.state.concentrationPickerValue === "Click to Choose" ||
@@ -233,6 +229,22 @@ class EditProfileScreen extends Component {
     }
   };
 
+  // lets the user choose a custom dp from their camera roll
+  handlePickProfilePicture = async () => {
+    UserPermissions.getCameraPermission();
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      this.setState({ profilePicture: result.uri });
+    }
+  };
+
+  // when user hits done, chosen information is written to database
   writeToDatabase = () => {
     firebase
       .firestore()
@@ -263,7 +275,6 @@ class EditProfileScreen extends Component {
     }
   };
 
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
       <React.Fragment>
@@ -350,7 +361,10 @@ class EditProfileScreen extends Component {
                   onPress={() => {
                     this.ShowHideConcentrationPicker();
                     this.defaultConcentration();
-                    this.determineDegree(this.state.concentrationPickerValue, this.state.secondConcentrationPickerValue);
+                    this.determineDegree(
+                      this.state.concentrationPickerValue,
+                      this.state.secondConcentrationPickerValue
+                    );
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -405,7 +419,10 @@ class EditProfileScreen extends Component {
                   onPress={() => {
                     this.ShowHideSecondConcentrationPicker();
                     this.defaultSecondConcentration();
-                    this.determineDegree(this.state.concentrationPickerValue, this.state.secondConcentrationPickerValue);
+                    this.determineDegree(
+                      this.state.concentrationPickerValue,
+                      this.state.secondConcentrationPickerValue
+                    );
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -452,7 +469,10 @@ class EditProfileScreen extends Component {
                   onPress={() => {
                     this.ShowHideDegreePicker();
                     this.defaultDegree();
-                    this.determineDegree(this.state.concentrationPickerValue, this.state.secondConcentrationPickerValue);
+                    this.determineDegree(
+                      this.state.concentrationPickerValue,
+                      this.state.secondConcentrationPickerValue
+                    );
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -497,11 +517,6 @@ class EditProfileScreen extends Component {
                   style={profileStyles.cancelButton}
                   onPress={() => {
                     this.ShowHideClassYearPicker();
-                    // this.setState({
-                    //   semesterLevelPickerValue: this.determineSemesterLevel(
-                    //     this.state.classYearPickerValue
-                    //   ),
-                    // });
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -510,12 +525,12 @@ class EditProfileScreen extends Component {
             ) : null}
           </ScrollView>
           {/* /*–––––––––––––––––––––––––LET'S GO BUTTON–––––––––––––––––––––––––*/}
-          <CreateProfileButton
+          <CustomButton
             title="Done"
             onPress={() => {
               this.navigateToNextScreen();
             }}
-          ></CreateProfileButton>
+          ></CustomButton>
         </View>
       </React.Fragment>
     );
@@ -523,24 +538,21 @@ class EditProfileScreen extends Component {
 }
 
 /*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
-const CreateProfileButton = ({ onPress, title }) => (
+const CustomButton = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
-    style={profileStyles.createProfileButtonContainer}
+    style={profileStyles.customButtonContainer}
     activeOpacity={0.8}
   >
-    <Text style={profileStyles.createProfileButtonText}>{title}</Text>
+    <Text style={profileStyles.customButtonText}>{title}</Text>
   </TouchableOpacity>
 );
 
-const inputWidth = 0.8 * Dimensions.get("window").width;
-
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
+// styling for the whole screen in general
 const styles = StyleSheet.create({
   wrapContainer: {
     backgroundColor: "#E53935",
     flex: 1,
-    // alignItems: "center",
   },
   container: {
     backgroundColor: "#E53935",
@@ -568,7 +580,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#fafafa",
   },
-  createProfileButtonContainer: {
+  customButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -580,7 +592,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 40,
   },
-  createProfileButtonText: {
+  customButtonText: {
     fontSize: 18,
     color: "#E53935",
     fontWeight: "bold",
@@ -627,6 +639,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// styling for all the forms/pickers
 const profileStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -637,27 +650,27 @@ const profileStyles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "38%",
-    width: inputWidth,
+    width: Dimensions.get("window").width,
   },
   form12: {
     position: "absolute",
     top: "50%",
-    width: inputWidth,
+    width: Dimensions.get("window").width,
   },
   form2: {
     position: "absolute",
     top: "62%",
-    width: inputWidth,
+    width: Dimensions.get("window").width,
   },
   form3: {
     position: "absolute",
     top: "74%",
-    width: inputWidth,
+    width: Dimensions.get("window").width,
   },
   form4: {
     position: "absolute",
     top: "86%",
-    width: inputWidth,
+    width: Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",
@@ -672,7 +685,7 @@ const profileStyles = StyleSheet.create({
     fontSize: 13,
     color: "#fafafa",
   },
-  createProfileButtonContainer: {
+  customButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -686,7 +699,7 @@ const profileStyles = StyleSheet.create({
     zIndex: 3,
     left: "10%",
   },
-  createProfileButtonText: {
+  customButtonText: {
     fontSize: 18,
     color: "#E53935",
     fontWeight: "bold",

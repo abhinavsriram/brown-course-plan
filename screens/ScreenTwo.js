@@ -1,21 +1,18 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 
-import ScreenName from '../components/ScreenName.js'
-import Header from '../components/Header.js'
+import ScreenName from "../components/ScreenName.js";
+import Header from "../components/Header.js";
 
 export default class ScreenTwo extends React.Component {
-
-  static navigationOptions = {
-
-  };
+  static navigationOptions = {};
 
   render() {
     return (
       <React.Fragment>
         <Header />
         <View style={styles.container}>
-          <ScreenName name={'Screen Two'} />
+          <ScreenName name={"Screen Two"} />
         </View>
       </React.Fragment>
     );
@@ -25,7 +22,7 @@ export default class ScreenTwo extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

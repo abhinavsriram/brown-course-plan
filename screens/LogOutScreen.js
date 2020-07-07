@@ -1,10 +1,7 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Button } from "react-native";
-import { Header } from "react-native-elements";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { DrawerActions } from "react-navigation-drawer";
 
-/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
 import firebase from "firebase";
@@ -13,7 +10,6 @@ class LogOutScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        {/* /*–––––––––––––––––––––––––BACK BUTTON–––––––––––––––––––––––––*/}
         <TouchableOpacity
           style={styles.backArrow}
           onPress={() => {
@@ -45,7 +41,6 @@ class LogOutScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title, style }) => (
   <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.8}>
     <Text style={styles.CustomButtonText}>{title}</Text>

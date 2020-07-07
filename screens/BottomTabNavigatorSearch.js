@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 
 import GradesScreen from "./GradesScreen";
@@ -52,6 +52,7 @@ export default createBottomTabNavigator(
       },
     },
   },
+  /*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
   {
     tabBarOptions: {
       activeTintColor: "#89655D",

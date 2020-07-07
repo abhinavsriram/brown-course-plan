@@ -14,8 +14,6 @@ import {
 } from "react-native";
 import { Header } from "react-native-elements";
 import SwitchSelector from "react-native-switch-selector";
-import { Ionicons } from "@expo/vector-icons";
-import { DrawerActions } from "react-navigation-drawer";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -37,7 +35,7 @@ class SearchScreen extends Component {
       searchBoxValue: "",
       yOffset: 0,
       // here we set the default value to the latest semester
-      semesterPickerValue: "Spring 2020",
+      semesterPickerValue: this.props.navigation.state.params.semester,
       semesterPickerVisible: false,
       currentSemesterCode: 0,
       courseCode: "Placeholder Course",
@@ -970,10 +968,10 @@ class SearchScreen extends Component {
             <TouchableOpacity
               style={styles.trigger}
               onPress={() => {
-                this.props.navigation.dispatch(DrawerActions.openDrawer());
+                this.props.navigation.navigate("TabNavigator");
               }}
             >
-              <Ionicons name={"md-menu"} size={32} color={"white"} />
+              <Icon name="ios-arrow-back" color="#fafafa" size={35} />
             </TouchableOpacity>
           </Header>
           {/* /*–––––––––––––––––––––––––SEARCH BOX–––––––––––––––––––––––––*/}

@@ -50,6 +50,7 @@ class CreateProfileScreen2 extends Component {
     return currDate.getMonth() >= 0 && currDate.getMonth() <= 5;
   };
 
+  // custom method that automatically determines the semester level based on current date and chosen class year
   determineSemesterLevel = (gradYear) => {
     var currDate = new Date();
     var currYear = currDate.getFullYear();
@@ -76,6 +77,42 @@ class CreateProfileScreen2 extends Component {
       } else {
         return "S0" + 2;
       }
+    }
+  };
+
+  // custom method that automatically determines the degree based on chosen concentration
+  // this was originally written assuming 2 concentrations would be passed-in
+  // thus here we pass-in "Yet To Declare" as the second concentration
+  // this is equivalent to not having a second concentration
+  determineDegree = (concentrationOne, concentrationTwo) => {
+    var concentrationOneDegree;
+    var concentrationTwoDegree;
+    if (
+      !(
+        concentrationOne === "Yet To Declare" ||
+        concentrationOne === "Click to Choose"
+      )
+    ) {
+      concentrationOneDegree = concentrationOne.split(" - ")[1].charAt(0);
+    }
+    if (
+      !(
+        concentrationTwo === "Yet To Declare" ||
+        concentrationTwo === "Not Declaring" ||
+        concentrationTwo === "Click to Choose"
+      )
+    ) {
+      concentrationTwoDegree = concentrationTwo.split(" - ")[1].charAt(0);
+    }
+    if (concentrationOneDegree === "S" || concentrationTwoDegree === "S") {
+      this.setState({ degreePickerValue: "Sc.B." });
+    } else if (
+      concentrationOneDegree === "A" ||
+      concentrationTwoDegree === "A"
+    ) {
+      this.setState({ degreePickerValue: "A.B." });
+    } else {
+      this.setState({ degreePickerValue: "Yet To Declare" });
     }
   };
 
@@ -206,6 +243,10 @@ class CreateProfileScreen2 extends Component {
               style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideConcentrationPicker();
+                this.determineDegree(
+                  this.state.concentrationPickerValue,
+                  "Yet To Declare"
+                );
                 this.defaultConcentration();
               }}
             >
@@ -252,6 +293,10 @@ class CreateProfileScreen2 extends Component {
               style={styles.cancelButton}
               onPress={() => {
                 this.ShowHideDegreePicker();
+                this.determineDegree(
+                  this.state.concentrationPickerValue,
+                  "Yet To Declare"
+                );
                 this.defaultDegree();
               }}
             >

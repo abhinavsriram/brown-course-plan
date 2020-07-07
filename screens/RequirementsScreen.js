@@ -8,7 +8,6 @@ class RequirementsScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        {/* /*–––––––––––––––––––––––––HEADER–––––––––––––––––––––––––*/}
         <Header
           backgroundColor="#4E342E"
           centerComponent={<Text style={styles.title}>Requirements</Text>}

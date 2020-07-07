@@ -1,22 +1,19 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 
-import ScreenName from '../components/ScreenName.js'
+import ScreenName from "../components/ScreenName.js";
 
-import Header from '../components/Header.js'
+import Header from "../components/Header.js";
 
 export default class ScreenOne extends React.Component {
-
-  static navigationOptions = {
-
-  };
+  static navigationOptions = {};
 
   render() {
     return (
       <React.Fragment>
         <Header />
         <View style={styles.container}>
-          <ScreenName name={'Screen One'}/>
+          <ScreenName name={"Screen One"} />
         </View>
       </React.Fragment>
     );
@@ -26,7 +23,7 @@ export default class ScreenOne extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

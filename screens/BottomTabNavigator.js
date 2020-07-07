@@ -1,18 +1,14 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React from "react";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import GradesScreen from "./GradesScreen";
 import CalendarScreen from "./CalendarScreen";
 import RequirementsScreen from "./RequirementsScreen";
 import SearchScreen from "./SearchScreen";
 import DashboardScreen from "./DashboardScreen";
 
-/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––BOTTOM TAB NAVIGATOR COMPONENT–––––––––––––––––––––––––*/
 export default createBottomTabNavigator(
   {
     Grades: {
