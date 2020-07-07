@@ -1,3 +1,8 @@
+// list of all concentrations offered at Brown as of 2020
+// acquired using a beautifulsoup python script
+// this script can be found in Desktop/brown-cp-ast/cab-datascraping/webscraping-initial/concentrationslist.py
+// first 3 elements in the array are added manually
+
 const completeConcentrationsList = [
   "Yet To Declare",
   "Independent Concentration - AB",

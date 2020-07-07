@@ -1,3 +1,7 @@
+// a list of words to be excluded when creating the "keywords" array for search functionality
+// these are words people often subconsciously exclude when searching for something
+// acquired online
+
 const stopWordsList = [
   "a",
   "about",

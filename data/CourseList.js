@@ -1,3 +1,7 @@
+// list of all the departments offering courses at Brown
+// accquired using a beautifulsoup python script
+// this script can be found in Desktop/brown-cp-ast/cab-datascraping/webscraping-initial/courselist.py
+
 const courseList = [
   "AFRI",
   "SIGN",

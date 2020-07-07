@@ -1,3 +1,6 @@
+// identical to ConcentrationsList.js
+// first 4 elements in the array are added manually ("Not Declaring" because not everyone double concentrates)
+
 const completeConcentrationsList = [
   "Yet To Declare",
   "Not Declaring",

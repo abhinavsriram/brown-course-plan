@@ -1,3 +1,12 @@
+// a list of ~200 randomized colors (luminosity: "dark"; luminosity: "bright")
+// generated using:
+  // var randomColor = require("randomcolor");
+  // const colors = randomColor({
+  //   count: 95,
+  //   luminosity: "dark",
+  // });
+  // console.log(colors);
+
 const colorsList = [
   "#bc6527",
   "#e5dc5e",
