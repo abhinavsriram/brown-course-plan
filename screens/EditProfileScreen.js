@@ -19,7 +19,6 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 /*–––––––––––––––––––––––––DATA IMPORT–––––––––––––––––––––––––*/
 import completeConcentrationsList from "./../data/ConcentrationsList.js";
-import completeSecondConcentrationsList from "./../data/SecondConcentrationsList";
 
 /*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
@@ -44,6 +43,24 @@ class EditProfileScreen extends Component {
       userID: "",
       profilePicture: "./../assets/dp-placeholder.jpg",
     };
+  }
+
+  determineDegree = (concentrationOne, concentrationTwo) => {
+    var concentrationOneDegree;
+    var concentrationTwoDegree;
+    if (!(concentrationOne === "Yet To Declare")) {
+      concentrationOneDegree = concentrationOne.split(" - ")[1].charAt(0);
+    } 
+    if (!(concentrationTwo === "Yet To Declare" || concentrationTwo === "Not Declaring")) {
+      concentrationTwoDegree = concentrationTwo.split(" - ")[1].charAt(0);
+    } 
+    if (concentrationOneDegree === "S" || concentrationTwoDegree === "S") {
+      this.setState({ degreePickerValue: "Sc. B" });
+    } else if (concentrationOneDegree === "A" || concentrationTwoDegree === "A") {
+      this.setState({ degreePickerValue: "A.B." });
+    } else {
+      this.setState({ degreePickerValue: "Yet To Declare" });
+    }
   }
 
   ShowHideConcentrationPicker = () => {
@@ -144,18 +161,10 @@ class EditProfileScreen extends Component {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          if (doc.data().concentration !== "Yet To Declare") {
-            this.setState({
-              concentrationPickerValue: doc.data().concentration,
-            });
-          }
-          if (doc.data().second_concentration) {
-            if (doc.data().second_concentration !== "Yet To Declare") {
-              this.setState({
-                secondConcentrationPickerValue: doc.data().second_concentration,
-              });
-            }
-          }
+          this.setState({ concentrationPickerValue: doc.data().concentration });
+          this.setState({
+            secondConcentrationPickerValue: doc.data().second_concentration,
+          });
           this.setState({ degreePickerValue: doc.data().degree });
           this.setState({ classYearPickerValue: doc.data().class_year });
           this.setState({
@@ -172,20 +181,11 @@ class EditProfileScreen extends Component {
   };
 
   defaultConcentration = () => {
-    if (
-      this.state.concentrationPickerValue === "Click to Choose" ||
-      this.state.concentrationPickerValue === undefined
-    ) {
-      this.setState({ concentrationPickerValue: "Yet To Declare" });
+    if (this.state.concentrationPickerValue === "Click to Choose") {
+      this.setState({ concentrationPickerValue: "Yet to Declare" });
     }
-  };
-
-  defaultSecondConcentration = () => {
-    if (
-      this.state.secondConcentrationPickerValue === "Click to Choose" ||
-      this.state.concentrationPickerValue === undefined
-    ) {
-      this.setState({ secondConcentrationPickerValue: "Yet To Declare" });
+    if (this.state.secondConcentrationPickerValue === "Click to Choose") {
+      this.setState({ secondConcentrationPickerValue: "Yet to Declare" });
     }
   };
 
@@ -364,23 +364,21 @@ class EditProfileScreen extends Component {
                   }}
                   itemStyle={{ color: "#fafafa", borderColor: "#fafafa" }}
                 >
-                  {completeSecondConcentrationsList.map(
-                    (concentration, index) => {
-                      return (
-                        <Picker.Item
-                          key={index}
-                          label={concentration}
-                          value={concentration}
-                        ></Picker.Item>
-                      );
-                    }
-                  )}
+                  {completeConcentrationsList.map((concentration, index) => {
+                    return (
+                      <Picker.Item
+                        key={index}
+                        label={concentration}
+                        value={concentration}
+                      ></Picker.Item>
+                    );
+                  })}
                 </Picker>
                 <TouchableOpacity
                   style={profileStyles.cancelButton}
                   onPress={() => {
                     this.ShowHideSecondConcentrationPicker();
-                    this.defaultSecondConcentration();
+                    this.defaultConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -400,7 +398,7 @@ class EditProfileScreen extends Component {
                     fontSize: 13,
                   }}
                 >
-                  {this.state.degreePickerValue}
+                  {this.state.determineDegree(this.state.concentrationPickerValue, this.state.secondConcentrationPickerValue)}
                 </Text>
               </TouchableOpacity>
             </View>
