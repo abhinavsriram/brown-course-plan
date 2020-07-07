@@ -1,13 +1,9 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import * as firebase from "firebase";
 import "firebase/firestore";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
-import CourseData from "./../data/CourseData.json";
 import Colors from "./../data/Colors";
 import CourseList from "./../data/CourseList";
 import CoursePiece from "./../components/CoursePiece";
@@ -25,6 +21,49 @@ class SemesterPiece extends Component {
       visibility: this.props.visibility,
     };
   }
+
+  // called when component mounts
+  // calls on two methods that are integral to this class' functionality
+  getUserID = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const email = user.email;
+        const userID = email.split("@")[0];
+        this.setState({ userID: userID }, () => {
+          this.pullDataObjectFromDatabase();
+          this.determineSemesterCode();
+        });
+      } else {
+      }
+    });
+  };
+
+  // pulls all the information for a particular semester as a doc object
+  pullDataObjectFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ data: doc.data() }, () => {
+            this.triggerRenderCoursePieces();
+          });
+        } else {
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  // accounts for time-delay between code compile and database response
+  triggerRenderCoursePieces = () => {
+    this.setState({ trigger: true });
+  };
 
   determineSemesterCode = () => {
     switch (this.state.title) {
@@ -97,50 +136,13 @@ class SemesterPiece extends Component {
     }
   };
 
-  getUserID = () => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const email = user.email;
-        const userID = email.split("@")[0];
-        this.setState({ userID: userID }, () => {
-          this.pullFromDatabase();
-        });
-      } else {
-      }
-    });
-  };
-
-  pullFromDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc(this.state.title)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          this.setState({ data: doc.data() }, () => {
-            this.triggerRenderCourseCards();
-          });
-        } else {
-        }
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  };
-
   componentDidMount() {
     this.getUserID();
-    this.determineSemesterCode();
   }
 
-  triggerRenderCourseCards = () => {
-    this.setState({ trigger: true });
-  };
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––CREATE/RENDER COURSE PIECES–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 
-  bubbleSort1 = (arr, mainArr) => {
+  bubbleSortAlphabetically = (arr, mainArr) => {
     var len = arr.length;
     for (var i = len - 1; i >= 0; i--) {
       for (var j = 1; j <= i; j++) {
@@ -157,7 +159,7 @@ class SemesterPiece extends Component {
     return mainArr;
   };
 
-  renderCourseCards = () => {
+  renderCoursePieces = () => {
     var results = [];
     var courseObjects = [];
     var courseNames = [];
@@ -168,7 +170,10 @@ class SemesterPiece extends Component {
         courseObjects.push(currentCourse);
         courseNames.push(currentCourse["course_code"].split(" ")[0]);
       }
-      sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
+      sortedCourseObjects = this.bubbleSortAlphabetically(
+        courseNames,
+        courseObjects
+      );
       for (let i = 0; i < sortedCourseObjects.length; i++) {
         currentCourse = sortedCourseObjects[i];
         if (!currentCourse["shopping"]) {
@@ -193,6 +198,8 @@ class SemesterPiece extends Component {
     }
   };
 
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
   render() {
     return (
       <React.Fragment>
@@ -202,7 +209,7 @@ class SemesterPiece extends Component {
               <React.Fragment>
                 <Text style={styles.title}>{this.state.title}</Text>
                 <View style={{ flexDirection: "column" }}>
-                  {this.renderCourseCards()}
+                  {this.renderCoursePieces()}
                 </View>
                 <Text style={styles.hours1}>Avg. Hrs: 12</Text>
                 <Text style={styles.hours2}>Max. Hrs: 12</Text>
@@ -215,7 +222,7 @@ class SemesterPiece extends Component {
               <React.Fragment>
                 <Text style={styles.title}>{this.state.title}</Text>
                 <View style={{ flexDirection: "column" }}>
-                  {this.renderCourseCards()}
+                  {this.renderCoursePieces()}
                 </View>
                 <Text style={styles.hours1}>Avg. Hrs: 12</Text>
                 <Text style={styles.hours2}>Max. Hrs: 12</Text>

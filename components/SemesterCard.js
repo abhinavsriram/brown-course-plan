@@ -1,10 +1,8 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Button,
   Dimensions,
   Modal,
   TouchableOpacity,
@@ -15,20 +13,16 @@ import { Header } from "react-native-elements";
 import SwitchSelector from "react-native-switch-selector";
 import Icon from "react-native-vector-icons/Ionicons";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import CourseCard from "./../components/CourseCardDashboard";
 import AddCourseCard from "./../components/AddCourseCard";
 
-/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import * as firebase from "firebase";
 import "firebase/firestore";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import CourseData from "./../data/CourseData.json";
 import Colors from "./../data/Colors";
 import CourseList from "./../data/CourseList";
 
-/*–––––––––––––––––––––––––SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
 class SemesterCard extends Component {
   constructor(props) {
     super(props);
@@ -39,16 +33,15 @@ class SemesterCard extends Component {
       trigger: false,
       currentSemesterCode: 0,
       navprops: this.props.navprops,
-      function: this.props.function,
       courseCode: "Placeholder Course",
       isCourseInfoModalVisible: false,
       isCourseAddModalVisible: false,
       popUpGradeMode: true,
-      popUpConcentrationRequirement: true,
-      popUpConcentration2Requirement: true,
-      popUpWritRequirement: true,
+      popUpConcentrationRequirement: false,
+      popUpConcentration2Requirement: false,
+      popUpWritRequirement: false,
       popUpfullhalfCredit: true,
-      popUpShopping: true,
+      popUpShopping: false,
       initialpopUpGradeMode: 1,
       initialpopUpConcentrationRequirement: 1,
       initialpopUpConcentration2Requirement: 1,
@@ -60,6 +53,52 @@ class SemesterCard extends Component {
     };
   }
 
+  // called when component mounts
+  // calls on three methods that are integral to this class' functionality
+  getUserID = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const email = user.email;
+        const userID = email.split("@")[0];
+        this.setState({ userID: userID }, () => {
+          this.pullDataObjectFromDatabase();
+          this.getConcentrations();
+          this.determineSemesterCode();
+        });
+      } else {
+      }
+    });
+  };
+
+  // pulls all the information for a particular semester as a doc object
+  pullDataObjectFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ data: doc.data() }, () => {
+            this.triggerRenderCourseCards();
+          });
+        } else {
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  // accounts for time-delay between code compile and database response
+  triggerRenderCourseCards = () => {
+    this.setState({ trigger: true });
+  };
+
+  // called after acquiring userID
+  // helps determine if "concentration requirement" switch selectors should exist on Pop-Up
   getConcentrations = () => {
     firebase
       .firestore()
@@ -78,7 +117,8 @@ class SemesterCard extends Component {
           }
           if (
             doc.data().second_concentration !== undefined &&
-            doc.data().second_concentration !== "Not Declaring"
+            doc.data().second_concentration !== "Not Declaring" &&
+            doc.data().second_concentration !== "Click to Choose"
           ) {
             if (doc.data().second_concentration !== "Yet To Declare") {
               this.setState({
@@ -161,74 +201,33 @@ class SemesterCard extends Component {
     }
   };
 
-  getUserID = () => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const email = user.email;
-        const userID = email.split("@")[0];
-        this.setState({ userID: userID }, () => {
-          this.pullFromDatabase();
-          this.getConcentrations();
-        });
+  componentDidMount() {
+    this.getUserID();
+  }
+
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––COURSE INFO POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  showHideCourseInfoPopUp = (courseCode) => {
+    this.setState({ courseCode: courseCode }, () => {
+      if (this.state.isCourseInfoModalVisible === true) {
+        this.setState({ isCourseInfoModalVisible: false });
       } else {
+        this.setState({ isCourseInfoModalVisible: true });
       }
     });
   };
 
-  pullFromDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc(this.state.title)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          this.setState({ data: doc.data() }, () => {
-            this.triggerRenderCourseCards();
-          });
-        } else {
-        }
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  };
-
-  componentDidMount() {
-    this.getUserID();
-    this.determineSemesterCode();
-  }
-
-  triggerRenderCourseCards = () => {
-    this.setState({ trigger: true });
-  };
-
-  bubbleSort1 = (arr, mainArr) => {
-    var len = arr.length;
-    for (var i = len - 1; i >= 0; i--) {
-      for (var j = 1; j <= i; j++) {
-        if (arr[j - 1].toLowerCase() > arr[j].toLowerCase()) {
-          var temp = arr[j - 1];
-          var mainTemp = mainArr[j - 1];
-          arr[j - 1] = arr[j];
-          mainArr[j - 1] = mainArr[j];
-          arr[j] = temp;
-          mainArr[j] = mainTemp;
-        }
-      }
+  closeCourseInfoPopUp = () => {
+    if (this.state.isCourseInfoModalVisible === true) {
+      this.setState({ isCourseInfoModalVisible: false });
     }
-    return mainArr;
   };
-
-  /*–––––––––––––––––––––––––COURSE INFO POP-UP–––––––––––––––––––––––––*/
 
   createCourseInfoPopUp = () => {
     return (
-      <View style={popUpStyles.container}>
+      <View style={courseInfoPopUpStyles.container}>
         <Modal visible={this.state.isCourseInfoModalVisible}>
-          <View style={popUpStyles.modal}>
+          <View style={courseInfoPopUpStyles.modal}>
             <Header
               backgroundColor="#4E342E"
               leftComponent={
@@ -237,26 +236,32 @@ class SemesterCard extends Component {
                 </TouchableOpacity>
               }
               centerComponent={
-                <Text style={popUpStyles.headerTitle}>
+                <Text style={courseInfoPopUpStyles.headerTitle}>
                   {this.state.courseCode}
                 </Text>
               }
             ></Header>
-            <ScrollView contentContainerStyle={popUpStyles.scrollContainer}>
-              <Text style={popUpStyles.courseName}>
+            <ScrollView
+              contentContainerStyle={courseInfoPopUpStyles.scrollContainer}
+            >
+              <Text style={courseInfoPopUpStyles.courseName}>
                 {
                   CourseData[this.state.currentSemesterCode][
                     this.state.courseCode
                   ]["Course Name"]
                 }
               </Text>
-              <Text style={popUpStyles.semester}>{this.state.title}</Text>
+              <Text style={courseInfoPopUpStyles.semester}>
+                {this.state.title}
+              </Text>
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Capacity"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Capacity:</Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Course Capacity:
+                  </Text>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -269,8 +274,10 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Course Description"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Course Description:</Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Course Description:
+                  </Text>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -283,10 +290,10 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Course Restrictions"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
                     Course Restrictions:
                   </Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -299,7 +306,9 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Critical Review"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Critical Review:</Text>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Critical Review:
+                  </Text>
                   <TouchableOpacity
                     onPress={() =>
                       Linking.openURL(
@@ -330,8 +339,10 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Exam Time"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Final Exam:</Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Final Exam:
+                  </Text>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -344,10 +355,10 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Course Meeting Time"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
                     Schedule and Location:
                   </Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -360,8 +371,10 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Course Instructor"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Instructor:</Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Instructor:
+                  </Text>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -374,8 +387,8 @@ class SemesterCard extends Component {
                 this.state.courseCode
               ]["Section(s)"] !== "" && (
                 <React.Fragment>
-                  <Text style={popUpStyles.subHeader}>Sections:</Text>
-                  <Text style={popUpStyles.description}>
+                  <Text style={courseInfoPopUpStyles.subHeader}>Sections:</Text>
+                  <Text style={courseInfoPopUpStyles.description}>
                     {
                       CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
@@ -384,8 +397,12 @@ class SemesterCard extends Component {
                   </Text>
                 </React.Fragment>
               )}
-              <Text style={popUpStyles.subHeader}>Grade Cutoffs:</Text>
-              <Text style={popUpStyles.description}>Coming Soon...</Text>
+              <Text style={courseInfoPopUpStyles.subHeader}>
+                Grade Cutoffs:
+              </Text>
+              <Text style={courseInfoPopUpStyles.description}>
+                Coming Soon...
+              </Text>
               <View
                 style={{
                   alignItems: "center",
@@ -400,283 +417,47 @@ class SemesterCard extends Component {
     );
   };
 
-  showHideCourseInfoPopUp = (courseCode) => {
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––COURSE ADD POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  showHideCourseAddPopUp = (courseCode) => {
     this.setState({ courseCode: courseCode }, () => {
-      if (this.state.isCourseInfoModalVisible === true) {
-        this.setState({ isCourseInfoModalVisible: false });
+      this.setState({ isCourseInfoModalVisible: false });
+      if (this.state.isCourseAddModalVisible === true) {
+        this.setState({ isCourseAddModalVisible: false });
       } else {
-        this.setState({ isCourseInfoModalVisible: true });
+        this.pullCourseDetailsFromDatabase();
+        setTimeout(
+          () => this.setState({ isCourseAddModalVisible: true }),
+          1250
+        );
       }
     });
   };
 
-  closeCourseInfoPopUp = () => {
-    if (this.state.isCourseInfoModalVisible === true) {
-      this.setState({ isCourseInfoModalVisible: false });
+  closeCourseAddPopUp = () => {
+    if (this.state.isCourseAddModalVisible === true) {
+      this.setState({ isCourseAddModalVisible: false });
     }
   };
 
-  /*–––––––––––––––––––––––––RENDER COURSE CARD METHOD–––––––––––––––––––––––––*/
-
-  renderCourseCards = () => {
-    var results = [];
-    var courseObjects = [];
-    var courseNames = [];
-    var sortedCourseObjects = [];
-    if (this.state.trigger) {
-      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
-        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
-        courseObjects.push(currentCourse);
-        courseNames.push(currentCourse["course_code"].split(" ")[0]);
-      }
-      sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
-      sortedCourseObjects.map((currentCourse, index) => {
-        if (!currentCourse["shopping"]) {
-          results.push(
-            <CourseCard
-              key={index}
-              courseCode={currentCourse["course_code"]}
-              onPress={() => {
-                this.determineSemesterCode();
-                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
-              }}
-              onLongPress={() => {
-                this.showHideCourseAddPopUp(currentCourse["course_code"]);
-                this.resetState();
-              }}
-              courseName={
-                CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
-                ]["Course Name"]
-              }
-              grading={
-                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
-              }
-              credit={
-                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
-              }
-              concentrationRequirement={
-                currentCourse["concentration_1_requirement"] ||
-                currentCourse["concentration_2_requirement"]
-                  ? "Concentration Requirement"
-                  : ""
-              }
-              writRequirement={
-                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
-              }
-              style={[
-                styles.courseCard,
-                {
-                  borderColor:
-                    Colors[
-                      CourseList.indexOf(
-                        currentCourse["course_code"].split(" ")[0]
-                      )
-                    ],
-                },
-              ]}
-            ></CourseCard>
-          );
-        }
-      });
-      return results;
-    }
+  // resets the values that are passed into "initial" of every switch selector
+  setDefaultInitialValues = () => {
+    this.setState({ initialpopUpGradeMode: 0 });
+    this.setState({ initialpopUpConcentrationRequirement: 1 });
+    this.setState({ initialpopUpConcentration2Requirement: 1 });
+    this.setState({ initialpopUpWritRequirement: 1 });
+    this.setState({ initialpopUpfullhalfCredit: 0 });
+    this.setState({ initialpopUpShopping: 1 });
   };
 
-  /*–––––––––––––––––––––––––RENDER SHOPPING COURSE CARD METHOD–––––––––––––––––––––––––*/
-
-  renderShoppingCourseCards = () => {
-    var results = [];
-    var courseObjects = [];
-    var courseNames = [];
-    var sortedCourseObjects = [];
-    if (this.state.trigger) {
-      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
-        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
-        courseObjects.push(currentCourse);
-        courseNames.push(currentCourse["course_code"].split(" ")[0]);
-      }
-      sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
-      sortedCourseObjects.map((currentCourse, index) => {
-        if (currentCourse["shopping"]) {
-          results.push(
-            <CourseCard
-              key={index}
-              courseCode={currentCourse["course_code"]}
-              onPress={() => {
-                this.determineSemesterCode();
-                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
-              }}
-              onLongPress={() => {
-                this.showHideCourseAddPopUp(currentCourse["course_code"]);
-                this.resetState();
-              }}
-              courseName={
-                CourseData[this.state.currentSemesterCode][
-                  currentCourse["course_code"]
-                ]["Course Name"]
-              }
-              grading={
-                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
-              }
-              credit={
-                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
-              }
-              concentrationRequirement={
-                currentCourse["concentration_1_requirement"]
-                  ? "Concentration Requirement"
-                  : ""
-              }
-              writRequirement={
-                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
-              }
-              style={[
-                styles.courseCard,
-                {
-                  borderColor: "#E3E3E3",
-                },
-              ]}
-            ></CourseCard>
-          );
-        }
-      });
-      return results;
-    }
+  setDefaultValues = () => {
+    this.setState({ popUpGradeMode: true });
+    this.setState({ popUpConcentrationRequirement: false });
+    this.setState({ popUpConcentration2Requirement: false });
+    this.setState({ popUpWritRequirement: false });
+    this.setState({ popUpfullhalfCredit: true });
+    this.setState({ popUpShopping: false });
   };
-
-  /*–––––––––––––––––––––––––COURSE CREDITS CALCULATOR–––––––––––––––––––––––––*/
-
-  returnCredits = () => {
-    var results = 0;
-    if (this.state.trigger) {
-      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
-        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
-        if (!currentCourse["shopping"] && currentCourse["full_half_credit"]) {
-          results = results + 1;
-        }
-        if (!currentCourse["shopping"] && !currentCourse["full_half_credit"]) {
-          results = results + 0.5;
-        }
-      }
-    }
-    return results;
-  };
-
-  /*–––––––––––––––––––––––––ENROLLMENT UNITS CALCULATOR–––––––––––––––––––––––––*/
-
-  returnEnrollmentUnits = () => {
-    if (this.returnCredits() >= 3) {
-      return 4;
-    } else {
-      return " N/A";
-    }
-  };
-
-  /*–––––––––––––––––––––––––DELETE INFORMATION FROM DATABASE–––––––––––––––––––––––––*/
-
-  // deletes the document containing information about each of the courses
-  deleteSemesterFromDatabase1 = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc(this.state.title)
-      .delete()
-      .then(function () {
-        console.log("Document successfully deleted!");
-      })
-      .catch(function (error) {
-        console.error("Error removing document: ", error);
-      });
-  };
-
-  // deletes the semester from the SemestersList array
-  deleteSemesterFromDatabase2 = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc("Semesters List")
-      .update({
-        semestersList: firebase.firestore.FieldValue.arrayRemove(
-          this.state.title
-        ),
-      })
-      .then(function () {
-        console.log("Document successfully deleted!");
-      })
-      .catch(function (error) {
-        console.error("Error removing document: ", error);
-      });
-  };
-
-  deleteCourseFromDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc(this.state.title)
-      .update({
-        [this.state.courseCode]: firebase.firestore.FieldValue.delete(),
-      });
-  };
-
-  /*–––––––––––––––––––––––––DELETE ALERT/POP-UP–––––––––––––––––––––––––*/
-
-  deleteSemesterAlert = () => {
-    Alert.alert(
-      "Delete Semester",
-      "Are you sure you want to delete the following semester: " +
-        this.state.title +
-        "?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            this.deleteSemesterFromDatabase1();
-            this.deleteSemesterFromDatabase2();
-            this.props.refresh(true);
-          },
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  deleteCourseAlert = () => {
-    Alert.alert(
-      "Delete Course",
-      "Are you sure you want to delete the following course: " +
-        this.state.courseCode +
-        "?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            this.deleteCourseFromDatabase();
-            this.closeCourseAddPopUp();
-            this.props.refresh(true);
-          },
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  /*–––––––––––––––––––––––––PULL COURSE DETAILS–––––––––––––––––––––––––*/
 
   // pulls information for all the switch selectors from the database
   pullCourseDetailsFromDatabase = () => {
@@ -700,8 +481,14 @@ class SemesterCard extends Component {
             courseObjects.push(currentCourse);
             courseNames.push(currentCourse["course_code"]);
           }
-          sortedCourseObjects = this.bubbleSort1(courseNames, courseObjects);
-          sortedCourseNames = this.bubbleSort1(courseNames, courseNames);
+          sortedCourseObjects = this.bubbleSortAlphabetically(
+            courseNames,
+            courseObjects
+          );
+          sortedCourseNames = this.bubbleSortAlphabetically(
+            courseNames,
+            courseNames
+          );
           sortedCourseObjects.map((currentCourse, index) => {
             n = sortedCourseNames.indexOf(this.state.courseCode);
             if (index === n) {
@@ -769,25 +556,6 @@ class SemesterCard extends Component {
       });
   };
 
-  // resets the values that are passed into "initial" of every switch selector
-  resetState = () => {
-    this.setState({ initialpopUpGradeMode: 0 });
-    this.setState({ initialpopUpConcentrationRequirement: 1 });
-    this.setState({ initialpopUpConcentration2Requirement: 1 });
-    this.setState({ initialpopUpWritRequirement: 1 });
-    this.setState({ initialpopUpfullhalfCredit: 0 });
-    this.setState({ initialpopUpShopping: 1 });
-  };
-
-  setDefaultValues = () => {
-    this.setState({ popUpGradeMode: true });
-    this.setState({ popUpConcentrationRequirement: false });
-    this.setState({ popUpConcentration2Requirement: false });
-    this.setState({ popUpWritRequirement: false });
-    this.setState({ popUpfullhalfCredit: true });
-    this.setState({ popUpShopping: false });
-  };
-
   addCourseToDatabase = () => {
     firebase
       .firestore()
@@ -813,7 +581,44 @@ class SemesterCard extends Component {
       );
   };
 
-  /*–––––––––––––––––––––––––ADD COURSE POP-UP–––––––––––––––––––––––––*/
+  // alert raised before deleting course
+  deleteCourseAlert = () => {
+    Alert.alert(
+      "Delete Course",
+      "Are you sure you want to delete the following course: " +
+        this.state.courseCode +
+        "?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            this.deleteCourseFromDatabase();
+            this.closeCourseAddPopUp();
+            this.props.refresh(true);
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  // deletes the course from the database
+  deleteCourseFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .update({
+        [this.state.courseCode]: firebase.firestore.FieldValue.delete(),
+      });
+  };
 
   createAddCoursePopUp = () => {
     return (
@@ -821,11 +626,12 @@ class SemesterCard extends Component {
         <Modal visible={this.state.isCourseAddModalVisible}>
           <View style={courseAddPopUpStyles.modal}>
             <TouchableOpacity
-              style={popUpStyles.backArrow}
+              style={courseInfoPopUpStyles.backArrow}
               onPress={() => {
                 this.closeCourseAddPopUp();
+                this.setDefaultValues();
+                this.setDefaultInitialValues();
                 this.setState({ isCourseInfoModalVisible: false });
-                this.resetState();
               }}
             >
               <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
@@ -986,8 +792,8 @@ class SemesterCard extends Component {
                 onPress={() => {
                   this.deleteCourseAlert();
                 }}
-                style={popUpStyles.deleteButtonContainer}
-                textStyle={popUpStyles.deleteButtonText}
+                style={courseInfoPopUpStyles.deleteButtonContainer}
+                textStyle={courseInfoPopUpStyles.deleteButtonText}
               ></CustomButton>
               <CustomButton
                 title="Update"
@@ -995,11 +801,11 @@ class SemesterCard extends Component {
                   this.closeCourseAddPopUp();
                   this.addCourseToDatabase();
                   this.setDefaultValues();
-                  this.resetState();
+                  this.setDefaultInitialValues();
                   this.props.refresh(true);
                 }}
-                style={popUpStyles.updateButtonContainer}
-                textStyle={popUpStyles.updateButtonText}
+                style={courseInfoPopUpStyles.updateButtonContainer}
+                textStyle={courseInfoPopUpStyles.updateButtonText}
               ></CustomButton>
             </View>
           </View>
@@ -1008,28 +814,247 @@ class SemesterCard extends Component {
     );
   };
 
-  showHideCourseAddPopUp = (courseCode) => {
-    this.setState({ courseCode: courseCode }, () => {
-      this.setState({ isCourseInfoModalVisible: false });
-      if (this.state.isCourseAddModalVisible === true) {
-        this.setState({ isCourseAddModalVisible: false });
-      } else {
-        this.pullCourseDetailsFromDatabase();
-        setTimeout(
-          () => this.setState({ isCourseAddModalVisible: true }),
-          1250
-        );
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––CREATE/RENDER COURSE CARDS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  // works similar to other bubble sort methods in DashboardScreen.js
+  bubbleSortAlphabetically = (arr, mainArr) => {
+    var len = arr.length;
+    for (var i = len - 1; i >= 0; i--) {
+      for (var j = 1; j <= i; j++) {
+        if (arr[j - 1].toLowerCase() > arr[j].toLowerCase()) {
+          var temp = arr[j - 1];
+          var mainTemp = mainArr[j - 1];
+          arr[j - 1] = arr[j];
+          mainArr[j - 1] = mainArr[j];
+          arr[j] = temp;
+          mainArr[j] = mainTemp;
+        }
       }
-    });
+    }
+    return mainArr;
   };
 
-  closeCourseAddPopUp = () => {
-    if (this.state.isCourseAddModalVisible === true) {
-      this.setState({ isCourseAddModalVisible: false });
+  // course credits calculator
+  returnCredits = () => {
+    var results = 0;
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        if (!currentCourse["shopping"] && currentCourse["full_half_credit"]) {
+          results = results + 1;
+        }
+        if (!currentCourse["shopping"] && !currentCourse["full_half_credit"]) {
+          results = results + 0.5;
+        }
+      }
+    }
+    return results;
+  };
+
+  // enrollment units calculator
+  returnEnrollmentUnits = () => {
+    if (this.returnCredits() >= 3) {
+      return 4;
+    } else {
+      return " N/A";
     }
   };
 
-  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
+  renderCourseCards = () => {
+    var results = [];
+    var courseObjects = [];
+    var courseNames = [];
+    var sortedCourseObjects = [];
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        courseObjects.push(currentCourse);
+        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+      }
+      sortedCourseObjects = this.bubbleSortAlphabetically(
+        courseNames,
+        courseObjects
+      );
+      sortedCourseObjects.map((currentCourse, index) => {
+        if (!currentCourse["shopping"]) {
+          results.push(
+            <CourseCard
+              key={index}
+              courseCode={currentCourse["course_code"]}
+              onPress={() => {
+                this.determineSemesterCode();
+                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
+              }}
+              onLongPress={() => {
+                this.setDefaultInitialValues();
+                this.showHideCourseAddPopUp(currentCourse["course_code"]);
+              }}
+              courseName={
+                CourseData[this.state.currentSemesterCode][
+                  currentCourse["course_code"]
+                ]["Course Name"]
+              }
+              grading={
+                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
+              }
+              credit={
+                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
+              }
+              concentrationRequirement={
+                currentCourse["concentration_1_requirement"] ||
+                currentCourse["concentration_2_requirement"]
+                  ? "Concentration Requirement"
+                  : ""
+              }
+              writRequirement={
+                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
+              }
+              style={[
+                styles.courseCard,
+                {
+                  borderColor:
+                    Colors[
+                      CourseList.indexOf(
+                        currentCourse["course_code"].split(" ")[0]
+                      )
+                    ],
+                },
+              ]}
+            ></CourseCard>
+          );
+        }
+      });
+      return results;
+    }
+  };
+
+  renderShoppingCourseCards = () => {
+    var results = [];
+    var courseObjects = [];
+    var courseNames = [];
+    var sortedCourseObjects = [];
+    if (this.state.trigger) {
+      for (let i = 0; i < Object.keys(this.state.data).length; i++) {
+        currentCourse = this.state.data[Object.keys(this.state.data)[i]];
+        courseObjects.push(currentCourse);
+        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+      }
+      sortedCourseObjects = this.bubbleSortAlphabetically(
+        courseNames,
+        courseObjects
+      );
+      sortedCourseObjects.map((currentCourse, index) => {
+        if (currentCourse["shopping"]) {
+          results.push(
+            <CourseCard
+              key={index}
+              courseCode={currentCourse["course_code"]}
+              onPress={() => {
+                this.determineSemesterCode();
+                this.showHideCourseInfoPopUp(currentCourse["course_code"]);
+              }}
+              onLongPress={() => {
+                this.setDefaultInitialValues();
+                this.showHideCourseAddPopUp(currentCourse["course_code"]);
+              }}
+              courseName={
+                CourseData[this.state.currentSemesterCode][
+                  currentCourse["course_code"]
+                ]["Course Name"]
+              }
+              grading={
+                currentCourse["grade_mode"] ? "Graded A/B/C/NC" : "Graded S/NC"
+              }
+              credit={
+                currentCourse["full_half_credit"] ? "1 Credit" : "0.5 Credit"
+              }
+              concentrationRequirement={
+                currentCourse["concentration_1_requirement"]
+                  ? "Concentration Requirement"
+                  : ""
+              }
+              writRequirement={
+                currentCourse["writ_requirement"] ? "WRIT Requirement" : ""
+              }
+              style={[
+                styles.courseCard,
+                {
+                  borderColor: "#E3E3E3",
+                },
+              ]}
+            ></CourseCard>
+          );
+        }
+      });
+      return results;
+    }
+  };
+
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  // deletes the document containing information about each of the courses
+  deleteSemesterFromDatabase1 = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc(this.state.title)
+      .delete()
+      .then(function () {
+        console.log("Document successfully deleted!");
+      })
+      .catch(function (error) {
+        console.error("Error removing document: ", error);
+      });
+  };
+
+  // deletes the semester from the SemestersList array
+  deleteSemesterFromDatabase2 = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc("Semesters List")
+      .update({
+        semestersList: firebase.firestore.FieldValue.arrayRemove(
+          this.state.title
+        ),
+      })
+      .then(function () {
+        console.log("Document successfully deleted!");
+      })
+      .catch(function (error) {
+        console.error("Error removing document: ", error);
+      });
+  };
+
+  deleteSemesterAlert = () => {
+    Alert.alert(
+      "Delete Semester",
+      "Are you sure you want to delete the following semester: " +
+        this.state.title +
+        "?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            this.deleteSemesterFromDatabase1();
+            this.deleteSemesterFromDatabase2();
+            this.props.refresh(true);
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   render() {
     return (
       <View style={styles.mainContainer}>
@@ -1065,6 +1090,8 @@ class SemesterCard extends Component {
     );
   }
 }
+
+/*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––STYLING–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 
 /*–––––––––––––––––––––––––STYLING FOR SEMESTER CARD COMPONENT–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
@@ -1131,13 +1158,15 @@ const styles = StyleSheet.create({
   },
 });
 
+/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
 const CustomButton = ({ onPress, title, style, textStyle }) => (
   <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.8}>
     <Text style={textStyle}>{title}</Text>
   </TouchableOpacity>
 );
 
-const popUpStyles = StyleSheet.create({
+/*–––––––––––––––––––––––––COURSE INFORMATION POP-UP STYLING–––––––––––––––––––––––––*/
+const courseInfoPopUpStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -1220,6 +1249,7 @@ const popUpStyles = StyleSheet.create({
   },
 });
 
+/*–––––––––––––––––––––––––COURSE ADD POP-UP STYLING–––––––––––––––––––––––––*/
 const courseAddPopUpStyles = StyleSheet.create({
   container: {
     flex: 1,

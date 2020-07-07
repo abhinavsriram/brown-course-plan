@@ -1,9 +1,5 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
-import React, { Component } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import courseList from "../data/CourseList";
-
-/*–––––––––––––––––––––––––"ADD COURSE" CARD COMPONENT–––––––––––––––––––––––––*/
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 const CoursePiece = ({ courseCode, color }) => (
   <TouchableOpacity
@@ -14,7 +10,6 @@ const CoursePiece = ({ courseCode, color }) => (
   </TouchableOpacity>
 );
 
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const summaryStyles = StyleSheet.create({
   coursePieceStyle: {
     height: 30,

@@ -1,15 +1,7 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
-import React, { Component } from "react";
+import React from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
-/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
-import CourseData from "./../data/CourseData.json";
-import Colors from "./../data/Colors";
-import CourseList from "./../data/CourseList";
-
-/*–––––––––––––––––––––––––COURSE CARD (SERACH) COMPONENT–––––––––––––––––––––––––*/
 const CourseCard = ({
   onPress,
   courseCode,
@@ -36,7 +28,6 @@ const CourseCard = ({
   </View>
 );
 
-/*–––––––––––––––––––––––––STYLING FOR COURSE CARD (SEARCH) COMPONENT–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   mainContainer: {
     marginVertical: 7,

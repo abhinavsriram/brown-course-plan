@@ -1,9 +1,7 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-/*–––––––––––––––––––––––––"ADD COURSE" CARD COMPONENT–––––––––––––––––––––––––*/
 class AddCourseCard extends Component {
   constructor(props) {
     super(props);
@@ -13,9 +11,14 @@ class AddCourseCard extends Component {
     return (
       <TouchableOpacity
         style={styles.addCourseCard}
+        // onPress={() => {
+        //   this.props.navprops.navigation.navigate("TabNavigator");
+        //   this.props.navprops.navigation.navigate("SearchTabNavigator");
+        // }}
         onPress={() => {
-          this.props.navprops.navigation.navigate("TabNavigator");
-          this.props.navprops.navigation.navigate("SearchTabNavigator");
+          this.props.navprops.navigation.navigate("SearchScreen", {
+            semester: this.props.semester,
+          });
         }}
       >
         <Text style={styles.addCourse}>Add Course</Text>
@@ -24,7 +27,6 @@ class AddCourseCard extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   addCourseCard: {
     height: 100,

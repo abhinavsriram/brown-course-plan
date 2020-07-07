@@ -1,9 +1,7 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
-import React, { Component } from "react";
+import React from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-/*–––––––––––––––––––––––––COURSE CARD COMPONENT–––––––––––––––––––––––––*/
 const CourseCard = ({
   onPress,
   courseCode,
@@ -48,7 +46,6 @@ const CourseCard = ({
   </View>
 );
 
-/*–––––––––––––––––––––––––STYLING FOR COURSE CARD COMPONENT–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   mainContainer: {
     marginBottom: 7,

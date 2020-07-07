@@ -1,9 +1,7 @@
-/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React from "react";
 import { StyleSheet, Text, View, Button, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-/*–––––––––––––––––––––––––"ADD SEMESTER" CARD COMPONENT–––––––––––––––––––––––––*/
 const AddSemesterCard = ({ onPress }) => (
   <View style={styles.container}>
     <TouchableOpacity style={styles.mainContainer} onPress={onPress}>
@@ -12,7 +10,6 @@ const AddSemesterCard = ({ onPress }) => (
   </View>
 );
 
-/*–––––––––––––––––––––––––STYLING–––––––––––––––––––––––––*/
 const styles = StyleSheet.create({
   mainContainer: {
     borderColor: "#E3E3E3",

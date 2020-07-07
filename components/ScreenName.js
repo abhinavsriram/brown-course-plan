@@ -1,8 +1,6 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React from "react";
+import { Text } from "react-native";
 
 export default function ScreenName(props) {
-  return (
-    <Text>{props.name}</Text>
-  );
+  return <Text>{props.name}</Text>;
 }

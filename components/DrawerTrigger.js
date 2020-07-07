@@ -1,26 +1,23 @@
-import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import { withNavigation } from 'react-navigation';
+import { withNavigation } from "react-navigation";
 
-import { DrawerActions } from 'react-navigation-drawer';
+import { DrawerActions } from "react-navigation-drawer";
 
 class DrawerTrigger extends React.Component {
   render() {
     return (
-      <TouchableOpacity style={styles.trigger}
+      <TouchableOpacity
+        style={styles.trigger}
         onPress={() => {
-          this.props.navigation.dispatch(DrawerActions.openDrawer())
+          this.props.navigation.dispatch(DrawerActions.openDrawer());
         }}
       >
-        <Ionicons
-          name={'md-arrow-round-forward'}
-          size={47}
-          color={'grey'}
-        />
+        <Ionicons name={"md-arrow-round-forward"} size={47} color={"grey"} />
       </TouchableOpacity>
-    )
+    );
   }
 }
 
@@ -30,7 +27,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 60,
     height: 60,
-  }
+  },
 });
 
 export default withNavigation(DrawerTrigger);
