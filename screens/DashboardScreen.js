@@ -1,3 +1,4 @@
+/*–––––––––––––––––––––––––REACT IMPORTS–––––––––––––––––––––––––*/
 import React, { Component } from "react";
 import {
   StyleSheet,
@@ -8,35 +9,48 @@ import {
   Modal,
   TouchableOpacity,
   Picker,
-  Alert,
+  Button,
 } from "react-native";
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "react-navigation-drawer";
 
+/*–––––––––––––––––––––––––FIREBASE IMPORT–––––––––––––––––––––––––*/
 import firebase from "firebase";
 import "firebase/firestore";
 
+/*–––––––––––––––––––––––––CUSTOM IMPORTS–––––––––––––––––––––––––*/
 import SemesterCard from "./../components/SemesterCard";
 import AddSemesterCard from "./../components/AddSemesterCard";
+import CourseList from "./../data/CourseList";
+import CoursePiece from "./../components/CoursePiece";
 import SemesterPiece from "./../components/SemesterPiece";
 
+/*–––––––––––––––––––––––––ICONS IMPORT–––––––––––––––––––––––––*/
 import Icon from "react-native-vector-icons/Ionicons";
+import courseList from "./../data/CourseList";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
+import DepartmentsWithAreasOfStudy from "./../data/DepartmentsWithAreasOfStudy"
+
+/*–––––––––––––––––––––––––DASHBOARD SCREEN COMPONENT–––––––––––––––––––––––––*/
 class DashboardScreen extends Component {
   constructor(props) {
     super(props);
     this.handleRefresh = this.handleRefresh.bind(this);
     this.state = {
       semestersList: [],
-      isAddSemesterModalVisible: false,
+      isModalVisible: false,
       semesterPickerVisible: false,
       semesterPickerValue: "Click to Choose",
       yearPickerVisible: false,
       yearPickerValue: "Click to Choose",
       errorMessage: null,
       userID: "",
-      isBigPictureModalVisible: false,
+      triggerDrawer: false,
+      isSummaryVisible: false,
+      firstName: "",
       degree: "",
       concentration_1: "",
       concentration_2: "",
@@ -44,8 +58,63 @@ class DashboardScreen extends Component {
     };
   }
 
-  // called when component mounts
-  // calls on two methods that are integral to displaying information on dashboard
+  pullCoursesFromDatabase = () => {
+    var toReturn = [];
+    for (i = 0; i < this.state.semestersList.length; i++) {
+      firebase
+        .firestore
+        .collection("user-information")
+        .doc(this.state.userID)
+        .collection("course-information")
+        .doc(this.state.semestersList[i])
+        .then((doc) => {
+          if (doc.exists) {
+            // console.log(doc.data());
+            toReturn.push(doc.data());
+          } else {
+            console.log("no data accquired");
+          }
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+    return toReturn;
+  }
+
+  analyzeCourses = () => {
+    const allCourses = this.pullCoursesFromDatabase();
+    var hashMap = {};
+    //hashMap - Keys: Course Code / Values: {Frequency, Area of Study}
+    var calcFreq = 0;
+    for (i = 0; i < allCourses.length; i++) {
+      for (j = 0; j < allCourses[i].length; j++) {
+        var courseCode = allCourses[i][j]["course_code"];
+        var courseDept = courseCode.split(" ")[0];
+        hashMap[courseDept] = { deptFreq: calcFreq++, deptAreaOfStudy: this.areaOfStudy(courseDept) }
+      }
+    }
+  }
+
+  areaOfStudy = (courseDept) => {
+    for (i = 0; i < DepartmentsWithAreasOfStudy.length; i++) {
+      if (DepartmentsWithAreasOfStudy[i].includes(courseDept)) {
+        if (i === 0) {
+          return "Humanities";
+        }
+        if (i === 1) {
+          return "Life Sciences";
+        }
+        if (i === 2) {
+          return "Physical Sciences";
+        }
+        if (i === 3) {
+          return "Social Sciences";
+        }
+      }
+    }
+  }
+
   getUserID = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -53,6 +122,7 @@ class DashboardScreen extends Component {
         const userID = email.split("@")[0];
         this.setState({ userID: userID }, () => {
           this.pullSemestersFromDatabase();
+          this.getNameFromDatabase();
           this.getAcademicObjective();
         });
       } else {
@@ -60,23 +130,6 @@ class DashboardScreen extends Component {
     });
   };
 
-  // updates the semestersList array in the database every time changes are made
-  writeToDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.userID)
-      .collection("course-information")
-      .doc("Semesters List")
-      .set(
-        {
-          semestersList: this.state.semestersList,
-        },
-        { merge: true }
-      );
-  };
-
-  // primary method that pulls course info to be rendered on dashboard
   pullSemestersFromDatabase = () => {
     firebase
       .firestore()
@@ -108,66 +161,60 @@ class DashboardScreen extends Component {
       });
   };
 
-  // gets academic objective to be displayed in "the big picture"
-  getAcademicObjective = () => {
+  componentDidMount() {
+    this.getUserID();
+    // var randomColor = require("randomcolor");
+    // const colors = randomColor({
+    //   count: 95,
+    //   luminosity: "dark",
+    // });
+    // console.log(colors);
+    this.props.navigation.addListener("willFocus", () => this.getUserID());
+  }
+
+  writeToDatabase = () => {
     firebase
       .firestore()
       .collection("user-information")
       .doc(this.state.userID)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          this.setState({ degree: doc.data().degree }, () => {
-            if (this.state.degree === "Sc.B.") {
-              this.setState({ degree: "Sc.B. (Bachelor of Science): " });
-            }
-            if (this.state.degree === "A.B.") {
-              this.setState({ degree: "A.B. (Bachelor of Arts): " });
-            }
-            if (this.state.degree === "Yet To Declare") {
-              this.setState({ degree: "Yet To Declare" });
-            }
-          });
-          if (
-            doc.data().concentration === "Yet To Declare" ||
-            doc.data().concentration === "Click to Choose"
-          ) {
-            this.setState({ concentration_1: "" });
-          } else {
-            this.setState({ concentration_1: doc.data().concentration });
-          }
-          if (doc.data().second_concentration !== undefined) {
-            if (
-              doc.data().second_concentration !== "Yet To Declare" &&
-              doc.data().second_concentration !== "Click to Choose" &&
-              doc.data().second_concentration !== "Not Declaring"
-            ) {
-              this.setState({
-                concentration_2: " and " + doc.data().second_concentration,
-              });
-            } else {
-              this.setState({
-                concentration_2: "",
-              });
-            }
-          }
-        } else {
-          console.log("no data acquired");
-        }
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
+      .collection("course-information")
+      .doc("Semesters List")
+      .set(
+        {
+          semestersList: this.state.semestersList,
+        },
+        { merge: true }
+      );
   };
 
-  componentDidMount() {
-    this.getUserID();
-    this.props.navigation.addListener("willFocus", () => this.getUserID());
-  }
+  sortSemestersChronologically = (list) => {
+    const len = list.length;
+    let years = [];
+    for (let i = 0; i < len; i++) {
+      const year = list[i].split(" ")[1];
+      years.push(year);
+    }
+    let uniqueYears = [...new Set(years)];
+    const result = this.bubbleSort1(years, list);
+    uniqueYears = this.bubbleSort(uniqueYears);
+    let finalResult = [];
+    for (let k = 0; k < uniqueYears.length; k++) {
+      let semesters = [];
+      let wholeStringList = [];
+      for (let i = 0; i < len; i++) {
+        if (list[i].split(" ")[1] === uniqueYears[k]) {
+          const semester = list[i].split(" ")[0];
+          const wholeString = list[i];
+          semesters.push(semester);
+          wholeStringList.push(wholeString);
+        }
+      }
+      const partFinalResult = this.bubbleSort2(semesters, wholeStringList);
+      finalResult = [...finalResult, ...partFinalResult];
+    }
+    return finalResult;
+  };
 
-  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––ADD SEMESTER POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-
-  // standard bubbleSort
   bubbleSort = (arr) => {
     var len = arr.length;
     for (var i = len - 1; i >= 0; i--) {
@@ -182,10 +229,7 @@ class DashboardScreen extends Component {
     return arr;
   };
 
-  // bubbleSort semesters based on year
-  // param1 is the array based on which sorting is performed
-  // param2 is an array in which identical swaps are made
-  bubbleSortOnYear = (arr, mainArr) => {
+  bubbleSort1 = (arr, mainArr) => {
     var len = arr.length;
     for (var i = len - 1; i >= 0; i--) {
       for (var j = 1; j <= i; j++) {
@@ -202,10 +246,7 @@ class DashboardScreen extends Component {
     return mainArr;
   };
 
-  // bubbleSort semesters based on season
-  // param1 is the array based on which sorting is performed
-  // param2 is an array in which identical swaps are made
-  bubbleSortOnSeason = (arr, mainArr) => {
+  bubbleSort2 = (arr, mainArr) => {
     var len = arr.length;
     for (var i = len - 1; i >= 0; i--) {
       for (var j = 1; j <= i; j++) {
@@ -222,8 +263,6 @@ class DashboardScreen extends Component {
     return mainArr;
   };
 
-  // assigns numerical values based on string
-  // makes comparison and returns a boolean
   chronologyDeterminer = (a, b) => {
     if (a === "Spring") {
       a = 1;
@@ -256,42 +295,7 @@ class DashboardScreen extends Component {
     }
   };
 
-  // takes in a list of semesters
-  // returns a chronologically sorted list of semesters
-  sortSemestersChronologically = (list) => {
-    const len = list.length;
-    let years = [];
-    for (let i = 0; i < len; i++) {
-      const year = list[i].split(" ")[1];
-      years.push(year);
-    }
-    let uniqueYears = [...new Set(years)];
-    const result = this.bubbleSortOnYear(years, list);
-    uniqueYears = this.bubbleSort(uniqueYears);
-    let finalResult = [];
-    for (let k = 0; k < uniqueYears.length; k++) {
-      let semesters = [];
-      let wholeStringList = [];
-      for (let i = 0; i < len; i++) {
-        if (list[i].split(" ")[1] === uniqueYears[k]) {
-          const semester = list[i].split(" ")[0];
-          const wholeString = list[i];
-          semesters.push(semester);
-          wholeStringList.push(wholeString);
-        }
-      }
-      const partFinalResult = this.bubbleSortOnSeason(
-        semesters,
-        wholeStringList
-      );
-      finalResult = [...finalResult, ...partFinalResult];
-    }
-    return finalResult;
-  };
-
-  // every time a new semester is added this method is called
-  // it updates the state and the database with a chronologically sorted list
-  createSemesterCard = () => {
+  CreateSemesterCard = () => {
     const semesterName =
       this.state.semesterPickerValue + " " + this.state.yearPickerValue;
     this.setState(
@@ -313,39 +317,15 @@ class DashboardScreen extends Component {
     );
   };
 
-  // this method is called when a user hits "Add Semester" in the Pop-Up
-  // it handles all remaining actions
-  performRemainingActions = () => {
-    const currentChoice =
-      this.state.semesterPickerValue + " " + this.state.yearPickerValue;
-    if (this.state.semestersList.includes(currentChoice)) {
-      this.setState({ errorMessage: "You Have Already Added This Semester" });
-      this.setState({ isAddSemesterModalVisible: true });
+  ShowHidePopUp = () => {
+    if (this.state.isModalVisible === true) {
+      this.setState({ isModalVisible: false });
     } else {
-      if (
-        this.state.semesterPickerValue !== "Click to Choose" &&
-        this.state.yearPickerValue !== "Click to Choose"
-      ) {
-        this.setState({ isAddSemesterModalVisible: false });
-        this.createSemesterCard();
-        this.resetPickers();
-        this.setState({ errorMessage: null });
-      } else {
-        this.setState({ errorMessage: "Please Choose All Values" });
-        this.setState({ isAddSemesterModalVisible: true });
-      }
+      this.setState({ isModalVisible: true });
     }
   };
 
-  showHideSemesterModal = () => {
-    if (this.state.isAddSemesterModalVisible === true) {
-      this.setState({ isAddSemesterModalVisible: false });
-    } else {
-      this.setState({ isAddSemesterModalVisible: true });
-    }
-  };
-
-  showHideSemesterPicker = () => {
+  ShowHideSemesterPicker = () => {
     if (this.state.semesterPickerVisible == true) {
       this.setState({ semesterPickerVisible: false });
     } else {
@@ -360,7 +340,7 @@ class DashboardScreen extends Component {
     }
   };
 
-  showHideYearPicker = () => {
+  ShowHideYearPicker = () => {
     if (this.state.yearPickerVisible == true) {
       this.setState({ yearPickerVisible: false });
     } else {
@@ -380,42 +360,59 @@ class DashboardScreen extends Component {
     this.setState({ yearPickerValue: "Click to Choose" });
   };
 
-  AddSemesterModal = () => (
-    <View style={addSemesterModalStyles.popUpContainer}>
-      <Modal
-        animationType={"fade"}
-        visible={this.state.isAddSemesterModalVisible}
-      >
-        <View style={addSemesterModalStyles.modal}>
+  performRemainingActions = () => {
+    const currentChoice =
+      this.state.semesterPickerValue + " " + this.state.yearPickerValue;
+    if (this.state.semestersList.includes(currentChoice)) {
+      this.setState({ errorMessage: "You Have Already Added This Semester" });
+      this.setState({ isModalVisible: true });
+    } else {
+      if (
+        this.state.semesterPickerValue !== "Click to Choose" &&
+        this.state.yearPickerValue !== "Click to Choose"
+      ) {
+        this.setState({ isModalVisible: false });
+        this.CreateSemesterCard();
+        this.resetPickers();
+        this.setState({ errorMessage: null });
+      } else {
+        this.setState({ errorMessage: "Please Choose All Values" });
+        this.setState({ isModalVisible: true });
+      }
+    }
+  };
+
+  AddSemesterPopUp = () => (
+    <View style={popUpStyles.popUpContainer}>
+      <Modal animationType={"fade"} visible={this.state.isModalVisible}>
+        <View style={popUpStyles.modal}>
           {/* /*–––––––––––––––––––––––––BACK BUTTON–––––––––––––––––––––––––*/}
           <TouchableOpacity
-            style={addSemesterModalStyles.backArrow}
+            style={popUpStyles.backArrow}
             onPress={() => {
-              this.showHideSemesterModal();
+              this.ShowHidePopUp();
               this.setState({ errorMessage: null });
             }}
           >
             <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
           </TouchableOpacity>
-          <View style={addSemesterModalStyles.header}>
-            <Text style={addSemesterModalStyles.popUpTitle}>
-              Semester Details
-            </Text>
+          <View style={popUpStyles.header}>
+            <Text style={popUpStyles.popUpTitle}>Semester Details</Text>
           </View>
           {/* /*–––––––––––––––––––––––––ERROR MESSAGE–––––––––––––––––––––––––*/}
-          <View style={addSemesterModalStyles.errorMessage}>
+          <View style={popUpStyles.errorMessage}>
             {this.state.errorMessage && (
-              <Text style={addSemesterModalStyles.errorMessageText}>
+              <Text style={popUpStyles.errorMessageText}>
                 {this.state.errorMessage}
               </Text>
             )}
           </View>
           {/* /*–––––––––––––––––––––––––FORM 1 - SEMESTER–––––––––––––––––––––––––*/}
-          <View style={addSemesterModalStyles.form1}>
-            <Text style={addSemesterModalStyles.inputTitle}>Semester</Text>
+          <View style={popUpStyles.form1}>
+            <Text style={popUpStyles.inputTitle}>Semester</Text>
             <TouchableOpacity
-              style={addSemesterModalStyles.chooseConcentration}
-              onPress={this.showHideSemesterPicker}
+              style={popUpStyles.chooseConcentration}
+              onPress={this.ShowHideSemesterPicker}
             >
               <Text
                 style={{
@@ -431,7 +428,7 @@ class DashboardScreen extends Component {
           {this.state.semesterPickerVisible ? (
             <React.Fragment>
               <Picker
-                style={addSemesterModalStyles.concentrationPicker}
+                style={popUpStyles.concentrationPicker}
                 selectedValue={this.state.semesterPickerValue}
                 onValueChange={(itemValue) => {
                   this.setState({ semesterPickerValue: itemValue });
@@ -444,24 +441,22 @@ class DashboardScreen extends Component {
                 <Picker.Item label="Winter" value="Winter"></Picker.Item>
               </Picker>
               <TouchableOpacity
-                style={addSemesterModalStyles.cancelButton}
+                style={popUpStyles.cancelButton}
                 onPress={() => {
-                  this.showHideSemesterPicker();
+                  this.ShowHideSemesterPicker();
                   this.defaultSemesterValue();
                 }}
               >
-                <Text style={addSemesterModalStyles.cancelButtonText}>
-                  DONE
-                </Text>
+                <Text style={popUpStyles.cancelButtonText}>DONE</Text>
               </TouchableOpacity>
             </React.Fragment>
           ) : null}
           {/* /*–––––––––––––––––––––––––FORM 2 - YEAR–––––––––––––––––––––––––*/}
-          <View style={addSemesterModalStyles.form2}>
-            <Text style={addSemesterModalStyles.inputTitle}>Year</Text>
+          <View style={popUpStyles.form2}>
+            <Text style={popUpStyles.inputTitle}>Year</Text>
             <TouchableOpacity
-              style={addSemesterModalStyles.chooseConcentration}
-              onPress={this.showHideYearPicker}
+              style={popUpStyles.chooseConcentration}
+              onPress={this.ShowHideYearPicker}
             >
               <Text
                 style={{
@@ -477,7 +472,7 @@ class DashboardScreen extends Component {
           {this.state.yearPickerVisible ? (
             <React.Fragment>
               <Picker
-                style={addSemesterModalStyles.concentrationPicker}
+                style={popUpStyles.concentrationPicker}
                 selectedValue={this.state.yearPickerValue}
                 onValueChange={(itemValue) => {
                   this.setState({ yearPickerValue: itemValue });
@@ -494,15 +489,13 @@ class DashboardScreen extends Component {
                 <Picker.Item label="2024" value="2024"></Picker.Item>
               </Picker>
               <TouchableOpacity
-                style={addSemesterModalStyles.cancelButton}
+                style={popUpStyles.cancelButton}
                 onPress={() => {
-                  this.showHideYearPicker();
+                  this.ShowHideYearPicker();
                   this.defaultYearValue();
                 }}
               >
-                <Text style={addSemesterModalStyles.cancelButtonText}>
-                  DONE
-                </Text>
+                <Text style={popUpStyles.cancelButtonText}>DONE</Text>
               </TouchableOpacity>
             </React.Fragment>
           ) : null}
@@ -510,7 +503,7 @@ class DashboardScreen extends Component {
           <CreateProfileButton
             title="Add Semester"
             onPress={() => {
-              this.setState({ isAddSemesterModalVisible: false });
+              this.setState({ isModalVisible: false });
               this.performRemainingActions();
             }}
           ></CreateProfileButton>
@@ -519,10 +512,6 @@ class DashboardScreen extends Component {
     </View>
   );
 
-  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––THE BIG PICTURE POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-
-  // renders the first 4 semesters in semestersList
-  // if 4 don't exist it creates fake placeholders to ensure positioning is not messed up
   createRow1Semesters = () => {
     var results = [];
     for (let i = 0; i < 4; i++) {
@@ -552,8 +541,6 @@ class DashboardScreen extends Component {
     return results;
   };
 
-  // renders the next 4 semesters in semestersList
-  // if 4 don't exist it creates fake placeholders to ensure positioning is not messed up
   createRow2Semesters = () => {
     var results = [];
     for (let i = 4; i < 8; i++) {
@@ -582,59 +569,115 @@ class DashboardScreen extends Component {
     return results;
   };
 
-  showHideBigPicturePopUp = () => {
-    if (this.state.semestersList[0]) {
-      if (this.state.isBigPictureModalVisible) {
-        this.setState({ isBigPictureModalVisible: false });
-      } else {
-        this.setState({ isBigPictureModalVisible: true });
+  createRow3Semesters = () => {
+    var results = [];
+    for (let i = 8; i < 12; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+          ></SemesterPiece>
+        );
       }
+    }
+    return results;
+  };
+
+  getNameFromDatabase = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ firstName: doc.data().first_name + "'s" });
+        } else {
+          console.log("no data accquired");
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  ShowHideSummaryPopUp = () => {
+    if (this.state.isSummaryVisible) {
+      this.setState({ isSummaryVisible: false });
     } else {
-      Alert.alert(
-        "Patience",
-        "Good Things Come To Those Who Wait",
-        [
-          {
-            text: "I Shall Wait",
-          },
-        ],
-        { cancelable: false }
-      );
+      this.setState({ isSummaryVisible: true });
     }
   };
 
-  BigPictureModal = () => (
-    <View style={bigPictureStyles.container}>
-      <Modal visible={this.state.isBigPictureModalVisible}>
-        <View style={bigPictureStyles.container}>
+  getAcademicObjective = () => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ degree: doc.data().degree }, () => {
+            if (this.state.degree === "Sc.B.") {
+              this.setState({ degree: "Sc.B. (Bachelor of Science): " });
+            } else {
+              this.setState({ degree: "A.B. (Bachelor of Arts): " });
+            }
+          });
+          this.setState({ concentration_1: doc.data().concentration });
+          if (doc.data().second_concentration !== undefined) {
+            this.setState({
+              concentration_2: " and " + doc.data().second_concentration,
+            });
+          }
+        } else {
+          console.log("no data accquired");
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
+  SummaryPopUp = () => (
+    <View style={summaryStyles.container}>
+      <Modal visible={this.state.isSummaryVisible}>
+        <View style={summaryStyles.container}>
           <Header
             backgroundColor="#4E342E"
             leftComponent={
-              <TouchableOpacity onPress={() => this.showHideBigPicturePopUp()}>
+              <TouchableOpacity onPress={() => this.ShowHideSummaryPopUp()}>
                 <Icon name="ios-arrow-back" color="#fafafa" size={35} />
               </TouchableOpacity>
             }
             centerComponent={
-              <Text style={bigPictureStyles.title}>The Big Picture</Text>
+              <Text style={summaryStyles.title}>The Big Picture</Text>
             }
           ></Header>
-          <Text style={bigPictureStyles.academicObjectiveTitle}>
+          <Text style={summaryStyles.academicObjectiveTitle}>
             Academic Objective
           </Text>
-          <Text style={bigPictureStyles.academicObjective}>
+          <Text style={summaryStyles.academicObjective}>
             {this.state.degree}
           </Text>
-          <Text style={bigPictureStyles.academicObjectivePt2}>
+          <Text style={summaryStyles.academicObjectivePt2}>
             {this.state.concentration_1 + this.state.concentration_2}
           </Text>
-          <ScrollView directionalLockEnabled={true} scrollEnabled={false}>
-            <View style={bigPictureStyles.container}>
-              <View style={bigPictureStyles.row1}>
+          <ScrollView
+            // contentContainerStyle={summaryStyles.container}
+            directionalLockEnabled={true}
+            scrollEnabled={false}
+          >
+            <View style={summaryStyles.container}>
+              <View style={summaryStyles.row1}>
                 {this.createRow1Semesters()}
               </View>
-              <View style={bigPictureStyles.row2}>
+              <View style={summaryStyles.row2}>
                 {this.createRow2Semesters()}
               </View>
+              {/* <View style={summaryStyles.row3}>{this.createRow3Semesters()}</View> */}
             </View>
           </ScrollView>
         </View>
@@ -653,7 +696,7 @@ class DashboardScreen extends Component {
     }
   };
 
-  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+  /*–––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––*/
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -665,7 +708,8 @@ class DashboardScreen extends Component {
           <TouchableOpacity
             style={styles.trigger}
             onPress={() => {
-              this.props.navigation.dispatch(DrawerActions.openDrawer());
+              this.props.navigation.dispatch(DrawerActions.openDrawer())//, { firstName: this.state.firstName });
+              this.setState({ triggerDrawer: true });
             }}
           >
             <Ionicons name={"md-menu"} size={32} color={"white"} />
@@ -680,18 +724,17 @@ class DashboardScreen extends Component {
         >
           {/* /*–––––––––––––––––––––––––CARDS–––––––––––––––––––––––––*/}
           <View>
-            {/* this button opens up the big picture modal/pop-up */}
             <CustomButton
-              style={bigPictureStyles.summaryButtonContainer}
-              textStyle={bigPictureStyles.summaryButtonText}
+              style={summaryStyles.summaryButtonContainer}
+              textStyle={summaryStyles.summaryButtonText}
               title={"The Big Picture"}
               onPress={() => {
-                this.showHideBigPicturePopUp();
+                this.ShowHideSummaryPopUp();
                 this.getAcademicObjective();
               }}
             ></CustomButton>
-            {/* this is the pop-up that always exists but remains invisible until "The Big Picture" is clicked */}
-            <this.BigPictureModal></this.BigPictureModal>
+            {/* this is the pop-up that always exists but remains invisible until add semester is clicked */}
+            <this.AddSemesterPopUp></this.AddSemesterPopUp>
             {/* this function returns semester cards based on the number the user has created */}
             {this.state.semestersList.map((semester, index) => {
               return (
@@ -703,12 +746,11 @@ class DashboardScreen extends Component {
                 ></SemesterCard>
               );
             })}
-            {/* this is the pop-up that always exists but remains invisible until add semester is clicked */}
-            <this.AddSemesterModal></this.AddSemesterModal>
             {/* this is the add semester card that always exists at the end of all semesters added */}
             <AddSemesterCard
-              onPress={() => this.showHideSemesterModal()}
+              onPress={() => this.ShowHidePopUp()}
             ></AddSemesterCard>
+            <this.SummaryPopUp></this.SummaryPopUp>
           </View>
         </ScrollView>
       </View>
@@ -716,42 +758,7 @@ class DashboardScreen extends Component {
   }
 }
 
-/*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––STYLING–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-
-/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
-const CreateProfileButton = ({ onPress, title }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={addSemesterModalStyles.createProfileButtonContainer}
-    activeOpacity={0.6}
-  >
-    <Text style={addSemesterModalStyles.createProfileButtonText}>{title}</Text>
-  </TouchableOpacity>
-);
-
-/*–––––––––––––––––––––––––CUSTOM BUTTON 2 COMPONENT–––––––––––––––––––––––––*/
-const CustomButton = ({ onPress, title, style, textStyle }) => (
-  <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.8}>
-    <Text style={textStyle}>{title}</Text>
-  </TouchableOpacity>
-);
-
-/*–––––––––––––––––––––––––DASHBOARD SCREEN STYLING–––––––––––––––––––––––––*/
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 30,
-    color: "#fafafa",
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-});
-
-/*–––––––––––––––––––––––––THE BIG PICTURE POP-UP STYLING–––––––––––––––––––––––––*/
-const bigPictureStyles = StyleSheet.create({
+const summaryStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -773,6 +780,11 @@ const bigPictureStyles = StyleSheet.create({
     flexDirection: "row",
     top: "7%",
   },
+  // row3: {
+  //   flex: 1,
+  //   flexDirection: "row",
+  //   top: "7%",
+  // },
   summaryButtonContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -816,8 +828,42 @@ const bigPictureStyles = StyleSheet.create({
   },
 });
 
-/*–––––––––––––––––––––––––ADD SEMESTER POP-UP STYLING–––––––––––––––––––––––––*/
-const addSemesterModalStyles = StyleSheet.create({
+/*–––––––––––––––––––––––––CUSTOM BUTTON COMPONENT–––––––––––––––––––––––––*/
+const CreateProfileButton = ({ onPress, title }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={popUpStyles.createProfileButtonContainer}
+    activeOpacity={0.6}
+  >
+    <Text style={popUpStyles.createProfileButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
+
+/*–––––––––––––––––––––––––CUSTOM BUTTON 2 COMPONENT–––––––––––––––––––––––––*/
+const CustomButton = ({ onPress, title, style, textStyle }) => (
+  <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.8}>
+    <Text style={textStyle}>{title}</Text>
+  </TouchableOpacity>
+);
+
+/*–––––––––––––––––––––––––DASHBOARD SCREEN STYLING–––––––––––––––––––––––––*/
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 30,
+    color: "#fafafa",
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+});
+
+const inputWidth = 0.8 * Dimensions.get("window").width;
+
+/*–––––––––––––––––––––––––POP-UP SCREEN STYLING–––––––––––––––––––––––––*/
+const popUpStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#4E342E",
@@ -827,12 +873,12 @@ const addSemesterModalStyles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "30%",
-    width: 0.8 * Dimensions.get("window").width,
+    width: inputWidth,
   },
   form2: {
     position: "absolute",
     top: "45%",
-    width: 0.8 * Dimensions.get("window").width,
+    width: inputWidth,
   },
   inputTitle: {
     color: "#fafafa",
@@ -932,7 +978,7 @@ const addSemesterModalStyles = StyleSheet.create({
     flex: 1,
     position: "absolute",
     top: "18%",
-    width: 0.8 * Dimensions.get("window").width,
+    width: inputWidth,
     justifyContent: "center",
     alignItems: "center",
   },
