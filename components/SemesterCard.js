@@ -834,6 +834,38 @@ class SemesterCard extends Component {
     return mainArr;
   };
 
+  bubbleSortNumerically = (arr, mainArr) => {
+    var len = arr.length;
+    for (var i = len - 1; i >= 0; i--) {
+      for (var j = 1; j <= i; j++) {
+        if (arr[j - 1] > arr[j]) {
+          var temp = arr[j - 1];
+          var mainTemp = mainArr[j - 1];
+          arr[j - 1] = arr[j];
+          mainArr[j - 1] = mainArr[j];
+          arr[j] = temp;
+          mainArr[j] = mainTemp;
+        }
+      }
+    }
+    return mainArr;
+  };
+
+  // standard bubbleSort
+  bubbleSort = (arr) => {
+    var len = arr.length;
+    for (var i = len - 1; i >= 0; i--) {
+      for (var j = 1; j <= i; j++) {
+        if (arr[j - 1] > arr[j]) {
+          var temp = arr[j - 1];
+          arr[j - 1] = arr[j];
+          arr[j] = temp;
+        }
+      }
+    }
+    return arr;
+  };
+
   // course credits calculator
   returnCredits = () => {
     var results = 0;
@@ -860,6 +892,48 @@ class SemesterCard extends Component {
     }
   };
 
+  // sorts courses alphabetically and numerically
+  sortCourses = (list, mainList) => {
+    const len = list.length;
+    let departments = [];
+    for (let i = 0; i < len; i++) {
+      const dept = list[i].split(" ")[0];
+      departments.push(dept);
+    }
+    let uniqueDepartments = [...new Set(departments)];
+    const result = this.bubbleSortAlphabetically(departments, list);
+    uniqueDepartments = this.bubbleSort(uniqueDepartments);
+    let finalResult = [];
+    for (let k = 0; k < uniqueDepartments.length; k++) {
+      let courses = [];
+      let wholeStringList = [];
+      for (let i = 0; i < len; i++) {
+        if (list[i].split(" ")[0] === uniqueDepartments[k]) {
+          const courseCode = list[i].split(" ")[1];
+          const wholeString = list[i];
+          courses.push(courseCode);
+          wholeStringList.push(wholeString);
+        }
+      }
+      const partFinalResult = this.bubbleSortNumerically(
+        courses,
+        wholeStringList
+      );
+      finalResult = [...finalResult, ...partFinalResult];
+    }
+    var realFinalResult = [];
+    for (let i = 0; i < finalResult.length; i++) {
+      for (let j = 0; j < mainList.length; j++) {
+        currentCourse = finalResult[i];
+        if (currentCourse === mainList[j]["course_code"]) {
+          console.log("hello");
+          realFinalResult.push(mainList[j]);
+        }
+      }
+    }
+    return realFinalResult;
+  };
+
   renderCourseCards = () => {
     var results = [];
     var courseObjects = [];
@@ -869,12 +943,9 @@ class SemesterCard extends Component {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
         courseObjects.push(currentCourse);
-        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+        courseNames.push(currentCourse["course_code"]);
       }
-      sortedCourseObjects = this.bubbleSortAlphabetically(
-        courseNames,
-        courseObjects
-      );
+      sortedCourseObjects = this.sortCourses(courseNames, courseObjects);
       sortedCourseObjects.map((currentCourse, index) => {
         if (!currentCourse["shopping"]) {
           results.push(
@@ -937,12 +1008,9 @@ class SemesterCard extends Component {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
         courseObjects.push(currentCourse);
-        courseNames.push(currentCourse["course_code"].split(" ")[0]);
+        courseNames.push(currentCourse["course_code"]);
       }
-      sortedCourseObjects = this.bubbleSortAlphabetically(
-        courseNames,
-        courseObjects
-      );
+      sortedCourseObjects = this.sortCourses(courseNames, courseObjects);
       sortedCourseObjects.map((currentCourse, index) => {
         if (currentCourse["shopping"]) {
           results.push(
@@ -1067,7 +1135,7 @@ class SemesterCard extends Component {
         >
           <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.credits}>
-            Course Credits: {this.returnCredits()}, Enrollment Units:
+            Course Credits: {this.returnCredits()}, Enrollment Units:{" "}
             {this.returnEnrollmentUnits()}
           </Text>
         </TouchableOpacity>
