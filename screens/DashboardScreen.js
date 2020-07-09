@@ -78,7 +78,42 @@ class DashboardScreen extends Component {
                 }
               }
             }
-            console.log(hashMap)
+            if (i === this.state.semestersList.length - 1) {
+              var totalCourses = 0;
+              var totalConcentrationOneReq = 0;
+              var totalConcentrationTwoReq = 0;
+              var totalHumanitiesCourses = 0;
+              var totalLifeSciencesCourses = 0;
+              var totalPhysicalSciencesCourses = 0;
+              var totalSocialSciencesCourses = 0;
+              for (let i = 0; i < Object.keys(hashMap).length; i++) {
+                totalCourses = totalCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                totalConcentrationOneReq = totalConcentrationOneReq + hashMap[Object.keys(hashMap)[i]]["concentration1Req"]
+                totalConcentrationTwoReq = totalConcentrationTwoReq + hashMap[Object.keys(hashMap)[i]]["concentration2Req"]
+                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Humanities") {
+                  totalHumanitiesCourses = totalHumanitiesCourses + 1;
+                }
+                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Life Sciences") {
+                  totalLifeSciencesCourses = totalLifeSciencesCourses + 1;
+                }
+                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Physical Sciences") {
+                  totalPhysicalSciencesCourses = totalPhysicalSciencesCourses + 1;
+                }
+                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Social Sciences") {
+                  totalSocialSciencesCourses = totalSocialSciencesCourses + 1;
+                }
+              }
+              const humanitiesCoursesPercentage = parseFloat(((totalHumanitiesCourses / totalCourses) * 100).toFixed(2));
+              const lifeSciencesCoursesPercentage = parseFloat(((totalLifeSciencesCourses / totalCourses) * 100).toFixed(2));
+              const physicalSciencesCoursesPercentage = parseFloat(((totalPhysicalSciencesCourses / totalCourses) * 100).toFixed(2));
+              const socialSciencesCoursesPercentage = parseFloat(((totalSocialSciencesCourses / totalCourses) * 100).toFixed(2));
+              const concentrationOneReqPercentage = parseFloat(((totalConcentrationOneReq / totalCourses) * 100).toFixed(2));
+              const concentrationTwoReqPercentage = parseFloat(((totalConcentrationTwoReq / totalCourses) * 100).toFixed(2));
+              for (let i = 0; i < Object.keys(hashMap).length; i++) {
+                var courseDept = Object.keys(hashMap)[i];
+                var courseDeptPercentage = parseFloat(((hashMap[Object.keys(hashMap)[i]]["deptFreq"] / totalCourses) * 100).toFixed(2));
+              }
+            }
           } else {
             console.log("no data accquired");
           }
@@ -94,10 +129,10 @@ class DashboardScreen extends Component {
       var existingFreq = hashMap[courseDept]["deptFreq"];
       var existingReq1 = hashMap[courseDept]["concentration1Req"]
       var existingReq2 = hashMap[courseDept]["concentration2Req"]
-      if (isRequirement1) {
+      if (isRequirement1 && !isRequirement2) {
         hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1 + 1, concentration2Req: existingReq2 }
       }
-      if (isRequirement2) {
+      if (!isRequirement1 && isRequirement2) {
         hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1, concentration2Req: existingReq2 + 1 }
       }
       if (isRequirement1 && isRequirement2) {
@@ -107,10 +142,10 @@ class DashboardScreen extends Component {
         hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1, concentration2Req: existingReq2 }
       }
     } else {
-      if (isRequirement1) {
+      if (isRequirement1 && !isRequirement2) {
         hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 1, concentration2Req: 0 }
       }
-      if (isRequirement2) {
+      if (!isRequirement1 && isRequirement2) {
         hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 0, concentration2Req: 1 }
       }
       if (isRequirement1 && isRequirement2) {
