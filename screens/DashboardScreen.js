@@ -10,6 +10,8 @@ import {
   Picker,
   Alert,
 } from "react-native";
+import { PieChart } from "react-native-chart-kit";
+
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "react-navigation-drawer";
@@ -21,6 +23,8 @@ import SemesterCard from "./../components/SemesterCard";
 import AddSemesterCard from "./../components/AddSemesterCard";
 import SemesterPiece from "./../components/SemesterPiece";
 import DepartmentsWithAreasOfStudy from "./../data/DepartmentsWithAreasOfStudy";
+import Colors from "./../data/Colors";
+import CourseList from "./../data/CourseList";
 
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -41,160 +45,13 @@ class DashboardScreen extends Component {
       degree: "",
       concentration_1: "",
       concentration_2: "",
+      concentration_2_duplicate: "",
       refresh: false,
+      divisionsOfStudyData: null,
+      courseDeptData: null,
+      concentrationData: null,
     };
   }
-
-  /*--------------------------CURRENT WORK------------------------*/
-  pullCoursesFromDatabase = () => {
-    var toReturn = [];
-    for (let i = 0; i < this.state.semestersList.length; i++) {
-      firebase
-        .firestore()
-        .collection("user-information")
-        .doc(this.state.userID)
-        .collection("course-information")
-        .doc(this.state.semestersList[i])
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            toReturn.push(doc.data());
-            var hashMap = {};
-            for (let i = 0; i < toReturn.length; i++) {
-              for (let j = 0; j < Object.keys(toReturn[i]).length; j++) {
-                var isShopping = this.getPropertyByIndex(toReturn[i], j)["shopping"];
-                var isRequirement1 = false;
-                var isRequirement2 = false;
-                if (this.getPropertyByIndex(toReturn[i], j)["concentration_1_requirement"]) {
-                  isRequirement1 = this.getPropertyByIndex(toReturn[i], j)["concentration_1_requirement"];
-                }
-                if (this.getPropertyByIndex(toReturn[i], j)["concentration_1_requirement"]) {
-                  isRequirement2 = this.getPropertyByIndex(toReturn[i], j)["concentration_2_requirement"];
-                }
-                var courseCode = this.getPropertyByIndex(toReturn[i], j)["course_code"];
-                var courseDept = courseCode.split(" ")[0];
-                if (!isShopping) {
-                  this.populateHashMap(courseDept, hashMap, isRequirement1, isRequirement2);
-                }
-              }
-            }
-            if (i === this.state.semestersList.length - 1) {
-              var totalCourses = 0;
-              var totalConcentrationOneReq = 0;
-              var totalConcentrationTwoReq = 0;
-              var totalHumanitiesCourses = 0;
-              var totalLifeSciencesCourses = 0;
-              var totalPhysicalSciencesCourses = 0;
-              var totalSocialSciencesCourses = 0;
-              for (let i = 0; i < Object.keys(hashMap).length; i++) {
-                totalCourses = totalCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
-                totalConcentrationOneReq = totalConcentrationOneReq + hashMap[Object.keys(hashMap)[i]]["concentration1Req"]
-                totalConcentrationTwoReq = totalConcentrationTwoReq + hashMap[Object.keys(hashMap)[i]]["concentration2Req"]
-                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Humanities") {
-                  totalHumanitiesCourses = totalHumanitiesCourses + 1;
-                }
-                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Life Sciences") {
-                  totalLifeSciencesCourses = totalLifeSciencesCourses + 1;
-                }
-                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Physical Sciences") {
-                  totalPhysicalSciencesCourses = totalPhysicalSciencesCourses + 1;
-                }
-                if (hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] === "Social Sciences") {
-                  totalSocialSciencesCourses = totalSocialSciencesCourses + 1;
-                }
-              }
-              const humanitiesCoursesPercentage = parseFloat(((totalHumanitiesCourses / totalCourses) * 100).toFixed(2));
-              const lifeSciencesCoursesPercentage = parseFloat(((totalLifeSciencesCourses / totalCourses) * 100).toFixed(2));
-              const physicalSciencesCoursesPercentage = parseFloat(((totalPhysicalSciencesCourses / totalCourses) * 100).toFixed(2));
-              const socialSciencesCoursesPercentage = parseFloat(((totalSocialSciencesCourses / totalCourses) * 100).toFixed(2));
-              const concentrationOneReqPercentage = parseFloat(((totalConcentrationOneReq / totalCourses) * 100).toFixed(2));
-              const concentrationTwoReqPercentage = parseFloat(((totalConcentrationTwoReq / totalCourses) * 100).toFixed(2));
-              for (let i = 0; i < Object.keys(hashMap).length; i++) {
-                var courseDept = Object.keys(hashMap)[i];
-                var courseDeptPercentage = parseFloat(((hashMap[Object.keys(hashMap)[i]]["deptFreq"] / totalCourses) * 100).toFixed(2));
-              }
-            }
-          } else {
-            console.log("no data accquired");
-          }
-        })
-        .catch((error) => {
-          console.log(error.message);
-        });
-    }
-  }
-
-  populateHashMap = (courseDept, hashMap, isRequirement1, isRequirement2) => {
-    if (courseDept in hashMap) {
-      var existingFreq = hashMap[courseDept]["deptFreq"];
-      var existingReq1 = hashMap[courseDept]["concentration1Req"]
-      var existingReq2 = hashMap[courseDept]["concentration2Req"]
-      if (isRequirement1 && !isRequirement2) {
-        hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1 + 1, concentration2Req: existingReq2 }
-      }
-      if (!isRequirement1 && isRequirement2) {
-        hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1, concentration2Req: existingReq2 + 1 }
-      }
-      if (isRequirement1 && isRequirement2) {
-        hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1 + 1, concentration2Req: existingReq2 + 1 }
-      }
-      if (!isRequirement1 && !isRequirement2) {
-        hashMap[courseDept] = { deptFreq: existingFreq + 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: existingReq1, concentration2Req: existingReq2 }
-      }
-    } else {
-      if (isRequirement1 && !isRequirement2) {
-        hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 1, concentration2Req: 0 }
-      }
-      if (!isRequirement1 && isRequirement2) {
-        hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 0, concentration2Req: 1 }
-      }
-      if (isRequirement1 && isRequirement2) {
-        hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 1, concentration2Req: 1 }
-      }
-      if (!isRequirement1 && !isRequirement2) {
-        hashMap[courseDept] = { deptFreq: 1, deptAreaOfStudy: this.areaOfStudy(courseDept), concentration1Req: 0, concentration2Req: 0 }
-      }
-    }
-  }
-
-  getPropertyByIndex = (obj, index) => {
-    return obj[Object.keys(obj)[index]];
-  };
-
-  analyzeCourses = () => {
-    const allCourses = this.pullCoursesFromDatabase();
-    var hashMap = {};
-    //hashMap - Keys: Course Code / Values: {Frequency, Area of Study}
-    var calcFreq = 0;
-    for (let i = 0; i < allCourses.length; i++) {
-      for (let j = 0; j < allCourses[i].length; j++) {
-        var courseCode = allCourses[i][j]["course_code"];
-        var courseDept = courseCode.split(" ")[0];
-        hashMap[courseDept] = { deptFreq: calcFreq++, deptAreaOfStudy: this.areaOfStudy(courseDept) }
-      }
-    }
-    return hashMap;
-  }
-
-  areaOfStudy = (courseDept) => {
-    for (let i = 0; i < DepartmentsWithAreasOfStudy.length; i++) {
-      if (DepartmentsWithAreasOfStudy[i].includes(courseDept)) {
-        if (i === 0) {
-          return "Humanities";
-        }
-        if (i === 1) {
-          return "Life Sciences";
-        }
-        if (i === 2) {
-          return "Physical Sciences";
-        }
-        if (i === 3) {
-          return "Social Sciences";
-        }
-      }
-    }
-  }
-  /*--------------------------CURRENT WORK------------------------*/
 
   // called when component mounts
   // calls on two methods that are integral to displaying information on dashboard
@@ -297,6 +154,9 @@ class DashboardScreen extends Component {
               this.setState({
                 concentration_2: " and " + doc.data().second_concentration,
               });
+              this.setState({
+                concentration_2_duplicate: doc.data().second_concentration,
+              });
             } else {
               this.setState({
                 concentration_2: "",
@@ -314,6 +174,8 @@ class DashboardScreen extends Component {
 
   componentDidMount() {
     this.getUserID();
+    this.props.navigation.dispatch(DrawerActions.toggleDrawer());
+    this.props.navigation.dispatch(DrawerActions.toggleDrawer());
     this.props.navigation.addListener("willFocus", () => this.getUserID());
   }
 
@@ -715,6 +577,7 @@ class DashboardScreen extends Component {
             key={Math.random()}
             title={this.state.semestersList[i]}
             navprops={this.props}
+            visibility={true}
           ></SemesterPiece>
         );
       }
@@ -762,7 +625,11 @@ class DashboardScreen extends Component {
           <Header
             backgroundColor="#4E342E"
             leftComponent={
-              <TouchableOpacity onPress={() => this.showHideBigPicturePopUp()}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.showHideBigPicturePopUp();
+                }}
+              >
                 <Icon name="ios-arrow-back" color="#fafafa" size={35} />
               </TouchableOpacity>
             }
@@ -770,24 +637,86 @@ class DashboardScreen extends Component {
               <Text style={bigPictureStyles.title}>The Big Picture</Text>
             }
           ></Header>
-          <Text style={bigPictureStyles.academicObjectiveTitle}>
-            Academic Objective
-          </Text>
-          <Text style={bigPictureStyles.academicObjective}>
-            {this.state.degree}
-          </Text>
-          <Text style={bigPictureStyles.academicObjectivePt2}>
-            {this.state.concentration_1 + this.state.concentration_2}
-          </Text>
-          <ScrollView directionalLockEnabled={true} scrollEnabled={false}>
-            <View style={bigPictureStyles.container}>
-              <View style={bigPictureStyles.row1}>
-                {this.createRow1Semesters()}
-              </View>
-              <View style={bigPictureStyles.row2}>
-                {this.createRow2Semesters()}
-              </View>
+          <ScrollView
+            directionalLockEnabled={true}
+            scrollEnabled={true}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
+            <Text style={bigPictureStyles.academicObjectiveTitle}>
+              Academic Objective
+            </Text>
+            <Text style={bigPictureStyles.academicObjective}>
+              {this.state.degree}
+            </Text>
+            <Text style={bigPictureStyles.academicObjectivePt2}>
+              {this.state.concentration_1 + this.state.concentration_2}
+            </Text>
+            <View style={bigPictureStyles.row1}>
+              {this.createRow1Semesters()}
             </View>
+            <View style={bigPictureStyles.row2}>
+              {this.createRow2Semesters()}
+            </View>
+            {this.state.divisionsOfStudyData ? (
+              <PieChart
+                data={this.state.divisionsOfStudyData}
+                width={Dimensions.get("window").width}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#e26a00",
+                  backgroundGradientFrom: "#fb8c00",
+                  backgroundGradientTo: "#ffa726",
+                  decimalPlaces: 2, // optional, defaults to 2dp
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                }}
+                accessor="value"
+                backgroundColor="transparent"
+                paddingLeft="5"
+              />
+            ) : null}
+            {this.state.courseDeptData ? (
+              <PieChart
+                data={this.state.courseDeptData}
+                width={Dimensions.get("window").width}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#e26a00",
+                  backgroundGradientFrom: "#fb8c00",
+                  backgroundGradientTo: "#ffa726",
+                  decimalPlaces: 2, // optional, defaults to 2dp
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                }}
+                accessor="value"
+                backgroundColor="transparent"
+                paddingLeft="5"
+              />
+            ) : null}
+            {this.state.concentrationData ? (
+              <PieChart
+                data={this.state.concentrationData}
+                width={Dimensions.get("window").width}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#e26a00",
+                  backgroundGradientFrom: "#fb8c00",
+                  backgroundGradientTo: "#ffa726",
+                  decimalPlaces: 2, // optional, defaults to 2dp
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                }}
+                accessor="value"
+                backgroundColor="transparent"
+                paddingLeft="5"
+              />
+            ) : null}
           </ScrollView>
         </View>
       </Modal>
@@ -805,6 +734,305 @@ class DashboardScreen extends Component {
     }
   };
 
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––PIE-CHART BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  getPieChartData = () => {
+    var toReturn = [];
+    for (let i = 0; i < this.state.semestersList.length; i++) {
+      firebase
+        .firestore()
+        .collection("user-information")
+        .doc(this.state.userID)
+        .collection("course-information")
+        .doc(this.state.semestersList[i])
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            toReturn.push(doc.data());
+            var hashMap = {};
+            for (let i = 0; i < toReturn.length; i++) {
+              for (let j = 0; j < Object.keys(toReturn[i]).length; j++) {
+                var isShopping = this.getPropertyByIndex(toReturn[i], j)[
+                  "shopping"
+                ];
+                var isRequirement1 = false;
+                var isRequirement2 = false;
+                if (
+                  this.getPropertyByIndex(toReturn[i], j)[
+                    "concentration_1_requirement"
+                  ]
+                ) {
+                  isRequirement1 = this.getPropertyByIndex(toReturn[i], j)[
+                    "concentration_1_requirement"
+                  ];
+                }
+                if (
+                  this.getPropertyByIndex(toReturn[i], j)[
+                    "concentration_1_requirement"
+                  ]
+                ) {
+                  isRequirement2 = this.getPropertyByIndex(toReturn[i], j)[
+                    "concentration_2_requirement"
+                  ];
+                }
+                var courseCode = this.getPropertyByIndex(toReturn[i], j)[
+                  "course_code"
+                ];
+                var courseDept = courseCode.split(" ")[0];
+                if (!isShopping) {
+                  this.populateHashMap(
+                    courseDept,
+                    hashMap,
+                    isRequirement1,
+                    isRequirement2
+                  );
+                }
+              }
+            }
+            if (i === this.state.semestersList.length - 1) {
+              var totalCourses = 0;
+              var totalConcentrationOneReq = 0;
+              var totalConcentrationTwoReq = 0;
+              var totalHumanitiesCourses = 0;
+              var totalLifeSciencesCourses = 0;
+              var totalPhysicalSciencesCourses = 0;
+              var totalSocialSciencesCourses = 0;
+              for (let i = 0; i < Object.keys(hashMap).length; i++) {
+                totalCourses =
+                  totalCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                totalConcentrationOneReq =
+                  totalConcentrationOneReq +
+                  hashMap[Object.keys(hashMap)[i]]["concentration1Req"];
+                totalConcentrationTwoReq =
+                  totalConcentrationTwoReq +
+                  hashMap[Object.keys(hashMap)[i]]["concentration2Req"];
+                if (
+                  hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
+                  "Humanities"
+                ) {
+                  totalHumanitiesCourses = totalHumanitiesCourses + 1;
+                }
+                if (
+                  hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
+                  "Life Sciences"
+                ) {
+                  totalLifeSciencesCourses = totalLifeSciencesCourses + 1;
+                }
+                if (
+                  hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
+                  "Physical Sciences"
+                ) {
+                  totalPhysicalSciencesCourses =
+                    totalPhysicalSciencesCourses + 1;
+                }
+                if (
+                  hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
+                  "Social Sciences"
+                ) {
+                  totalSocialSciencesCourses = totalSocialSciencesCourses + 1;
+                }
+              }
+              // pie-chart for divisions of study
+              const divisionsOfStudy = [
+                "Humanities",
+                "Life Sciences",
+                "Physical Sciences",
+                "Social Sciences",
+              ];
+              const divisionsOfStudyValues = [
+                totalHumanitiesCourses,
+                totalLifeSciencesCourses,
+                totalPhysicalSciencesCourses,
+                totalSocialSciencesCourses,
+              ];
+              const colorsForDivisionsOfStudy = [
+                "#bc5090",
+                "#003f5c",
+                "#ff6361",
+                "#ffa600",
+              ];
+              let divisionsOfStudyData = {};
+              for (let i = 0; i < divisionsOfStudy.length; i++) {
+                let currentDivision = divisionsOfStudy[i];
+                divisionsOfStudyData[currentDivision] = {
+                  name: divisionsOfStudy[i],
+                  value: divisionsOfStudyValues[i],
+                  color: colorsForDivisionsOfStudy[i],
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 11,
+                };
+              }
+              let divisionsOfStudyDataArray = [];
+              for (
+                let j = 0;
+                j < Object.keys(divisionsOfStudyData).length;
+                j++
+              ) {
+                let currentObject = this.getPropertyByIndex(
+                  divisionsOfStudyData,
+                  j
+                );
+                divisionsOfStudyDataArray.push(currentObject);
+              }
+              this.setState({
+                divisionsOfStudyData: divisionsOfStudyDataArray,
+              });
+              // pie-chart for departments
+              let courseDeptDataArray = [];
+              let courseDeptData = {};
+              for (let i = 0; i < Object.keys(hashMap).length; i++) {
+                var courseDept = Object.keys(hashMap)[i];
+                var courseDeptValue =
+                  hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                var courseDeptColor = Colors[CourseList.indexOf(courseDept)];
+                courseDeptData[courseDept] = {
+                  name: courseDept,
+                  value: courseDeptValue,
+                  color: courseDeptColor,
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 11,
+                };
+              }
+              for (let j = 0; j < Object.keys(courseDeptData).length; j++) {
+                let currentObject = this.getPropertyByIndex(courseDeptData, j);
+                courseDeptDataArray.push(currentObject);
+              }
+              this.setState({ courseDeptData: courseDeptDataArray });
+              // pie-chart for concentration
+              let concentrationDataArray = [
+                {
+                  name: this.state.concentration_1.split(" - ")[0],
+                  value: totalConcentrationOneReq,
+                  color: "#FBDE44FF",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 11,
+                },
+                {
+                  name: this.state.concentration_2_duplicate.split(" - ")[0],
+                  value: totalConcentrationTwoReq,
+                  color: "#28334aff",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 11,
+                },
+                {
+                  name: "Other Courses",
+                  value:
+                    totalCourses -
+                    totalConcentrationOneReq -
+                    totalConcentrationTwoReq,
+                  color: "#F65058FF",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 11,
+                },
+              ];
+              this.setState({ concentrationData: concentrationDataArray });
+            }
+          } else {
+            console.log("no data acquired");
+          }
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+  };
+
+  populateHashMap = (courseDept, hashMap, isRequirement1, isRequirement2) => {
+    if (courseDept in hashMap) {
+      var existingFreq = hashMap[courseDept]["deptFreq"];
+      var existingReq1 = hashMap[courseDept]["concentration1Req"];
+      var existingReq2 = hashMap[courseDept]["concentration2Req"];
+      if (isRequirement1 && !isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: existingFreq + 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: existingReq1 + 1,
+          concentration2Req: existingReq2,
+        };
+      }
+      if (!isRequirement1 && isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: existingFreq + 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: existingReq1,
+          concentration2Req: existingReq2 + 1,
+        };
+      }
+      if (isRequirement1 && isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: existingFreq + 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: existingReq1 + 1,
+          concentration2Req: existingReq2 + 1,
+        };
+      }
+      if (!isRequirement1 && !isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: existingFreq + 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: existingReq1,
+          concentration2Req: existingReq2,
+        };
+      }
+    } else {
+      if (isRequirement1 && !isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: 1,
+          concentration2Req: 0,
+        };
+      }
+      if (!isRequirement1 && isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: 0,
+          concentration2Req: 1,
+        };
+      }
+      if (isRequirement1 && isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: 1,
+          concentration2Req: 1,
+        };
+      }
+      if (!isRequirement1 && !isRequirement2) {
+        hashMap[courseDept] = {
+          deptFreq: 1,
+          deptAreaOfStudy: this.areaOfStudy(courseDept),
+          concentration1Req: 0,
+          concentration2Req: 0,
+        };
+      }
+    }
+  };
+
+  getPropertyByIndex = (obj, index) => {
+    return obj[Object.keys(obj)[index]];
+  };
+
+  areaOfStudy = (courseDept) => {
+    for (let i = 0; i < DepartmentsWithAreasOfStudy.length; i++) {
+      if (DepartmentsWithAreasOfStudy[i].includes(courseDept)) {
+        if (i === 0) {
+          return "Humanities";
+        }
+        if (i === 1) {
+          return "Life Sciences";
+        }
+        if (i === 2) {
+          return "Physical Sciences";
+        }
+        if (i === 3) {
+          return "Social Sciences";
+        }
+      }
+    }
+  };
+
   /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
   render() {
     return (
@@ -817,7 +1045,7 @@ class DashboardScreen extends Component {
           <TouchableOpacity
             style={styles.trigger}
             onPress={() => {
-              this.props.navigation.dispatch(DrawerActions.openDrawer());
+              this.props.navigation.dispatch(DrawerActions.toggleDrawer());
             }}
           >
             <Ionicons name={"md-menu"} size={32} color={"white"} />
@@ -840,7 +1068,7 @@ class DashboardScreen extends Component {
               onPress={() => {
                 this.showHideBigPicturePopUp();
                 this.getAcademicObjective();
-                this.pullCoursesFromDatabase();
+                this.getPieChartData();
               }}
             ></CustomButton>
             {/* this is the pop-up that always exists but remains invisible until "The Big Picture" is clicked */}
@@ -910,6 +1138,10 @@ const bigPictureStyles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
   },
+  scrollContainer: {
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
   title: {
     fontSize: 28,
     color: "#fafafa",
@@ -919,12 +1151,12 @@ const bigPictureStyles = StyleSheet.create({
   row1: {
     flex: 1,
     flexDirection: "row",
-    top: "14%",
+    marginTop: 28,
   },
   row2: {
     flex: 1,
     flexDirection: "row",
-    top: "7%",
+    marginTop: 15,
   },
   summaryButtonContainer: {
     alignItems: "center",
@@ -952,16 +1184,13 @@ const bigPictureStyles = StyleSheet.create({
     fontSize: 15,
   },
   academicObjective: {
-    position: "absolute",
-    top: "13.9%",
     zIndex: 5,
     color: "#4E342E",
     marginHorizontal: 20,
     fontSize: 13,
+    marginBottom: 3,
   },
   academicObjectivePt2: {
-    position: "absolute",
-    top: "16%",
     zIndex: 5,
     color: "#4E342E",
     marginHorizontal: 20,

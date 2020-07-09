@@ -650,27 +650,27 @@ const profileStyles = StyleSheet.create({
   form1: {
     position: "absolute",
     top: "38%",
-    width: Dimensions.get("window").width,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form12: {
     position: "absolute",
     top: "50%",
-    width: Dimensions.get("window").width,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form2: {
     position: "absolute",
     top: "62%",
-    width: Dimensions.get("window").width,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form3: {
     position: "absolute",
     top: "74%",
-    width: Dimensions.get("window").width,
+    width: 0.8 * Dimensions.get("window").width,
   },
   form4: {
     position: "absolute",
     top: "86%",
-    width: Dimensions.get("window").width,
+    width: 0.8 * Dimensions.get("window").width,
   },
   inputTitle: {
     color: "#fafafa",

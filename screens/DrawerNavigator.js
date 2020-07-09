@@ -39,8 +39,10 @@ const pullInformationFromDatabase = () => {
             const firstName = doc.data().first_name;
             const lastName = doc.data().last_name;
             const fullName = firstName + " " + lastName;
+            const photoURL = doc.data().profile_picture_url;
             result.push(fullName);
-            console.log("innermost if statement", result);
+            result.push(email);
+            result.push(photoURL);
           } else {
             console.log("no data accquired");
           }
@@ -49,19 +51,10 @@ const pullInformationFromDatabase = () => {
           console.log(error.message);
         });
     }
-    console.log("right before returning result", result);
-    console.log("right before returning result index 0 is ", result[0]);
   });
   if (result[0] !== undefined) {
-    console.log("value returned");
-    return result[0];
+    return result;
   }
-};
-
-const pullInformationFromDatabaseHelper = () => {
-  // pullInformationFromDatabase();
-  // setTimeout(() => pullInformationFromDatabase(), 5000)
-  // pullInformationFromDatabase();
 };
 
 const DrawerNavigator = createDrawerNavigator(
@@ -116,20 +109,26 @@ const DrawerNavigator = createDrawerNavigator(
       return (
         <SafeAreaView style={styles.container}>
           <View style={styles.profilePictureContainer}>
-            <Image
-              style={styles.profilePicture}
-              source={require("./../assets/dp-placeholder.jpg")}
-            ></Image>
+            {pullInformationFromDatabase() ? (
+              <Image
+                style={styles.profilePicture}
+                source={{ uri: pullInformationFromDatabase()[2] }}
+              ></Image>
+            ) : null}
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>Hello,</Text>
-            {/* <Text style={styles.text}>
-              {pullInformationFromDatabaseHelper()}
-            </Text> */}
+            {pullInformationFromDatabase() ? (
+              <Text style={styles.text}>Hello,</Text>
+            ) : null}
             <Text style={styles.text}>
-              Hello 2,
-              {pullInformationFromDatabase()}
-              {pullInformationFromDatabase()}
+              {pullInformationFromDatabase()
+                ? pullInformationFromDatabase()[0]
+                : ""}
+            </Text>
+            <Text style={styles.email}>
+              {pullInformationFromDatabase()
+                ? pullInformationFromDatabase()[1]
+                : ""}
             </Text>
           </View>
           <ScrollView>
