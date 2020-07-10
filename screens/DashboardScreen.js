@@ -161,6 +161,9 @@ class DashboardScreen extends Component {
               this.setState({
                 concentration_2: "",
               });
+              this.setState({
+                concentration_2_duplicate: "",
+              })
             }
           }
         } else {
@@ -759,7 +762,7 @@ class DashboardScreen extends Component {
                 var isRequirement2 = false;
                 if (
                   this.getPropertyByIndex(toReturn[i], j)[
-                    "concentration_1_requirement"
+                  "concentration_1_requirement"
                   ]
                 ) {
                   isRequirement1 = this.getPropertyByIndex(toReturn[i], j)[
@@ -768,7 +771,7 @@ class DashboardScreen extends Component {
                 }
                 if (
                   this.getPropertyByIndex(toReturn[i], j)[
-                    "concentration_1_requirement"
+                  "concentration_2_requirement"
                   ]
                 ) {
                   isRequirement2 = this.getPropertyByIndex(toReturn[i], j)[
@@ -803,33 +806,35 @@ class DashboardScreen extends Component {
                 totalConcentrationOneReq =
                   totalConcentrationOneReq +
                   hashMap[Object.keys(hashMap)[i]]["concentration1Req"];
-                totalConcentrationTwoReq =
-                  totalConcentrationTwoReq +
-                  hashMap[Object.keys(hashMap)[i]]["concentration2Req"];
+                if (this.state.concentration_2_duplicate !== "") {
+                  totalConcentrationTwoReq =
+                    totalConcentrationTwoReq +
+                    hashMap[Object.keys(hashMap)[i]]["concentration2Req"];
+                }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Humanities"
                 ) {
-                  totalHumanitiesCourses = totalHumanitiesCourses + 1;
+                  totalHumanitiesCourses = totalHumanitiesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Life Sciences"
                 ) {
-                  totalLifeSciencesCourses = totalLifeSciencesCourses + 1;
+                  totalLifeSciencesCourses = totalLifeSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Physical Sciences"
                 ) {
                   totalPhysicalSciencesCourses =
-                    totalPhysicalSciencesCourses + 1;
+                    totalPhysicalSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Social Sciences"
                 ) {
-                  totalSocialSciencesCourses = totalSocialSciencesCourses + 1;
+                  totalSocialSciencesCourses = totalSocialSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
               }
               // pie-chart for divisions of study
@@ -899,33 +904,56 @@ class DashboardScreen extends Component {
               }
               this.setState({ courseDeptData: courseDeptDataArray });
               // pie-chart for concentration
-              let concentrationDataArray = [
-                {
-                  name: this.state.concentration_1.split(" - ")[0],
-                  value: totalConcentrationOneReq,
-                  color: "#FBDE44FF",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 11,
-                },
-                {
-                  name: this.state.concentration_2_duplicate.split(" - ")[0],
-                  value: totalConcentrationTwoReq,
-                  color: "#28334aff",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 11,
-                },
-                {
-                  name: "Other Courses",
-                  value:
-                    totalCourses -
-                    totalConcentrationOneReq -
-                    totalConcentrationTwoReq,
-                  color: "#F65058FF",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 11,
-                },
-              ];
-              this.setState({ concentrationData: concentrationDataArray });
+              if (totalConcentrationTwoReq !== 0) {
+                let concentrationDataArray = [
+                  {
+                    name: this.state.concentration_1.split(" - ")[0],
+                    value: totalConcentrationOneReq,
+                    color: "#FBDE44FF",
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 11,
+                  },
+                  {
+                    name: this.state.concentration_2_duplicate.split(" - ")[0],
+                    value: totalConcentrationTwoReq,
+                    color: "#28334aff",
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 11,
+                  },
+                  {
+                    name: "Other Courses",
+                    value:
+                      totalCourses -
+                      totalConcentrationOneReq -
+                      totalConcentrationTwoReq,
+                    color: "#F65058FF",
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 11,
+                  },
+                ];
+                this.setState({ concentrationData: concentrationDataArray });
+              } else {
+                let concentrationDataArray = [
+                  {
+                    name: this.state.concentration_1.split(" - ")[0],
+                    value: totalConcentrationOneReq,
+                    color: "#FBDE44FF",
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 11,
+                  },
+                  {
+                    name: "Other Courses",
+                    value:
+                      totalCourses -
+                      totalConcentrationOneReq -
+                      totalConcentrationTwoReq,
+                    color: "#F65058FF",
+                    legendFontColor: "#7F7F7F",
+                    legendFontSize: 11,
+                  },
+                ];
+                this.setState({ concentrationData: concentrationDataArray });
+              }
             }
           } else {
             console.log("no data acquired");
