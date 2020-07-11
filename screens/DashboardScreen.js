@@ -18,6 +18,7 @@ import { DrawerActions } from "react-navigation-drawer";
 
 import firebase from "firebase";
 import "firebase/firestore";
+import { AdMobBanner } from "expo-ads-admob";
 
 import SemesterCard from "./../components/SemesterCard";
 import AddSemesterCard from "./../components/AddSemesterCard";
@@ -163,7 +164,7 @@ class DashboardScreen extends Component {
               });
               this.setState({
                 concentration_2_duplicate: "",
-              })
+              });
             }
           }
         } else {
@@ -762,7 +763,7 @@ class DashboardScreen extends Component {
                 var isRequirement2 = false;
                 if (
                   this.getPropertyByIndex(toReturn[i], j)[
-                  "concentration_1_requirement"
+                    "concentration_1_requirement"
                   ]
                 ) {
                   isRequirement1 = this.getPropertyByIndex(toReturn[i], j)[
@@ -771,7 +772,7 @@ class DashboardScreen extends Component {
                 }
                 if (
                   this.getPropertyByIndex(toReturn[i], j)[
-                  "concentration_2_requirement"
+                    "concentration_2_requirement"
                   ]
                 ) {
                   isRequirement2 = this.getPropertyByIndex(toReturn[i], j)[
@@ -815,26 +816,33 @@ class DashboardScreen extends Component {
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Humanities"
                 ) {
-                  totalHumanitiesCourses = totalHumanitiesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                  totalHumanitiesCourses =
+                    totalHumanitiesCourses +
+                    hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Life Sciences"
                 ) {
-                  totalLifeSciencesCourses = totalLifeSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                  totalLifeSciencesCourses =
+                    totalLifeSciencesCourses +
+                    hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Physical Sciences"
                 ) {
                   totalPhysicalSciencesCourses =
-                    totalPhysicalSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                    totalPhysicalSciencesCourses +
+                    hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===
                   "Social Sciences"
                 ) {
-                  totalSocialSciencesCourses = totalSocialSciencesCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                  totalSocialSciencesCourses =
+                    totalSocialSciencesCourses +
+                    hashMap[Object.keys(hashMap)[i]]["deptFreq"];
                 }
               }
               // pie-chart for divisions of study
@@ -1118,6 +1126,14 @@ class DashboardScreen extends Component {
             <AddSemesterCard
               onPress={() => this.showHideSemesterModal()}
             ></AddSemesterCard>
+            <View style={{ alignItems: "center", alignContent: "center" }}>
+              <AdMobBanner
+                style={styles.banner1}
+                bannerSize="largeBanner"
+                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                testDeviceID="EMULATOR"
+              />
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -1156,6 +1172,12 @@ const styles = StyleSheet.create({
     color: "#fafafa",
     fontWeight: "700",
     letterSpacing: 1,
+  },
+  banner1: {
+    alignContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 5,
   },
 });
 
@@ -1206,23 +1228,26 @@ const bigPictureStyles = StyleSheet.create({
   },
   academicObjectiveTitle: {
     color: "#4E342E",
-    fontWeight: "bold",
+    fontWeight: "800",
     fontStyle: "italic",
-    margin: 7,
-    fontSize: 15,
+    margin: 5,
+    fontSize: 28,
   },
   academicObjective: {
     zIndex: 5,
     color: "#4E342E",
     marginHorizontal: 20,
-    fontSize: 13,
+    fontSize: 20,
     marginBottom: 3,
+    fontWeight: "600",
   },
   academicObjectivePt2: {
     zIndex: 5,
     color: "#4E342E",
     marginHorizontal: 20,
-    fontSize: 13,
+    fontSize: 14,
+    marginBottom: 3,
+    fontWeight: "500",
   },
 });
 

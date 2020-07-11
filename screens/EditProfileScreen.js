@@ -27,8 +27,10 @@ class EditProfileScreen extends Component {
     super(props);
     this.state = {
       concentrationPickerValue: "Click to Choose",
+      initialConcentrationPickerValue: "Click to Choose",
       concentrationPickerVisible: false,
       secondConcentrationPickerValue: "Click to Choose",
+      initialSecondConcentrationPickerValue: "Click to Choose",
       secondConcentrationPickerVisible: false,
       degreePickerValue: "Click to Choose",
       degreePickerVisible: false,
@@ -38,6 +40,7 @@ class EditProfileScreen extends Component {
       semesterLevelPickerVisible: false,
       userID: "",
       profilePicture: "./../assets/dp-placeholder.jpg",
+      semestersList: null,
     };
   }
 
@@ -69,11 +72,18 @@ class EditProfileScreen extends Component {
             this.setState({
               concentrationPickerValue: doc.data().concentration,
             });
+            this.setState({
+              initialConcentrationPickerValue: doc.data().concentration,
+            });
           }
           if (doc.data().second_concentration) {
             if (doc.data().second_concentration !== "Yet To Declare") {
               this.setState({
                 secondConcentrationPickerValue: doc.data().second_concentration,
+              });
+              this.setState({
+                initialSecondConcentrationPickerValue: doc.data()
+                  .second_concentration,
               });
             }
           }
@@ -197,6 +207,10 @@ class EditProfileScreen extends Component {
     ) {
       this.setState({ concentrationPickerValue: "Yet To Declare" });
     }
+    if (this.state.concentrationPickerValue === "Yet To Declare") {
+      this.setState({ secondConcentrationPickerValue: "Click to Choose" });
+      this.setState({ degreePickerValue: "Click to Choose" });
+    }
   };
 
   defaultSecondConcentration = () => {
@@ -205,6 +219,10 @@ class EditProfileScreen extends Component {
       this.state.concentrationPickerValue === undefined
     ) {
       this.setState({ secondConcentrationPickerValue: "Yet To Declare" });
+    }
+    if (this.state.concentrationPickerValue === "Yet To Declare") {
+      this.setState({ secondConcentrationPickerValue: "Click to Choose" });
+      this.setState({ degreePickerValue: "Click to Choose" });
     }
   };
 
@@ -268,11 +286,103 @@ class EditProfileScreen extends Component {
       this.state.semesterLevelPickerValue !== "Click to Choose"
     ) {
       this.writeToDatabase();
+      if (
+        this.state.concentrationPickerValue !==
+        this.state.initialConcentrationPickerValue
+      ) {
+        this.resetDatabase(true, false);
+      }
+      if (
+        this.state.secondConcentrationPickerValue !==
+        this.state.initialSecondConcentrationPickerValue
+      ) {
+        this.resetDatabase(false, true);
+      }
       this.props.navigation.navigate("TabNavigator");
       this.props.navigation.dispatch(DrawerActions.openDrawer());
     } else {
       alert("Please Choose All Values");
     }
+  };
+
+  resetDatabase = (resetConcentration1, resetConcentration2) => {
+    firebase
+      .firestore()
+      .collection("user-information")
+      .doc(this.state.userID)
+      .collection("course-information")
+      .doc("Semesters List")
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.setState({ semestersList: doc.data()["semestersList"] });
+          let allCourses = [];
+          for (let i = 0; i < this.state.semestersList.length; i++) {
+            firebase
+              .firestore()
+              .collection("user-information")
+              .doc(this.state.userID)
+              .collection("course-information")
+              .doc(this.state.semestersList[i])
+              .get()
+              .then((doc) => {
+                if (doc.exists) {
+                  allCourses.push(doc.data());
+                  for (let i = 0; i < allCourses.length; i++) {
+                    for (
+                      let j = 0;
+                      j < Object.keys(allCourses[i]).length;
+                      j++
+                    ) {
+                      if (
+                        resetConcentration1 &&
+                        this.getPropertyByIndex(allCourses[i], j)
+                      ) {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc(this.state.semestersList[i])
+                          .set(
+                            {
+                              [this.getPropertyByIndex(allCourses[i], j)[
+                                "course_code"
+                              ]]: { concentration_1_requirement: false },
+                            },
+                            { merge: true }
+                          );
+                      }
+                      if (
+                        resetConcentration2 &&
+                        this.getPropertyByIndex(allCourses[i], j)
+                      ) {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc(this.state.semestersList[i])
+                          .set(
+                            {
+                              [this.getPropertyByIndex(allCourses[i], j)[
+                                "course_code"
+                              ]]: { concentration_2_requirement: false },
+                            },
+                            { merge: true }
+                          );
+                      }
+                    }
+                  }
+                }
+              });
+          }
+        }
+      });
+  };
+
+  getPropertyByIndex = (obj, index) => {
+    return obj[Object.keys(obj)[index]];
   };
 
   render() {
@@ -360,11 +470,11 @@ class EditProfileScreen extends Component {
                   style={profileStyles.cancelButton}
                   onPress={() => {
                     this.ShowHideConcentrationPicker();
-                    this.defaultConcentration();
                     this.determineDegree(
                       this.state.concentrationPickerValue,
                       this.state.secondConcentrationPickerValue
                     );
+                    this.defaultConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -418,11 +528,11 @@ class EditProfileScreen extends Component {
                   style={profileStyles.cancelButton}
                   onPress={() => {
                     this.ShowHideSecondConcentrationPicker();
-                    this.defaultSecondConcentration();
                     this.determineDegree(
                       this.state.concentrationPickerValue,
                       this.state.secondConcentrationPickerValue
                     );
+                    this.defaultSecondConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -468,11 +578,11 @@ class EditProfileScreen extends Component {
                   style={profileStyles.cancelButton}
                   onPress={() => {
                     this.ShowHideDegreePicker();
-                    this.defaultDegree();
                     this.determineDegree(
                       this.state.concentrationPickerValue,
                       this.state.secondConcentrationPickerValue
                     );
+                    this.defaultDegree();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>

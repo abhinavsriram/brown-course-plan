@@ -19,6 +19,7 @@ import { DrawerActions } from "react-navigation-drawer";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
+import { AdMobBanner } from "expo-ads-admob";
 
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -1165,6 +1166,14 @@ class SearchScreen extends Component {
               {this.state.errorMessage}
             </Text>
             {this.createCards()}
+            <View style={{ alignItems: "center", alignContent: "center" }}>
+              <AdMobBanner
+                style={styles.banner1}
+                bannerSize="largeBanner"
+                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                testDeviceID="EMULATOR"
+              />
+            </View>
           </ScrollView>
           <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
           <this.createAddCoursePopUp></this.createAddCoursePopUp>
@@ -1259,6 +1268,12 @@ const styles = StyleSheet.create({
   errorMessage: {
     width: 0.85 * Dimensions.get("window").width,
     color: "#ffae42",
+  },
+  banner1: {
+    alignContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
   },
 });
 

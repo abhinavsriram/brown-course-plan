@@ -16,8 +16,9 @@ import firebase from "firebase";
 import "firebase/firestore";
 
 import BottomTabNavigator from "./BottomTabNavigator";
-import ScreenOne from "./ScreenOne";
-import ScreenTwo from "./ScreenTwo";
+import HelpScreen from "./HelpScreen";
+import SubmitInformationScreen from "./SubmitInformationScreen";
+import SuggestionsScreen from "./SuggestionsScreen";
 import LogOutScreen from "./LogOutScreen";
 import EditProfileScreen from "./EditProfileScreen";
 
@@ -76,21 +77,21 @@ const DrawerNavigator = createDrawerNavigator(
       }),
     },
     SubmitInformation: {
-      screen: ScreenTwo,
+      screen: SubmitInformationScreen,
       navigationOptions: ({ tintColor }) => ({
         drawerLabel: "Submit Information",
         drawerIcon: () => <Icon name="ios-add" color={tintColor} size={30} />,
       }),
     },
     Suggestions: {
-      screen: ScreenOne,
+      screen: SuggestionsScreen,
       navigationOptions: ({ tintColor }) => ({
         drawerLabel: "Suggestions",
         drawerIcon: () => <Icon name="ios-hand" color={tintColor} size={30} />,
       }),
     },
     Help: {
-      screen: ScreenTwo,
+      screen: HelpScreen,
       navigationOptions: ({ tintColor }) => ({
         drawerLabel: "Help",
         drawerIcon: () => <Icon name="ios-help" color={tintColor} size={45} />,

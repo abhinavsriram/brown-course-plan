@@ -17,6 +17,7 @@ import SwitchSelector from "react-native-switch-selector";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
+import { AdMobBanner } from "expo-ads-admob";
 
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -765,7 +766,7 @@ class SearchScreen extends Component {
   lazyLoading = () => {
     var y = this.state.searchResults.length / 10;
     if (y < 4) {
-      if (this.state.yOffset > 575 * y) {
+      if (this.state.yOffset > 500 * y) {
         this.searchEngineStartAfter(
           this.state.searchBoxValue,
           y + 1,
@@ -1163,6 +1164,14 @@ class SearchScreen extends Component {
               {this.state.errorMessage}
             </Text>
             {this.createCards()}
+            <View style={{ alignItems: "center", alignContent: "center" }}>
+              <AdMobBanner
+                style={styles.banner1}
+                bannerSize="largeBanner"
+                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                testDeviceID="EMULATOR"
+              />
+            </View>
           </ScrollView>
           <this.createCourseInfoPopUp></this.createCourseInfoPopUp>
           <this.createAddCoursePopUp></this.createAddCoursePopUp>
@@ -1257,6 +1266,12 @@ const styles = StyleSheet.create({
   errorMessage: {
     width: 0.85 * Dimensions.get("window").width,
     color: "#ffae42",
+  },
+  banner1: {
+    alignContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
   },
 });
 
