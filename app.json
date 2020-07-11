@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "brown-cp",
+    "name": "Brown Course Plan",
     "slug": "brown-cp",
     "platforms": [
       "ios",
@@ -22,7 +22,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ASDG.BrownCoursePlan",
+      "buildNumber": "1.0.0"
     },
     "description": ""
   }
