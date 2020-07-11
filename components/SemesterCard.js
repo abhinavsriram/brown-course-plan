@@ -490,7 +490,7 @@ class SemesterCard extends Component {
             courseNames
           );
           sortedCourseObjects.map((currentCourse, index) => {
-            n = sortedCourseNames.indexOf(this.state.courseCode);
+            let n = sortedCourseNames.indexOf(this.state.courseCode);
             if (index === n) {
               this.setState(
                 { popUpGradeMode: currentCourse["grade_mode"] },
@@ -500,17 +500,13 @@ class SemesterCard extends Component {
                   }
                 }
               );
-              console.log(currentCourse["concentration_1_requirement"]);
               this.setState(
                 {
                   popUpConcentrationRequirement:
                     currentCourse["concentration_1_requirement"],
                 },
                 () => {
-                  console.log(this.state.popUpConcentrationRequirement);
                   if (!this.state.popUpConcentrationRequirement) {
-                    console.log("enters");
-                    console.log(this.state.popUpConcentrationRequirement);
                     this.setState({ initialpopUpConcentrationRequirement: 0 });
                   }
                 }
@@ -926,7 +922,6 @@ class SemesterCard extends Component {
       for (let j = 0; j < mainList.length; j++) {
         currentCourse = finalResult[i];
         if (currentCourse === mainList[j]["course_code"]) {
-          console.log("hello");
           realFinalResult.push(mainList[j]);
         }
       }

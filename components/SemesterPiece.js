@@ -226,7 +226,6 @@ class SemesterPiece extends Component {
       for (let j = 0; j < mainList.length; j++) {
         currentCourse = finalResult[i];
         if (currentCourse === mainList[j]["course_code"]) {
-          console.log("hello");
           realFinalResult.push(mainList[j]);
         }
       }
