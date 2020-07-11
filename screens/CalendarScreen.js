@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from "react-native";
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "react-navigation-drawer";
+import { AdMobBanner } from 'expo-ads-admob';
 
 class CalendarScreen extends Component {
   render() {
@@ -22,6 +23,12 @@ class CalendarScreen extends Component {
           </TouchableOpacity>
         </Header>
         <View></View>
+        <AdMobBanner
+          style={styles.bottomBanner}
+          bannerSize="fullBanner"
+          adUnitID="ca-app-pub-3940256099942544/6300978111"
+          testDeviceID="EMULATOR"
+        />
       </View>
     );
   }
@@ -39,6 +46,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
   },
+  bottomBanner: {
+    alignContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+  }
 });
 
 export default CalendarScreen;
