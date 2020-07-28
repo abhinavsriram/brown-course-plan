@@ -1,19 +1,69 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+import LoadingScreen from "./screens/LoadingScreen";
+import LandingScreen from "./screens/LandingScreen";
+import CustomLoginScreen from "./screens/CustomLoginScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import CustomSignUpScreen from "./screens/CustomSignUpScreen";
+import VerificationScreen from "./screens/VerificationScreen";
+import CreateProfileScreen1 from "./screens/CreateProfileScreen1";
+import CreateProfileScreen2 from "./screens/CreateProfileScreen2";
+import DashboardScreen from "./screens/DashboardScreen";
+import TabNavigator from "./screens/BottomTabNavigator";
+import DrawerNavigator from "./screens/DrawerNavigator";
+import SearchTabNavigator from "./screens/BottomTabNavigatorSearch";
+import SearchScreen from "./screens/SearchScreenFromDashboard";
+
+// import helps solve a weird decoding bug
+import { decode, encode } from "base-64";
+if (!global.btoa) {
+  global.btoa = encode;
+}
+if (!global.atob) {
+  global.atob = decode;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+// initializes our firebase (can be called on using firebase)
+// confidential information - apiKey and appId
+import * as firebase from "firebase";
+
+var firebaseConfig = {
+  apiKey: "AIzaSyDIS2EvIGVPsNV3f5b61pBrL6Vce7-In68",
+  authDomain: "brown-cp.firebaseapp.com",
+  databaseURL: "https://brown-cp.firebaseio.com",
+  projectId: "brown-cp",
+  storageBucket: "brown-cp.appspot.com",
+  messagingSenderId: "522825335797",
+  appId: "1:522825335797:web:52d33920d5e2efa15d16bc",
+  measurementId: "G-R9CV6FQFHX",
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const AppSwitchNavigator = createSwitchNavigator(
+  {
+    LoadingScreen: LoadingScreen,
+    LandingScreen: LandingScreen,
+    CustomLoginScreen: CustomLoginScreen,
+    ForgotPasswordScreen: ForgotPasswordScreen,
+    CustomSignUpScreen: CustomSignUpScreen,
+    VerificationScreen: VerificationScreen,
+    CreateProfileScreen1: CreateProfileScreen1,
+    CreateProfileScreen2: CreateProfileScreen2,
+    DashboardScreen: DashboardScreen,
+    TabNavigator: TabNavigator,
+    SearchTabNavigator: SearchTabNavigator,
+    DrawerNavigator: DrawerNavigator,
+    SearchScreen: SearchScreen,
   },
-});
+  {
+    initialRouteName: "LoadingScreen",
+  }
+);
+
+const AppNavigator = createAppContainer(AppSwitchNavigator);
+
+export default function App() {
+  return <AppNavigator></AppNavigator>;
+}

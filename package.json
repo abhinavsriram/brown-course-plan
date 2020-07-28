@@ -5,18 +5,49 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "predeploy": "expo build:web",
+    "deploy-hosting": "npm run predeploy && firebase deploy --only hosting"
   },
   "dependencies": {
-    "expo": "~37.0.3",
-    "react": "~16.9.0",
-    "react-dom": "~16.9.0",
+    "@react-native-community/datetimepicker": "2.4.2",
+    "@react-native-community/google-signin": "^4.0.3",
+    "@react-native-community/masked-view": "^0.1.10",
+    "base-64": "^0.1.0",
+    "expo": "~37.0.12",
+    "expo-ads-admob": "^8.2.1",
+    "expo-google-app-auth": "^8.1.2",
+    "expo-image-picker": "^8.3.0",
+    "firebase": "^7.15.4",
+    "js-base64": "^2.6.1",
+    "randomcolor": "^0.5.4",
+    "react": "~16.13.1",
+    "react-dom": "~16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
-    "react-native-web": "~0.11.7"
+    "react-native-chart-kit": "^6.2.3",
+    "react-native-elements": "^2.0.2",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-ionicons": "^4.6.5",
+    "react-native-keyboard-accessory": "^0.1.11",
+    "react-native-progress": "^4.1.2",
+    "react-native-reanimated": "^1.9.0",
+    "react-native-safe-area-context": "^3.0.6",
+    "react-native-screens": "^2.9.0",
+    "react-native-snap-carousel": "^3.9.1",
+    "react-native-svg": "^12.1.0",
+    "react-native-switch-selector": "^2.0.6",
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-web": "~0.12.3",
+    "react-navigation": "^4.4.0",
+    "react-navigation-drawer": "^2.5.0",
+    "react-navigation-stack": "^2.8.1",
+    "react-navigation-tabs": "^2.9.0"
   },
   "devDependencies": {
-    "babel-preset-expo": "~8.1.0",
-    "@babel/core": "^7.8.6"
+    "@babel/core": "^7.10.3",
+    "@expo/webpack-config": "^0.12.20",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "babel-preset-expo": "~8.2.3"
   },
   "private": true
 }
