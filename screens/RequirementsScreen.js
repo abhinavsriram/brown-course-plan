@@ -5,6 +5,9 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Alert,
+  Modal,
+  ScrollView,
 } from "react-native";
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,9 +19,9 @@ import "firebase/firestore";
 import { AdMobBanner } from "expo-ads-admob";
 
 import DepartmentsWithAreasOfStudy from "./../data/DepartmentsWithAreasOfStudy";
+import SemesterPiece from "./../components/SemesterPieceRequirementsPage";
 
 import Icon from "react-native-vector-icons/Ionicons";
-import { ScrollView } from "react-native-gesture-handler";
 
 class RequirementsScreen extends Component {
   constructor(props) {
@@ -37,6 +40,8 @@ class RequirementsScreen extends Component {
       totalConcentrationOneRequiredCourses: 12,
       totalConcentrationTwoRequiredCourses: 12,
       totalWRITRequiredCourses: 2,
+      refresh: false,
+      isBigPictureModalVisible: false,
     };
   }
 
@@ -56,7 +61,7 @@ class RequirementsScreen extends Component {
   };
 
   // pulls semestersList from database
-  // calls on getProgressRingData
+  // calls on getProgressBarData
   pullSemestersFromDatabase = () => {
     firebase
       .firestore()
@@ -68,7 +73,7 @@ class RequirementsScreen extends Component {
       .then((doc) => {
         if (doc.exists) {
           this.setState({ semestersList: doc.data().semestersList }, () => {
-            this.getProgressRingData();
+            this.getProgressBarData();
           });
         } else {
           console.log("no data accquired");
@@ -171,9 +176,9 @@ class RequirementsScreen extends Component {
     this.props.navigation.addListener("willFocus", () => this.getUserID());
   }
 
-  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––PROGRESS RINGS BEGIN–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––PROGRESS BAR BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 
-  getProgressRingData = () => {
+  getProgressBarData = () => {
     var toReturn = [];
     for (let i = 0; i < this.state.semestersList.length; i++) {
       firebase
@@ -495,6 +500,163 @@ class RequirementsScreen extends Component {
     }
   };
 
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––THE BIG PICTURE POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
+  // renders the first 4 semesters in semestersList
+  // if 4 don't exist it creates fake placeholders to ensure positioning is not messed up
+  createRow1Semesters = () => {
+    var results = [];
+    for (let i = 0; i < 4; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={i}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+            visibility={true}
+          ></SemesterPiece>
+        );
+      }
+    }
+    if (results.length < 4) {
+      while (results.length < 4) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[0]}
+            navprops={this.props}
+            visibility={false}
+          ></SemesterPiece>
+        );
+      }
+    }
+    return results;
+  };
+
+  // renders the next 4 semesters in semestersList
+  // if 4 don't exist it creates fake placeholders to ensure positioning is not messed up
+  createRow2Semesters = () => {
+    var results = [];
+    for (let i = 4; i < 8; i++) {
+      if (this.state.semestersList[i]) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[i]}
+            navprops={this.props}
+            visibility={true}
+          ></SemesterPiece>
+        );
+      }
+    }
+    if (results.length < 4) {
+      while (results.length < 4) {
+        results.push(
+          <SemesterPiece
+            key={Math.random()}
+            title={this.state.semestersList[0]}
+            navprops={this.props}
+            visibility={false}
+          ></SemesterPiece>
+        );
+      }
+    }
+    return results;
+  };
+
+  showHideBigPicturePopUp = () => {
+    if (this.state.semestersList[0]) {
+      if (this.state.isBigPictureModalVisible) {
+        this.setState({ isBigPictureModalVisible: false });
+      } else {
+        this.setState({ isBigPictureModalVisible: true });
+      }
+    } else {
+      Alert.alert(
+        "Patience",
+        "Good Things Come To Those Who Wait",
+        [
+          {
+            text: "I Shall Wait",
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  BigPictureModal = () => (
+    <View style={bigPictureStyles.container}>
+      <Modal visible={this.state.isBigPictureModalVisible}>
+        <View style={bigPictureStyles.container}>
+          <Header
+            backgroundColor="#4E342E"
+            leftComponent={
+              <TouchableOpacity
+                onPress={() => {
+                  this.showHideBigPicturePopUp();
+                }}
+              >
+                <Icon name="ios-arrow-back" color="#fafafa" size={35} />
+              </TouchableOpacity>
+            }
+            centerComponent={
+              <Text style={bigPictureStyles.title}>Satisfied</Text>
+            }
+          ></Header>
+          <ScrollView
+            directionalLockEnabled={true}
+            scrollEnabled={true}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
+            <Text style={bigPictureStyles.academicObjectiveTitle}>
+              Academic Objective
+            </Text>
+            <Text style={bigPictureStyles.academicObjective}>
+              {this.state.degree}
+            </Text>
+            <Text style={bigPictureStyles.academicObjectivePt2}>
+              {this.state.concentration_1 + this.state.concentration_2}
+            </Text>
+            <View style={bigPictureStyles.row1}>
+              {this.createRow1Semesters()}
+            </View>
+            <View style={bigPictureStyles.row2}>
+              {this.createRow2Semesters()}
+            </View>
+            <Text
+              style={{
+                color: "#707070",
+                marginTop: 13,
+                marginBottom: 17,
+                fontWeight: "500",
+                fontSize: 12,
+                marginLeft: 4,
+                marginRight: 4,
+              }}
+            >
+              {
+                "Courses That You Have Marked As Concentration Requirements Are Highlighted in \n  Teal (For Concentration 1) \n  Pink (For Concentration 2) \n  Gray (For All Remaining Courses)"
+              }
+            </Text>
+          </ScrollView>
+        </View>
+      </Modal>
+    </View>
+  );
+
+  handleRefresh(bool) {
+    this.setState({ refresh: bool });
+  }
+
+  performRefresh = () => {
+    if (this.state.refresh) {
+      this.getUserID();
+      this.setState({ refresh: false });
+    }
+  };
+
+  /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––RENDER METHOD–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
   render() {
     return (
       <View style={styles.container}>
@@ -511,6 +673,8 @@ class RequirementsScreen extends Component {
             <Ionicons name={"md-menu"} size={32} color={"white"} />
           </TouchableOpacity>
         </Header>
+        {/* this is the pop-up that always exists but remains invisible until "The Big Picture" is clicked */}
+        <this.BigPictureModal></this.BigPictureModal>
         <ScrollView
           contentContainerStyle={{ alignItems: "center", width: "80%" }}
           showsHorizontalScrollIndicator={false}
@@ -585,11 +749,33 @@ class RequirementsScreen extends Component {
             {this.state.totalConcentrationOneReq !==
               this.state.totalConcentrationOneRequiredCourses &&
             this.state.totalConcentrationOneReq !== 0 ? (
-              <TouchableOpacity>
-                <Text style={styles.requirementSubTextMissing}>
-                  View Missing Requirements
-                </Text>
-              </TouchableOpacity>
+              <React.Fragment>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert(
+                      "Coming Soon",
+                      "........",
+                      [
+                        {
+                          text: "Ok!",
+                        },
+                      ],
+                      { cancelable: false }
+                    )
+                  }
+                >
+                  <Text style={styles.requirementSubTextMissing}>
+                    View Missing Requirements
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.showHideBigPicturePopUp()}
+                >
+                  <Text style={styles.requirementSubTextMissing}>
+                    View Satisfied Requirements
+                  </Text>
+                </TouchableOpacity>
+              </React.Fragment>
             ) : null}
             {this.state.concentration_2_duplicate ? (
               <Text style={styles.requirementSubHeader2}>
@@ -620,11 +806,33 @@ class RequirementsScreen extends Component {
             {this.state.totalConcentrationTwoReq !==
               this.state.totalConcentrationTwoRequiredCourses &&
             this.state.totalConcentrationTwoReq !== 0 ? (
-              <TouchableOpacity>
-                <Text style={styles.requirementSubTextMissing}>
-                  View Missing Requirements
-                </Text>
-              </TouchableOpacity>
+              <React.Fragment>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert(
+                      "Coming Soon",
+                      "........",
+                      [
+                        {
+                          text: "Ok!",
+                        },
+                      ],
+                      { cancelable: false }
+                    )
+                  }
+                >
+                  <Text style={styles.requirementSubTextMissing}>
+                    View Missing Requirements
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.showHideBigPicturePopUp()}
+                >
+                  <Text style={styles.requirementSubTextMissing}>
+                    View Satisfied Requirements
+                  </Text>
+                </TouchableOpacity>
+              </React.Fragment>
             ) : null}
           </View>
           <Text style={styles.errorMessage}>
@@ -728,6 +936,76 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
     marginBottom: 20,
+  },
+});
+
+/*–––––––––––––––––––––––––THE BIG PICTURE POP-UP STYLING–––––––––––––––––––––––––*/
+const bigPictureStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  scrollContainer: {
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 28,
+    color: "#fafafa",
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  row1: {
+    flex: 1,
+    flexDirection: "row",
+    marginTop: 28,
+  },
+  row2: {
+    flex: 1,
+    flexDirection: "row",
+    marginTop: 15,
+  },
+  summaryButtonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E3E3E3",
+    borderRadius: 15,
+    paddingVertical: 17,
+    paddingHorizontal: 12,
+    width: 0.9 * Dimensions.get("window").width,
+    top: 10,
+    marginBottom: 10,
+    zIndex: 3,
+  },
+  summaryButtonText: {
+    fontSize: 18,
+    color: "#4E342E",
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+  academicObjectiveTitle: {
+    color: "#4E342E",
+    fontWeight: "800",
+    fontStyle: "italic",
+    margin: 5,
+    fontSize: 28,
+  },
+  academicObjective: {
+    zIndex: 5,
+    color: "#4E342E",
+    marginHorizontal: 20,
+    fontSize: 20,
+    marginBottom: 3,
+    fontWeight: "600",
+  },
+  academicObjectivePt2: {
+    zIndex: 5,
+    color: "#4E342E",
+    marginHorizontal: 20,
+    fontSize: 14,
+    marginBottom: 3,
+    fontWeight: "500",
   },
 });
 

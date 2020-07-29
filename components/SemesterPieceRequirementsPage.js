@@ -4,11 +4,11 @@ import { StyleSheet, Text, View } from "react-native";
 import * as firebase from "firebase";
 import "firebase/firestore";
 
-import Colors from "./../data/Colors";
-import CourseList from "./../data/CourseList";
-import CoursePiece from "./../components/CoursePiece";
+import Colors from "../data/Colors";
+import CourseList from "../data/CourseList";
+import CoursePiece from "./CoursePiece";
 
-class SemesterPiece extends Component {
+class SemesterPieceRequirementsPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -51,7 +51,6 @@ class SemesterPiece extends Component {
         if (doc.exists) {
           this.setState({ data: doc.data() }, () => {
             this.triggerRenderCoursePieces();
-            console.log(this.state.data);
           });
         } else {
         }
@@ -239,6 +238,7 @@ class SemesterPiece extends Component {
     var courseObjects = [];
     var courseNames = [];
     var sortedCourseObjects = [];
+    var concentrationColors = ["#00bcd4", "#ec407a"];
     if (this.state.trigger) {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
@@ -255,11 +255,11 @@ class SemesterPiece extends Component {
                 key={i}
                 courseCode={currentCourse["course_code"]}
                 color={
-                  Colors[
-                    CourseList.indexOf(
-                      currentCourse["course_code"].split(" ")[0]
-                    )
-                  ]
+                  currentCourse["concentration_1_requirement"]
+                    ? concentrationColors[0]
+                    : currentCourse["concentration_2_requirement"]
+                    ? concentrationColors[1]
+                    : "#bdbdbd"
                 }
               ></CoursePiece>
             );
@@ -341,4 +341,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SemesterPiece;
+export default SemesterPieceRequirementsPage;
