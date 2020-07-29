@@ -49,9 +49,9 @@ const styles = StyleSheet.create({
   backgroundImageStyle: {
     flex: 1,
     position: "absolute",
-    top: "20%",
-    width: 0.87 * Dimensions.get("window").width,
-    height: 0.5 * Dimensions.get("window").height,
+    top: "23%",
+    width: Dimensions.get("window").width,
+    height: 0.46 * Dimensions.get("window").height,
   },
   signUpButtonContainer: {
     flexDirection: "row",
