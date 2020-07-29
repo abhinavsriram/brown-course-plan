@@ -238,7 +238,7 @@ class SemesterPieceRequirementsPage extends Component {
     var courseObjects = [];
     var courseNames = [];
     var sortedCourseObjects = [];
-    var concentrationColors = ["#00bcd4", "#ec407a"];
+    var concentrationColors = ["#00bcd4", "#ec407a", "#4caf50", "#bdbdbd"];
     if (this.state.trigger) {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
@@ -259,7 +259,9 @@ class SemesterPieceRequirementsPage extends Component {
                     ? concentrationColors[0]
                     : currentCourse["concentration_2_requirement"]
                     ? concentrationColors[1]
-                    : "#bdbdbd"
+                    : currentCourse["writ_requirement"]
+                    ? concentrationColors[2]
+                    : concentrationColors[3]
                 }
               ></CoursePiece>
             );

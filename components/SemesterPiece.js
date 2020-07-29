@@ -51,7 +51,6 @@ class SemesterPiece extends Component {
         if (doc.exists) {
           this.setState({ data: doc.data() }, () => {
             this.triggerRenderCoursePieces();
-            console.log(this.state.data);
           });
         } else {
         }

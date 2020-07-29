@@ -624,21 +624,52 @@ class RequirementsScreen extends Component {
             <View style={bigPictureStyles.row2}>
               {this.createRow2Semesters()}
             </View>
-            <Text
-              style={{
-                color: "#707070",
-                marginTop: 13,
-                marginBottom: 17,
-                fontWeight: "500",
-                fontSize: 12,
-                marginLeft: 4,
-                marginRight: 4,
-              }}
-            >
-              {
-                "Courses That You Have Marked As Concentration Requirements Are Highlighted in \n  Teal (For Concentration 1) \n  Pink (For Concentration 2) \n  Gray (For All Remaining Courses)"
-              }
-            </Text>
+            <View>
+              <Text
+                style={{
+                  color: "#00bcd4",
+                  marginTop: 13,
+                  marginBottom: 3,
+                  fontWeight: "500",
+                  fontSize: 12,
+                }}
+              >
+                Teal (Concentration 1)
+              </Text>
+              <Text
+                style={{
+                  color: "#ec407a",
+                  marginTop: 3,
+                  marginBottom: 3,
+                  fontWeight: "500",
+                  fontSize: 12,
+                }}
+              >
+                Pink (Concentration 2)
+              </Text>
+              <Text
+                style={{
+                  color: "#4caf50",
+                  marginTop: 3,
+                  marginBottom: 3,
+                  fontWeight: "500",
+                  fontSize: 12,
+                }}
+              >
+                Green (WRIT)
+              </Text>
+              <Text
+                style={{
+                  color: "#bdbdbd",
+                  marginTop: 3,
+                  marginBottom: 17,
+                  fontWeight: "500",
+                  fontSize: 12,
+                }}
+              >
+                Gray (Remaining Courses)
+              </Text>
+            </View>
           </ScrollView>
         </View>
       </Modal>
