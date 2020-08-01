@@ -356,10 +356,23 @@ class DashboardScreen extends Component {
   };
 
   showHideSemesterModal = () => {
-    if (this.state.isAddSemesterModalVisible === true) {
-      this.setState({ isAddSemesterModalVisible: false });
+    if (this.state.semestersList.length < 8) {
+      if (this.state.isAddSemesterModalVisible === true) {
+        this.setState({ isAddSemesterModalVisible: false });
+      } else {
+        this.setState({ isAddSemesterModalVisible: true });
+      }
     } else {
-      this.setState({ isAddSemesterModalVisible: true });
+      Alert.alert(
+        "9th Semester",
+        "You have added 8 semesters, if you would like to add another, get in touch with us through the Suggestions Page",
+        [
+          {
+            text: "Ok",
+          },
+        ],
+        { cancelable: false }
+      );
     }
   };
 
@@ -644,7 +657,10 @@ class DashboardScreen extends Component {
           <ScrollView
             directionalLockEnabled={true}
             scrollEnabled={true}
-            contentContainerStyle={{ alignItems: "center" }}
+            contentContainerStyle={{
+              alignItems: "center",
+              textAlign: "center",
+            }}
           >
             <Text style={bigPictureStyles.academicObjectiveTitle}>
               Academic Objective
@@ -652,7 +668,12 @@ class DashboardScreen extends Component {
             <Text style={bigPictureStyles.academicObjective}>
               {this.state.degree}
             </Text>
-            <Text style={bigPictureStyles.academicObjectivePt2}>
+            <Text
+              style={[
+                bigPictureStyles.academicObjectivePt2,
+                { alignSelf: "center", textAlign: "center" },
+              ]}
+            >
               {this.state.concentration_1 + this.state.concentration_2}
             </Text>
             <View style={bigPictureStyles.row1}>
@@ -661,65 +682,100 @@ class DashboardScreen extends Component {
             <View style={bigPictureStyles.row2}>
               {this.createRow2Semesters()}
             </View>
+
             {this.state.divisionsOfStudyData ? (
-              <PieChart
-                data={this.state.divisionsOfStudyData}
-                width={Dimensions.get("window").width}
-                height={220}
-                chartConfig={{
-                  backgroundColor: "#e26a00",
-                  backgroundGradientFrom: "#fb8c00",
-                  backgroundGradientTo: "#ffa726",
-                  decimalPlaces: 2, // optional, defaults to 2dp
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                }}
-                accessor="value"
-                backgroundColor="transparent"
-                paddingLeft="5"
-              />
+              <React.Fragment>
+                <Text
+                  style={{
+                    fontWeight: "500",
+                    fontStyle: "italic",
+                    color: "#4E342E",
+                    marginTop: 10,
+                  }}
+                >
+                  Divisions of the College
+                </Text>
+                <PieChart
+                  data={this.state.divisionsOfStudyData}
+                  width={Dimensions.get("window").width}
+                  height={220}
+                  chartConfig={{
+                    backgroundColor: "#e26a00",
+                    backgroundGradientFrom: "#fb8c00",
+                    backgroundGradientTo: "#ffa726",
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                    },
+                  }}
+                  accessor="value"
+                  backgroundColor="transparent"
+                  paddingLeft="5"
+                />
+              </React.Fragment>
             ) : null}
             {this.state.courseDeptData ? (
-              <PieChart
-                data={this.state.courseDeptData}
-                width={Dimensions.get("window").width}
-                height={220}
-                chartConfig={{
-                  backgroundColor: "#e26a00",
-                  backgroundGradientFrom: "#fb8c00",
-                  backgroundGradientTo: "#ffa726",
-                  decimalPlaces: 2, // optional, defaults to 2dp
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                }}
-                accessor="value"
-                backgroundColor="transparent"
-                paddingLeft="5"
-              />
+              <React.Fragment>
+                <Text
+                  style={{
+                    fontWeight: "500",
+                    fontStyle: "italic",
+                    color: "#4E342E",
+                  }}
+                >
+                  Departments
+                </Text>
+                <PieChart
+                  data={this.state.courseDeptData}
+                  width={Dimensions.get("window").width}
+                  height={220}
+                  chartConfig={{
+                    backgroundColor: "#e26a00",
+                    backgroundGradientFrom: "#fb8c00",
+                    backgroundGradientTo: "#ffa726",
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                    },
+                  }}
+                  accessor="value"
+                  backgroundColor="transparent"
+                  paddingLeft="5"
+                />
+              </React.Fragment>
             ) : null}
             {this.state.concentrationData ? (
-              <PieChart
-                data={this.state.concentrationData}
-                width={Dimensions.get("window").width}
-                height={220}
-                chartConfig={{
-                  backgroundColor: "#e26a00",
-                  backgroundGradientFrom: "#fb8c00",
-                  backgroundGradientTo: "#ffa726",
-                  decimalPlaces: 2, // optional, defaults to 2dp
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                }}
-                accessor="value"
-                backgroundColor="transparent"
-                paddingLeft="5"
-              />
+              <React.Fragment>
+                <Text
+                  style={{
+                    fontWeight: "500",
+                    fontStyle: "italic",
+                    color: "#4E342E",
+                  }}
+                >
+                  Concentrations
+                </Text>
+                <PieChart
+                  data={this.state.concentrationData}
+                  width={Dimensions.get("window").width}
+                  height={220}
+                  chartConfig={{
+                    backgroundColor: "#e26a00",
+                    backgroundGradientFrom: "#fb8c00",
+                    backgroundGradientTo: "#ffa726",
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                    },
+                  }}
+                  accessor="value"
+                  backgroundColor="transparent"
+                  paddingLeft="5"
+                />
+              </React.Fragment>
             ) : null}
           </ScrollView>
         </View>
@@ -1127,12 +1183,12 @@ class DashboardScreen extends Component {
               onPress={() => this.showHideSemesterModal()}
             ></AddSemesterCard>
             <View style={{ alignItems: "center", alignContent: "center" }}>
-              <AdMobBanner
+              {/* <AdMobBanner
                 style={styles.banner1}
                 bannerSize="largeBanner"
                 adUnitID="ca-app-pub-3940256099942544/6300978111"
                 testDeviceID="EMULATOR"
-              />
+              /> */}
             </View>
           </View>
         </ScrollView>

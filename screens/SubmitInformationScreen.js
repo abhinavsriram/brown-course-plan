@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
+    top: 15,
   },
   comingSoonText: {
     color: "#4E342E",

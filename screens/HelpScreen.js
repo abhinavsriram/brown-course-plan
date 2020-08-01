@@ -23,6 +23,17 @@ class HelpScreen extends Component {
         </Header>
         <View style={styles.comingSoonContainer}>
           <Text style={styles.comingSoonText}>Coming Soon....</Text>
+          <Text
+            style={{
+              color: "#4E342E",
+              fontWeight: "500",
+              fontStyle: "italic",
+              marginTop: 10,
+            }}
+          >
+            In the mean time, feel free to reach out to us by email
+            (browncourseplan@gmail.com) or through the Suggestions Page.
+          </Text>
         </View>
       </View>
     );
@@ -45,7 +56,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
+    top: 15,
+    alignItems: "center",
+    width: "80%",
   },
   comingSoonText: {
     color: "#4E342E",

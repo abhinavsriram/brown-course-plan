@@ -36,7 +36,7 @@ class GradesScreen extends Component {
           <View style={styles.comingSoonContainer}>
             <Text style={styles.comingSoonText}>Coming Soon....</Text>
           </View>
-          <AdMobBanner
+          {/* <AdMobBanner
             style={styles.banner1}
             bannerSize="largeBanner"
             adUnitID="ca-app-pub-3940256099942544/6300978111"
@@ -59,13 +59,23 @@ class GradesScreen extends Component {
             bannerSize="largeBanner"
             adUnitID="ca-app-pub-3940256099942544/6300978111"
             testDeviceID="EMULATOR"
-          />
+          /> */}
           <AdMobBanner
             style={styles.banner5}
             bannerSize="largeBanner"
             adUnitID="ca-app-pub-3940256099942544/6300978111"
             testDeviceID="EMULATOR"
           />
+          <Text
+            style={{ color: "#4E342E", fontWeight: "500", fontStyle: "italic" }}
+          >
+            These advertisements are part of a revenue model we are testing
+            that, at least initially, will only exist to cover running costs
+            associated with the app. {"\n"} {"\n"}
+            Alternatively we may charge a very small annual fee of $1 or $2 to
+            cover these costs. Please let us know (through the Suggestions Page)
+            which model you would prefer.
+          </Text>
         </ScrollView>
       </View>
     );
@@ -130,6 +140,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
     marginBottom: 15,
+    marginTop: 15,
     // position: "absolute",
     // bottom: 500,
   },

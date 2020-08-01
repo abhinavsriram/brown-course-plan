@@ -33,8 +33,8 @@ class RequirementsScreen extends Component {
       concentration_2: "",
       concentration_2_duplicate: "",
       totalCourses: null,
-      totalConcentrationOneReq: null,
-      totalConcentrationTwoReq: null,
+      totalConcentrationOneReq: 0,
+      totalConcentrationTwoReq: 0,
       totalWRITReq: null,
       totalRequiredCourses: 30,
       totalConcentrationOneRequiredCourses: 12,
@@ -42,6 +42,7 @@ class RequirementsScreen extends Component {
       totalWRITRequiredCourses: 2,
       refresh: false,
       isBigPictureModalVisible: false,
+      errorMessageVisible: true,
     };
   }
 
@@ -114,6 +115,12 @@ class RequirementsScreen extends Component {
             this.setState({ concentration_1: doc.data().concentration }, () =>
               this.getTotalRequiredCourses(true, false)
             );
+            if (doc.data().concentration_1_req) {
+              this.setState({
+                totalConcentrationOneRequiredCourses: doc.data()
+                  .concentration_1_req,
+              });
+            }
           }
           if (doc.data().second_concentration !== undefined) {
             if (
@@ -132,6 +139,12 @@ class RequirementsScreen extends Component {
                   this.getTotalRequiredCourses(false, true);
                 }
               );
+              if (doc.data().concentration_2_req) {
+                this.setState({
+                  totalConcentrationTwoRequiredCourses: doc.data()
+                    .concentration_2_req,
+                });
+              }
             } else {
               this.setState({
                 concentration_2: "",
@@ -607,7 +620,9 @@ class RequirementsScreen extends Component {
           <ScrollView
             directionalLockEnabled={true}
             scrollEnabled={true}
-            contentContainerStyle={{ alignItems: "center" }}
+            contentContainerStyle={{
+              alignItems: "center",
+            }}
           >
             <Text style={bigPictureStyles.academicObjectiveTitle}>
               Academic Objective
@@ -615,7 +630,12 @@ class RequirementsScreen extends Component {
             <Text style={bigPictureStyles.academicObjective}>
               {this.state.degree}
             </Text>
-            <Text style={bigPictureStyles.academicObjectivePt2}>
+            <Text
+              style={[
+                bigPictureStyles.academicObjectivePt2,
+                { alignSelf: "center", textAlign: "center" },
+              ]}
+            >
               {this.state.concentration_1 + this.state.concentration_2}
             </Text>
             <View style={bigPictureStyles.row1}>
@@ -624,51 +644,165 @@ class RequirementsScreen extends Component {
             <View style={bigPictureStyles.row2}>
               {this.createRow2Semesters()}
             </View>
+            {this.state.concentration_1 ? (
+              <Text
+                style={{
+                  fontSize: 18,
+                  marginBottom: 10,
+                  color: "#4E342E",
+                  fontWeight: "700",
+                  fontStyle: "italic",
+                  marginTop: 15,
+                  textAlign: "left",
+                  alignItems: "flex-end",
+                }}
+              >
+                {this.state.concentration_1}
+                {" ("}
+                {this.state.totalConcentrationOneReq}
+                {"/"}
+                {this.state.totalConcentrationOneRequiredCourses}
+                {")"}
+              </Text>
+            ) : null}
+            {this.state.concentration_1 &&
+            this.state.totalConcentrationOneReq !== 0 ? (
+              <React.Fragment>
+                <Progress.Bar
+                  progress={
+                    this.state.totalConcentrationOneReq /
+                    this.state.totalConcentrationOneRequiredCourses
+                  }
+                  width={0.85 * Dimensions.get("window").width}
+                  height={20}
+                  borderRadius={7}
+                  color={"#4E342E"}
+                />
+              </React.Fragment>
+            ) : null}
+            {this.state.concentration_2_duplicate ? (
+              <Text
+                style={{
+                  fontSize: 18,
+                  marginBottom: 10,
+                  color: "#4E342E",
+                  fontWeight: "700",
+                  fontStyle: "italic",
+                  marginTop: 15,
+                  textAlign: "left",
+                  alignItems: "flex-end",
+                }}
+              >
+                {this.state.concentration_2_duplicate}
+                {" ("}
+                {this.state.totalConcentrationTwoReq}
+                {"/"}
+                {this.state.totalConcentrationTwoRequiredCourses}
+                {")"}
+              </Text>
+            ) : null}
+            {this.state.concentration_2_duplicate &&
+            this.state.totalConcentrationTwoReq !== 0 ? (
+              <React.Fragment>
+                <Progress.Bar
+                  progress={
+                    this.state.totalConcentrationTwoReq /
+                    this.state.totalConcentrationTwoRequiredCourses
+                  }
+                  width={0.85 * Dimensions.get("window").width}
+                  height={20}
+                  borderRadius={7}
+                  color={"#4E342E"}
+                />
+              </React.Fragment>
+            ) : null}
             <View>
-              <Text
-                style={{
-                  color: "#00bcd4",
-                  marginTop: 13,
-                  marginBottom: 3,
-                  fontWeight: "500",
-                  fontSize: 12,
-                }}
+              <View style={{ flexDirection: "row", padding: 5, marginTop: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#00bcd4",
+                  }}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#00bcd4",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    First Concentration"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#ec407a",
+                  }}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#ec407a",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    Second Concentration"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#4caf50",
+                  }}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#4caf50",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    WRIT Requirement"}
+                </Text>
+              </View>
+              <View
+                style={{ flexDirection: "row", padding: 5, marginBottom: 20 }}
               >
-                Teal (Concentration 1)
-              </Text>
-              <Text
-                style={{
-                  color: "#ec407a",
-                  marginTop: 3,
-                  marginBottom: 3,
-                  fontWeight: "500",
-                  fontSize: 12,
-                }}
-              >
-                Pink (Concentration 2)
-              </Text>
-              <Text
-                style={{
-                  color: "#4caf50",
-                  marginTop: 3,
-                  marginBottom: 3,
-                  fontWeight: "500",
-                  fontSize: 12,
-                }}
-              >
-                Green (WRIT)
-              </Text>
-              <Text
-                style={{
-                  color: "#bdbdbd",
-                  marginTop: 3,
-                  marginBottom: 17,
-                  fontWeight: "500",
-                  fontSize: 12,
-                }}
-              >
-                Gray (Remaining Courses)
-              </Text>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#bdbdbd",
+                  }}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#bdbdbd",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    Remaining Courses"}
+                </Text>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -807,6 +941,17 @@ class RequirementsScreen extends Component {
                   </Text>
                 </TouchableOpacity>
               </React.Fragment>
+            ) : this.state.concentration_1 !== "" ? (
+              <Text
+                style={{
+                  color: "#4E342E",
+                  fontWeight: "600",
+                  fontStyle: "italic",
+                }}
+              >
+                You Have Not Indicated That Any Of Your Courses Are
+                Concentration Requirements
+              </Text>
             ) : null}
             {this.state.concentration_2_duplicate ? (
               <Text style={styles.requirementSubHeader2}>
@@ -859,26 +1004,61 @@ class RequirementsScreen extends Component {
                 <TouchableOpacity
                   onPress={() => this.showHideBigPicturePopUp()}
                 >
-                  <Text style={styles.requirementSubTextMissing}>
+                  <Text
+                    style={[
+                      styles.requirementSubTextMissing,
+                      { marginBottom: 12 },
+                    ]}
+                  >
                     View Satisfied Requirements
                   </Text>
                 </TouchableOpacity>
               </React.Fragment>
+            ) : this.state.concentration_2_duplicate !== "" ? (
+              <Text
+                style={{
+                  color: "#4E342E",
+                  fontWeight: "600",
+                  fontStyle: "italic",
+                  marginBottom: 20,
+                }}
+              >
+                You Have Not Indicated That Any Of Your Courses Are
+                Concentration Requirements
+              </Text>
             ) : null}
           </View>
-          <Text style={styles.errorMessage}>
-            <Icon name="ios-warning" color="#ffae42" size={18} /> An A.B.
-            concentration is assumed to require 12 credits while an Sc.B.
-            concentration is assumed to require 17 credits. An upcoming feature
-            would be to update credit requirements specific to each
-            concentration.
-          </Text>
-          <AdMobBanner
+          {this.state.errorMessageVisible ? (
+            <React.Fragment>
+              <Text style={styles.errorMessage}>
+                <Icon name="ios-warning" color="#ffae42" size={18} /> {"\n"}
+                An A.B. concentration is assumed to require 12 credits while an
+                Sc.B. concentration is assumed to require 17 credits. Head to
+                "Edit Profile" to customize the required credits for your
+                specific concentration. An upcoming feature would be to
+                automatically display the required number of credits based on
+                your chosen concentration.
+              </Text>
+              <TouchableOpacity
+                onPress={() => this.setState({ errorMessageVisible: false })}
+              >
+                <Text
+                  style={[
+                    styles.errorMessageDismiss,
+                    { fontWeight: "600", fontStyle: "italic" },
+                  ]}
+                >
+                  Click Here To Dismiss
+                </Text>
+              </TouchableOpacity>
+            </React.Fragment>
+          ) : null}
+          {/* <AdMobBanner
             style={styles.banner1}
             bannerSize="largeBanner"
             adUnitID="ca-app-pub-3940256099942544/6300978111"
             testDeviceID="EMULATOR"
-          />
+          /> */}
         </ScrollView>
       </View>
     );
@@ -922,11 +1102,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   errorMessage: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 5,
+    marginBottom: 10,
     width: 0.85 * Dimensions.get("window").width,
     color: "#ffae42",
     fontSize: 13,
+  },
+  errorMessageDismiss: {
+    color: "#ffae42",
+    fontSize: 13,
+    marginBottom: 20,
   },
   requirementHeader: {
     fontSize: 24,

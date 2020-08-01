@@ -1167,12 +1167,12 @@ class SearchScreen extends Component {
             </Text>
             {this.createCards()}
             <View style={{ alignItems: "center", alignContent: "center" }}>
-              <AdMobBanner
+              {/* <AdMobBanner
                 style={styles.banner1}
                 bannerSize="largeBanner"
                 adUnitID="ca-app-pub-3940256099942544/6300978111"
                 testDeviceID="EMULATOR"
-              />
+              /> */}
             </View>
           </ScrollView>
           <this.createCourseInfoPopUp></this.createCourseInfoPopUp>

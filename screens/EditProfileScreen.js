@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -18,6 +19,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 import completeConcentrationsList from "./../data/ConcentrationsList.js";
 import completeSecondConcentrationsList from "./../data/SecondConcentrationsList";
+import numberOfReqList from "./../data/NumberOfRequirementsList";
 
 import firebase from "firebase";
 import "firebase/firestore";
@@ -29,9 +31,15 @@ class EditProfileScreen extends Component {
       concentrationPickerValue: "Click to Choose",
       initialConcentrationPickerValue: "Click to Choose",
       concentrationPickerVisible: false,
+      concentrationOneReqPickerValue: "N/A",
+      initialConcentrationOneReqPickerValue: "N/A",
+      concentrationOneReqPickerVisible: false,
       secondConcentrationPickerValue: "Click to Choose",
       initialSecondConcentrationPickerValue: "Click to Choose",
       secondConcentrationPickerVisible: false,
+      concentrationTwoReqPickerValue: "N/A",
+      initialConcentrationTwoReqPickerValue: "N/A",
+      concentrationTwoReqPickerVisible: false,
       degreePickerValue: "Click to Choose",
       degreePickerVisible: false,
       classYearPickerValue: "Click to Choose",
@@ -41,6 +49,7 @@ class EditProfileScreen extends Component {
       userID: "",
       profilePicture: "./../assets/dp-placeholder.jpg",
       semestersList: null,
+      dataChanged: false,
     };
   }
 
@@ -76,16 +85,94 @@ class EditProfileScreen extends Component {
               initialConcentrationPickerValue: doc.data().concentration,
             });
           }
-          if (doc.data().second_concentration) {
-            if (doc.data().second_concentration !== "Yet To Declare") {
+          if (doc.data().second_concentration !== "Yet To Declare") {
+            this.setState({
+              secondConcentrationPickerValue: doc.data().second_concentration,
+            });
+            this.setState({
+              initialSecondConcentrationPickerValue: doc.data()
+                .second_concentration,
+            });
+          }
+          if (doc.data().concentration === undefined) {
+            this.setState({ concentrationPickerValue: "Click to Choose" });
+          }
+          if (doc.data().second_concentration === undefined) {
+            this.setState({
+              secondConcentrationPickerValue: "Click to Choose",
+            });
+          }
+          if (
+            !(
+              doc.data().concentration === "Yet To Declare" ||
+              doc.data().concentration === "Click to Choose" ||
+              doc.data().concentration === undefined
+            )
+          ) {
+            if (doc.data().concentration_1_req === undefined) {
+              if (doc.data().concentration.split(" - ")[1].charAt(0) === "S") {
+                this.setState({ concentrationOneReqPickerValue: "17 " });
+                this.setState({ initialConcentrationOneReqPickerValue: "17" });
+              } else if (
+                doc.data().concentration.split(" - ")[1].charAt(0) === "A"
+              ) {
+                this.setState({ concentrationOneReqPickerValue: "12" });
+                this.setState({ initialConcentrationOneReqPickerValue: "12" });
+              } else {
+                this.setState({ concentrationOneReqPickerValue: "N/A" });
+                this.setState({ initialConcentrationOneReqPickerValue: "N/A" });
+              }
+            } else {
               this.setState({
-                secondConcentrationPickerValue: doc.data().second_concentration,
+                concentrationOneReqPickerValue: doc.data().concentration_1_req,
               });
               this.setState({
-                initialSecondConcentrationPickerValue: doc.data()
-                  .second_concentration,
+                initialConcentrationOneReqPickerValue: doc.data()
+                  .concentration_1_req,
               });
             }
+          } else {
+            this.setState({ concentrationOneReqPickerValue: "N/A" });
+            this.setState({ initialConcentrationOneReqPickerValue: "N/A" });
+          }
+
+          if (
+            !(
+              doc.data().second_concentration === "Yet To Declare" ||
+              doc.data().second_concentration === "Not Declaring" ||
+              doc.data().second_concentration === "Click to Choose" ||
+              doc.data().second_concentration === undefined
+            )
+          ) {
+            if (doc.data().concentration_2_req === undefined) {
+              if (
+                doc.data().second_concentration.split(" - ")[1].charAt(0) ===
+                "S"
+              ) {
+                this.setState({ concentrationTwoReqPickerValue: "17" });
+                this.setState({ initialConcentrationTwoReqPickerValue: "17" });
+              } else if (
+                doc.data().second_concentration.split(" - ")[1].charAt(0) ===
+                "A"
+              ) {
+                this.setState({ concentrationTwoReqPickerValue: "12" });
+                this.setState({ initialConcentrationTwoReqPickerValue: "12" });
+              } else {
+                this.setState({ concentrationTwoReqPickerValue: "N/A" });
+                this.setState({ initialConcentrationTwoReqPickerValue: "N/A" });
+              }
+            } else {
+              this.setState({
+                concentrationTwoReqPickerValue: doc.data().concentration_2_req,
+              });
+              this.setState({
+                initialConcentrationTwoReqPickerValue: doc.data()
+                  .concentration_2_req,
+              });
+            }
+          } else {
+            this.setState({ concentrationTwoReqPickerValue: "N/A" });
+            this.setState({ initialConcentrationTwoReqPickerValue: "N/A" });
           }
           this.setState({ degreePickerValue: doc.data().degree });
           this.setState({ classYearPickerValue: doc.data().class_year });
@@ -106,6 +193,45 @@ class EditProfileScreen extends Component {
     this.getUserID();
     this.props.navigation.addListener("willFocus", () => this.getUserID());
   }
+
+  determineNumberOfReq1 = (concentrationOne) => {
+    if (
+      !(
+        concentrationOne === "Yet To Declare" ||
+        concentrationOne === "Click to Choose"
+      )
+    ) {
+      if (concentrationOne.split(" - ")[1].charAt(0) === "S") {
+        this.setState({ concentrationOneReqPickerValue: "17" });
+      } else if (concentrationOne.split(" - ")[1].charAt(0) === "A") {
+        this.setState({ concentrationOneReqPickerValue: "12" });
+      } else {
+        this.setState({ concentrationOneReqPickerValue: "N/A" });
+      }
+    } else {
+      this.setState({ concentrationOneReqPickerValue: "N/A" });
+    }
+  };
+
+  determineNumberOfReq2 = (concentrationTwo) => {
+    if (
+      !(
+        concentrationTwo === "Yet To Declare" ||
+        concentrationTwo === "Not Declaring" ||
+        concentrationTwo === "Click to Choose"
+      )
+    ) {
+      if (concentrationTwo.split(" - ")[1].charAt(0) === "S") {
+        this.setState({ concentrationTwoReqPickerValue: "17" });
+      } else if (concentrationTwo.split(" - ")[1].charAt(0) === "A") {
+        this.setState({ concentrationTwoReqPickerValue: "12" });
+      } else {
+        this.setState({ concentrationTwoReqPickerValue: "N/A" });
+      }
+    } else {
+      this.setState({ concentrationTwoReqPickerValue: "N/A" });
+    }
+  };
 
   // custom method that takes in 2 params
   // it determines the degree based on chosen concentrations
@@ -151,6 +277,22 @@ class EditProfileScreen extends Component {
     this.setState({ classYearPickerVisible: false });
     this.setState({ semesterLevelPickerVisible: false });
     this.setState({ secondConcentrationPickerVisible: false });
+    this.setState({ concentrationOneReqPickerVisible: false });
+    this.setState({ concentrationTwoReqPickerVisible: false });
+  };
+
+  ShowHideConcentrationReqPicker = () => {
+    if (this.state.concentrationOneReqPickerVisible == true) {
+      this.setState({ concentrationOneReqPickerVisible: false });
+    } else {
+      this.setState({ concentrationOneReqPickerVisible: true });
+    }
+    this.setState({ concentrationPickerVisible: false });
+    this.setState({ degreePickerVisible: false });
+    this.setState({ classYearPickerVisible: false });
+    this.setState({ semesterLevelPickerVisible: false });
+    this.setState({ secondConcentrationPickerVisible: false });
+    this.setState({ concentrationTwoReqPickerVisible: false });
   };
 
   ShowHideSecondConcentrationPicker = () => {
@@ -159,9 +301,24 @@ class EditProfileScreen extends Component {
     } else {
       this.setState({ secondConcentrationPickerVisible: true });
     }
+    this.setState({ concentrationPickerVisible: false });
+    this.setState({ degreePickerVisible: false });
+    this.setState({ classYearPickerVisible: false });
+    this.setState({ concentrationOneReqPickerVisible: false });
+    this.setState({ concentrationTwoReqPickerVisible: false });
+    this.setState({ semesterLevelPickerVisible: false });
+  };
+
+  ShowHideSecondConcentrationReqPicker = () => {
+    if (this.state.concentrationTwoReqPickerVisible == true) {
+      this.setState({ concentrationTwoReqPickerVisible: false });
+    } else {
+      this.setState({ concentrationTwoReqPickerVisible: true });
+    }
     this.setState({ degreePickerVisible: false });
     this.setState({ classYearPickerVisible: false });
     this.setState({ semesterLevelPickerVisible: false });
+    this.setState({ secondConcentrationPickerVisible: false });
   };
 
   ShowHideDegreePicker = () => {
@@ -264,13 +421,22 @@ class EditProfileScreen extends Component {
 
   // when user hits done, chosen information is written to database
   writeToDatabase = () => {
+    this.setState({ dataChanged: true });
     firebase
       .firestore()
       .collection("user-information")
       .doc(this.state.userID)
       .update({
         concentration: this.state.concentrationPickerValue,
+        concentration_1_req:
+          this.state.concentrationOneReqPickerValue === "N/A"
+            ? this.state.concentrationOneReqPickerValue
+            : this.state.concentrationOneReqPickerValue,
         second_concentration: this.state.secondConcentrationPickerValue,
+        concentration_2_req:
+          this.state.concentrationTwoReqPickerValue === "N/A"
+            ? this.state.concentrationTwoReqPickerValue
+            : this.state.concentrationTwoReqPickerValue,
         degree: this.state.degreePickerValue,
         class_year: this.state.classYearPickerValue,
         semester_level: this.state.semesterLevelPickerValue,
@@ -398,7 +564,29 @@ class EditProfileScreen extends Component {
             <TouchableOpacity
               style={styles.backArrow}
               onPress={() => {
-                this.props.navigation.dispatch(DrawerActions.openDrawer());
+                if (!this.state.dataChanged) {
+                  Alert.alert(
+                    "Changes Not Saved",
+                    "Are you sure you want to exit without saving your changes to your profile?",
+                    [
+                      {
+                        text: "Exit",
+                        style: "destructive",
+                        onPress: () => {
+                          this.props.navigation.dispatch(
+                            DrawerActions.openDrawer()
+                          );
+                        },
+                      },
+                      {
+                        text: "Go Back",
+                      },
+                    ],
+                    { cancelable: false }
+                  );
+                } else {
+                  this.props.navigation.dispatch(DrawerActions.openDrawer());
+                }
               }}
             >
               <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
@@ -427,23 +615,51 @@ class EditProfileScreen extends Component {
             </View>
             {/* /*–––––––––––––––––––––––––FORM 1 - CONCENTRATION–––––––––––––––––––––––––*/}
             <View style={profileStyles.form1}>
-              <Text style={profileStyles.inputTitle}>Concentration</Text>
-              <TouchableOpacity
-                style={profileStyles.chooseConcentration}
-                onPress={() => {
-                  this.ShowHideConcentrationPicker();
-                  this.scroll.scrollTo({ y: 500 });
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#fafafa",
-                    fontSize: 13,
+              <View style={{ flexDirection: "row" }}>
+                <Text style={profileStyles.inputTitle}>Concentration</Text>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[profileStyles.inputTitle, { textAlign: "right" }]}
+                  >
+                    Credits
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  style={profileStyles.chooseConcentration}
+                  onPress={() => {
+                    this.ShowHideConcentrationPicker();
+                    this.scroll.scrollTo({ y: 500 });
                   }}
                 >
-                  {this.state.concentrationPickerValue}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: "#fafafa",
+                      fontSize: 13,
+                    }}
+                  >
+                    {this.state.concentrationPickerValue}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{ width: "5%" }}></TouchableOpacity>
+                <TouchableOpacity
+                  style={profileStyles.chooseConcentrationReq}
+                  onPress={() => {
+                    this.ShowHideConcentrationReqPicker();
+                    this.scroll.scrollTo({ y: 500 });
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fafafa",
+                      fontSize: 13,
+                    }}
+                  >
+                    {this.state.concentrationOneReqPickerValue}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
             {/* /*–––––––––––––––––––––––––CONCENTRATION PICKER–––––––––––––––––––––––––*/}
             {this.state.concentrationPickerVisible ? (
@@ -474,7 +690,47 @@ class EditProfileScreen extends Component {
                       this.state.concentrationPickerValue,
                       this.state.secondConcentrationPickerValue
                     );
+                    this.determineNumberOfReq1(
+                      this.state.concentrationPickerValue
+                    );
                     this.defaultConcentration();
+                  }}
+                >
+                  <Text style={profileStyles.cancelButtonText}>DONE</Text>
+                </TouchableOpacity>
+              </React.Fragment>
+            ) : null}
+            {this.state.concentrationOneReqPickerVisible ? (
+              <React.Fragment>
+                <Picker
+                  style={profileStyles.concentrationPicker}
+                  selectedValue={this.state.concentrationOneReqPickerValue}
+                  onValueChange={(itemValue) => {
+                    this.setState({
+                      concentrationOneReqPickerValue: itemValue,
+                    });
+                  }}
+                  itemStyle={{ color: "#fafafa", borderColor: "#fafafa" }}
+                >
+                  {numberOfReqList.map((numberOfReq, index) => {
+                    return (
+                      <Picker.Item
+                        key={index}
+                        label={numberOfReq}
+                        value={numberOfReq}
+                      ></Picker.Item>
+                    );
+                  })}
+                </Picker>
+                <TouchableOpacity
+                  style={profileStyles.cancelButton}
+                  onPress={() => {
+                    this.ShowHideConcentrationReqPicker();
+                    // this.determineDegree(
+                    //   this.state.concentrationPickerValue,
+                    //   this.state.secondConcentrationPickerValue
+                    // );
+                    // this.defaultConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -484,20 +740,54 @@ class EditProfileScreen extends Component {
             {/* /*–––––––––––––––––––––––––SECOND CONCENTRATION–––––––––––––––––––––––––*/}
             {/* /*–––––––––––––––––––––––––FORM 12 - CONCENTRATION–––––––––––––––––––––––––*/}
             <View style={profileStyles.form12}>
-              <Text style={profileStyles.inputTitle}>Second Concentration</Text>
-              <TouchableOpacity
-                style={profileStyles.chooseConcentration}
-                onPress={this.ShowHideSecondConcentrationPicker}
-              >
-                <Text
-                  style={{
-                    color: "#fafafa",
-                    fontSize: 13,
+              <View style={{ flexDirection: "row" }}>
+                <Text style={profileStyles.inputTitle}>
+                  Second Concentration
+                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[profileStyles.inputTitle, { textAlign: "right" }]}
+                  >
+                    Credits
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  style={profileStyles.chooseConcentration}
+                  onPress={() => {
+                    this.ShowHideSecondConcentrationPicker();
+                    this.scroll.scrollTo({ y: 500 });
                   }}
                 >
-                  {this.state.secondConcentrationPickerValue}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: "#fafafa",
+                      fontSize: 13,
+                    }}
+                  >
+                    {this.state.secondConcentrationPickerValue}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{ width: "5%" }}></TouchableOpacity>
+                <TouchableOpacity
+                  style={profileStyles.chooseConcentrationReq}
+                  onPress={() => {
+                    this.ShowHideSecondConcentrationReqPicker();
+                    this.scroll.scrollTo({ y: 500 });
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fafafa",
+                      fontSize: 13,
+                    }}
+                  >
+                    {this.state.concentrationTwoReqPickerValue}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
             {/* /*–––––––––––––––––––––––––SECOND CONCENTRATION PICKER–––––––––––––––––––––––––*/}
             {this.state.secondConcentrationPickerVisible ? (
@@ -532,7 +822,47 @@ class EditProfileScreen extends Component {
                       this.state.concentrationPickerValue,
                       this.state.secondConcentrationPickerValue
                     );
+                    this.determineNumberOfReq2(
+                      this.state.secondConcentrationPickerValue
+                    );
                     this.defaultSecondConcentration();
+                  }}
+                >
+                  <Text style={profileStyles.cancelButtonText}>DONE</Text>
+                </TouchableOpacity>
+              </React.Fragment>
+            ) : null}
+            {this.state.concentrationTwoReqPickerVisible ? (
+              <React.Fragment>
+                <Picker
+                  style={profileStyles.concentrationPicker}
+                  selectedValue={this.state.concentrationTwoReqPickerValue}
+                  onValueChange={(itemValue) => {
+                    this.setState({
+                      concentrationTwoReqPickerValue: itemValue,
+                    });
+                  }}
+                  itemStyle={{ color: "#fafafa", borderColor: "#fafafa" }}
+                >
+                  {numberOfReqList.map((numberOfReq, index) => {
+                    return (
+                      <Picker.Item
+                        key={index}
+                        label={numberOfReq}
+                        value={numberOfReq}
+                      ></Picker.Item>
+                    );
+                  })}
+                </Picker>
+                <TouchableOpacity
+                  style={profileStyles.cancelButton}
+                  onPress={() => {
+                    this.ShowHideSecondConcentrationReqPicker();
+                    // this.determineDegree(
+                    //   this.state.concentrationPickerValue,
+                    //   this.state.secondConcentrationPickerValue
+                    // );
+                    // this.defaultConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>
@@ -818,8 +1148,17 @@ const profileStyles = StyleSheet.create({
   chooseConcentration: {
     borderBottomColor: "#fafafa",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    width: "100%",
+    width: "80%",
     paddingVertical: 14,
+    paddingHorizontal: 12,
+  },
+  chooseConcentrationReq: {
+    borderBottomColor: "#fafafa",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    width: "16%",
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 12,
   },
   concentrationPicker: {
@@ -833,8 +1172,8 @@ const profileStyles = StyleSheet.create({
   },
   cancelButton: {
     position: "absolute",
-    top: "52%",
-    right: 33,
+    top: "53%",
+    right: 28,
     height: 30,
     width: 50,
     fontSize: 13,

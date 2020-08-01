@@ -87,12 +87,14 @@ class SuggestionsScreen extends Component {
         name: this.state.namePickerValue,
         suggestion: this.state.suggestion,
         email: "Anonymous",
+        addressed: false,
       });
     } else {
       firebase.firestore().collection("suggestions").add({
         name: this.state.namePickerValue,
         suggestion: this.state.suggestion,
         email: this.state.email,
+        addressed: false,
       });
     }
   };

@@ -22,10 +22,13 @@ class CustomSignUpScreen extends Component {
     lastName: "",
     userCredential: "",
     errorMessage: null,
+    flag: false,
+    betaAuthUser: true,
+    finalAuth: true,
+    userCreatedSuccess: false,
   };
 
   handleSignUp = () => {
-    var flag = true;
     firebase
       .firestore()
       .collection("user-information")
@@ -37,41 +40,98 @@ class CustomSignUpScreen extends Component {
             errorMessage:
               "The email address is already in use by another account.",
           });
-          flag = false;
+          this.setState({ flag: false });
         }
       });
     const email = this.state.email + "@brown.edu";
     const password = this.state.password;
-    if (flag) {
+    if (password.length < 8) {
+      this.setState({
+        errorMessage: "Password must at least be 8 characters long.",
+      });
+    }
+    var continueOn = false;
+    var index = null;
+    firebase
+      .firestore()
+      .collection("beta-test-authorization")
+      .doc("userEmails")
+      .get()
+      .then((doc) => {
+        index = doc.data()["userEmails"].indexOf(email);
+        if (doc.data()["userEmails"].indexOf(email) === -1) {
+          this.setState({
+            errorMessage:
+              "There is no account associated with the email address. Please sign up to participate in the beta test at www.browncourseplan.com.",
+          });
+          this.setState({ betaAuthUser: false });
+        } else {
+          continueOn = true;
+        }
+        if (continueOn) {
+          firebase
+            .firestore()
+            .collection("beta-test-authorization")
+            .doc("remainingInformation")
+            .get()
+            .then((doc) => {
+              if (
+                !doc.data()["remainingInformation"][index][
+                  "authorizationBoolean"
+                ]
+              ) {
+                this.setState({
+                  errorMessage:
+                    "This email address has not been verified to participate in the beta test, though we will be expanding testing soon!",
+                });
+                this.setState({ betaAuthUser: false });
+              }
+            });
+        }
+      });
+  };
+
+  handleSignUpHelper = () => {
+    const email = this.state.email + "@brown.edu";
+    const password = this.state.password;
+    if (this.state.errorMessage === null) {
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then((userCredentials) => {
+          this.setState({ userCreatedSuccess: true });
           userCredentials.user.updateProfile({
             displayName: this.state.firstName + " " + this.state.lastName,
           });
+          setTimeout(() => {
+            this.navigateToNextScreen();
+          }, 4000);
         })
         .catch((error) => {
-          this.setState({ errorMessage: error.message });
+          if (this.state.errorMessage === null) {
+            this.setState({ errorMessage: error.message });
+          }
         });
     }
   };
 
   writeToDatabase = () => {
-    firebase
-      .firestore()
-      .collection("user-information")
-      .doc(this.state.email)
-      .set({
-        email: this.state.email + "@brown.edu",
-        first_name: this.state.firstName,
-        last_name: this.state.lastName,
-        created_at: Date.now(),
-      })
-      .then(() => {})
-      .catch((error) => {
-        console.log(error.message);
-      });
+    if (this.state.errorMessage === null) {
+      firebase
+        .firestore()
+        .collection("user-information")
+        .doc(this.state.email)
+        .set({
+          email: this.state.email + "@brown.edu",
+          first_name: this.state.firstName,
+          last_name: this.state.lastName,
+          created_at: Date.now(),
+        })
+        .then(() => {})
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
   };
 
   navigateToNextScreen = () => {
@@ -88,7 +148,9 @@ class CustomSignUpScreen extends Component {
         });
       });
     } else {
-      this.setState({ errorMessage: "Please Fill All Fields Correctly" });
+      if (this.state.errorMessage === null) {
+        this.setState({ errorMessage: "Please Fill All Fields Correctly" });
+      }
     }
   };
 
@@ -179,10 +241,15 @@ class CustomSignUpScreen extends Component {
         <CustomButton
           title="Sign Up"
           onPress={() => {
+            this.setState({ errorMessage: null });
             this.handleSignUp();
-            this.writeToDatabase();
+            setTimeout(() => {
+              this.handleSignUpHelper();
+            }, 3000);
+            setTimeout(() => {
+              this.writeToDatabase();
+            }, 3500);
             Keyboard.dismiss();
-            this.navigateToNextScreen();
           }}
         ></CustomButton>
       </View>
