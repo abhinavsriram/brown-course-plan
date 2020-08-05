@@ -102,10 +102,15 @@ class CreateProfileScreen1 extends Component {
             style={styles.profilePicturePlaceholder}
             onPress={this.handlePickProfilePicture}
           >
-            <Image
-              source={{ uri: this.state.profilePicture }}
-              style={styles.profilePicture}
-            ></Image>
+            {this.state.profilePicture === "./../assets/dp-placeholder.jpg" ?
+              <Image
+                source={require("./../assets/dp-placeholder.jpg")}
+                style={styles.profilePicture}
+              ></Image> :
+              <Image
+                source={{ uri: this.state.profilePicture }}
+                style={styles.profilePicture}
+              ></Image>}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.changeProfilePictureContainer}

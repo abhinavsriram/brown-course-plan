@@ -3,11 +3,12 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
   Dimensions,
   Alert,
   Modal,
+  Picker,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { Header } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,6 +44,12 @@ class RequirementsScreen extends Component {
       refresh: false,
       isBigPictureModalVisible: false,
       errorMessageVisible: true,
+      isAddSemesterModalVisible: false,
+      semesterPickerVisible: false,
+      semesterPickerValue: "Click to Choose",
+      yearPickerVisible: false,
+      yearPickerValue: "Click to Choose",
+      errorMessage: null,
     };
   }
 
@@ -192,6 +199,10 @@ class RequirementsScreen extends Component {
   /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––PROGRESS BAR BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 
   getProgressBarData = () => {
+    this.setState({ totalConcentrationOneReq: 0 });
+    this.setState({ totalConcentrationTwoReq: 0 });
+    this.setState({ totalWRITReq: 0 });
+    this.setState({ totalCourses: 0 });
     var toReturn = [];
     for (let i = 0; i < this.state.semestersList.length; i++) {
       firebase
@@ -513,6 +524,201 @@ class RequirementsScreen extends Component {
     }
   };
 
+  showHideSemesterPicker = () => {
+    if (this.state.semesterPickerVisible == true) {
+      this.setState({ semesterPickerVisible: false });
+    } else {
+      this.setState({ semesterPickerVisible: true });
+    }
+    this.setState({ yearPickerVisible: false });
+  };
+
+  defaultSemesterValue = () => {
+    if (this.state.semesterPickerValue === "Click to Choose") {
+      this.setState({ semesterPickerValue: "Spring" });
+    }
+  };
+
+  showHideYearPicker = () => {
+    if (this.state.yearPickerVisible == true) {
+      this.setState({ yearPickerVisible: false });
+    } else {
+      this.setState({ yearPickerVisible: true });
+    }
+    this.setState({ semesterPickerVisible: false });
+  };
+
+  defaultYearValue = () => {
+    if (this.state.yearPickerValue === "Click to Choose") {
+      this.setState({ yearPickerValue: "2017" });
+    }
+  };
+
+  resetPickers = () => {
+    this.setState({ semesterPickerValue: "Click to Choose" });
+    this.setState({ yearPickerValue: "Click to Choose" });
+  };
+
+  showHideSemesterModal = () => {
+    if (this.state.semestersList.length < 8) {
+      if (this.state.isAddSemesterModalVisible === true) {
+        this.setState({ isAddSemesterModalVisible: false });
+      } else {
+        this.setState({ isAddSemesterModalVisible: true });
+      }
+    } else {
+      Alert.alert(
+        "9th Semester",
+        "You have added 8 semesters, if you would like to add another, get in touch with us through the Suggestions Page",
+        [
+          {
+            text: "Ok",
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  AddSemesterModal = () => (
+    <View style={addSemesterModalStyles.popUpContainer}>
+      <Modal
+        animationType={"fade"}
+        visible={this.state.isAddSemesterModalVisible}
+      >
+        <View style={addSemesterModalStyles.modal}>
+          {/* /*–––––––––––––––––––––––––BACK BUTTON–––––––––––––––––––––––––*/}
+          <TouchableOpacity
+            style={addSemesterModalStyles.backArrow}
+            onPress={() => {
+              this.showHideSemesterModal();
+              this.setState({ errorMessage: null });
+            }}
+          >
+            <Icon name="ios-arrow-dropleft" color="#fafafa" size={40} />
+          </TouchableOpacity>
+          <View style={addSemesterModalStyles.header}>
+            <Text style={addSemesterModalStyles.popUpTitle}>
+              Semester Details
+            </Text>
+          </View>
+          {/* /*–––––––––––––––––––––––––ERROR MESSAGE–––––––––––––––––––––––––*/}
+          <View style={addSemesterModalStyles.errorMessage}>
+            {this.state.errorMessage && (
+              <Text style={addSemesterModalStyles.errorMessageText}>
+                {this.state.errorMessage}
+              </Text>
+            )}
+          </View>
+          {/* /*–––––––––––––––––––––––––FORM 1 - SEMESTER–––––––––––––––––––––––––*/}
+          <View style={addSemesterModalStyles.form1}>
+            <Text style={addSemesterModalStyles.inputTitle}>Semester</Text>
+            <TouchableOpacity
+              style={addSemesterModalStyles.chooseConcentration}
+              onPress={this.showHideSemesterPicker}
+            >
+              <Text
+                style={{
+                  color: "#fafafa",
+                  fontSize: 13,
+                }}
+              >
+                {this.state.semesterPickerValue}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* /*–––––––––––––––––––––––––SEMESTER PICKER–––––––––––––––––––––––––*/}
+          {this.state.semesterPickerVisible ? (
+            <React.Fragment>
+              <Picker
+                style={addSemesterModalStyles.concentrationPicker}
+                selectedValue={this.state.semesterPickerValue}
+                onValueChange={(itemValue) => {
+                  this.setState({ semesterPickerValue: itemValue });
+                }}
+                itemStyle={{ color: "#fafafa", borderColor: "#fafafa" }}
+              >
+                <Picker.Item label="Spring" value="Spring"></Picker.Item>
+                <Picker.Item label="Summer" value="Summer"></Picker.Item>
+                <Picker.Item label="Fall" value="Fall"></Picker.Item>
+                <Picker.Item label="Winter" value="Winter"></Picker.Item>
+              </Picker>
+              <TouchableOpacity
+                style={addSemesterModalStyles.cancelButton}
+                onPress={() => {
+                  this.showHideSemesterPicker();
+                  this.defaultSemesterValue();
+                }}
+              >
+                <Text style={addSemesterModalStyles.cancelButtonText}>
+                  DONE
+                </Text>
+              </TouchableOpacity>
+            </React.Fragment>
+          ) : null}
+          {/* /*–––––––––––––––––––––––––FORM 2 - YEAR–––––––––––––––––––––––––*/}
+          <View style={addSemesterModalStyles.form2}>
+            <Text style={addSemesterModalStyles.inputTitle}>Year</Text>
+            <TouchableOpacity
+              style={addSemesterModalStyles.chooseConcentration}
+              onPress={this.showHideYearPicker()}
+            >
+              <Text
+                style={{
+                  color: "#fafafa",
+                  fontSize: 13,
+                }}
+              >
+                {this.state.yearPickerValue}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* /*–––––––––––––––––––––––––YEAR PICKER–––––––––––––––––––––––––*/}
+          {this.state.yearPickerVisible ? (
+            <React.Fragment>
+              <Picker
+                style={addSemesterModalStyles.concentrationPicker}
+                selectedValue={this.state.yearPickerValue}
+                onValueChange={(itemValue) => {
+                  this.setState({ yearPickerValue: itemValue });
+                }}
+                itemStyle={{ color: "#fafafa", borderColor: "#fafafa" }}
+              >
+                <Picker.Item label="2017" value="2017"></Picker.Item>
+                <Picker.Item label="2018" value="2018"></Picker.Item>
+                <Picker.Item label="2019" value="2019"></Picker.Item>
+                <Picker.Item label="2020" value="2020"></Picker.Item>
+                <Picker.Item label="2021" value="2021"></Picker.Item>
+                <Picker.Item label="2022" value="2022"></Picker.Item>
+                <Picker.Item label="2023" value="2023"></Picker.Item>
+                <Picker.Item label="2024" value="2024"></Picker.Item>
+              </Picker>
+              <TouchableOpacity
+                style={addSemesterModalStyles.cancelButton}
+                onPress={() => {
+                  this.showHideYearPicker();
+                  this.defaultYearValue();
+                }}
+              >
+                <Text style={addSemesterModalStyles.cancelButtonText}>
+                  DONE
+                </Text>
+              </TouchableOpacity>
+            </React.Fragment>
+          ) : null}
+          {/* /*–––––––––––––––––––––––––ADD SEMESTER BUTTON–––––––––––––––––––––––––*/}
+          <CreateProfileButton
+            title="Add Semester"
+            onPress={() => {
+              this.setState({ isAddSemesterModalVisible: false });
+              this.performRemainingActions();
+            }}
+          ></CreateProfileButton>
+        </View>
+      </Modal>
+    </View>
+  );
+
   /*–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––THE BIG PICTURE POP-UP BEGINS–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 
   // renders the first 4 semesters in semestersList
@@ -527,6 +733,26 @@ class RequirementsScreen extends Component {
             title={this.state.semestersList[i]}
             navprops={this.props}
             visibility={true}
+            onLongPress={() => {
+              Alert.alert(
+                "Delete Semester",
+                "You can delete semesters from the Dashboard",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Go To Dashboard",
+                    onPress: () => {
+                      this.props.navigation.navigate("TabNavigator");
+                    },
+                    style: "destructive",
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -539,6 +765,25 @@ class RequirementsScreen extends Component {
             title={this.state.semestersList[0]}
             navprops={this.props}
             visibility={false}
+            onPress={() => {
+              Alert.alert(
+                "Go To Dashboard",
+                "You can add new semesters from the Dashboard",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Go To Dashboard",
+                    onPress: () => {
+                      this.props.navigation.navigate("TabNavigator");
+                    },
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -554,10 +799,30 @@ class RequirementsScreen extends Component {
       if (this.state.semestersList[i]) {
         results.push(
           <SemesterPiece
-            key={Math.random()}
+            key={i}
             title={this.state.semestersList[i]}
             navprops={this.props}
             visibility={true}
+            onLongPress={() => {
+              Alert.alert(
+                "Delete Semester",
+                "You can delete semesters from the Dashboard",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Go To Dashboard",
+                    onPress: () => {
+                      this.props.navigation.navigate("TabNavigator");
+                    },
+                    style: "destructive",
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -570,6 +835,25 @@ class RequirementsScreen extends Component {
             title={this.state.semestersList[0]}
             navprops={this.props}
             visibility={false}
+            onPress={() => {
+              Alert.alert(
+                "Go To Dashboard",
+                "You can add new semesters from the Dashboard",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Go To Dashboard",
+                    onPress: () => {
+                      this.props.navigation.navigate("TabNavigator");
+                    },
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -619,6 +903,7 @@ class RequirementsScreen extends Component {
           ></Header>
           <ScrollView
             directionalLockEnabled={true}
+            showsVerticalScrollIndicator={"false"}
             scrollEnabled={true}
             contentContainerStyle={{
               alignItems: "center",
@@ -723,8 +1008,97 @@ class RequirementsScreen extends Component {
                     height: 15,
                     width: 15,
                     borderRadius: 50,
+                    backgroundColor: "#5e35b1",
+                  }}
+                  disabled={true}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#5e35b1",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    First and Second Concentration & WRIT Requirement"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#4caf50",
+                  }}
+                  disabled={true}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#4caf50",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    First Concentration and WRIT Requirement"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#f9a825",
+                  }}
+                  disabled={true}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#f9a825",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    Second Concentration and WRIT Requirement"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
+                    backgroundColor: "#00897b",
+                  }}
+                  disabled={true}
+                ></TouchableOpacity>
+                <Text
+                  style={{
+                    color: "#00897b",
+                    // marginTop: 13,
+                    // marginBottom: 3,
+                    fontWeight: "500",
+                    fontSize: 12.5,
+                  }}
+                >
+                  {"    First and Second Concentration"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", padding: 5 }}>
+                <TouchableOpacity
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 50,
                     backgroundColor: "#00bcd4",
                   }}
+                  disabled={true}
                 ></TouchableOpacity>
                 <Text
                   style={{
@@ -746,6 +1120,7 @@ class RequirementsScreen extends Component {
                     borderRadius: 50,
                     backgroundColor: "#ec407a",
                   }}
+                  disabled={true}
                 ></TouchableOpacity>
                 <Text
                   style={{
@@ -765,12 +1140,13 @@ class RequirementsScreen extends Component {
                     height: 15,
                     width: 15,
                     borderRadius: 50,
-                    backgroundColor: "#4caf50",
+                    backgroundColor: "#6d4c41",
                   }}
+                  disabled={true}
                 ></TouchableOpacity>
                 <Text
                   style={{
-                    color: "#4caf50",
+                    color: "#6d4c41",
                     // marginTop: 13,
                     // marginBottom: 3,
                     fontWeight: "500",
@@ -790,6 +1166,7 @@ class RequirementsScreen extends Component {
                     borderRadius: 50,
                     backgroundColor: "#bdbdbd",
                   }}
+                  disabled={true}
                 ></TouchableOpacity>
                 <Text
                   style={{
@@ -884,7 +1261,7 @@ class RequirementsScreen extends Component {
               {this.state.totalWRITRequiredCourses}
               {" Added To Dashboard"}
             </Text>
-            <Text style={styles.requirementHeader}>Concentrations(s):</Text>
+            <Text style={styles.requirementHeader}>Concentration(s):</Text>
             {this.state.concentration_1 ? (
               <Text style={styles.requirementSubHeader}>
                 {this.state.concentration_1}
@@ -1059,6 +1436,7 @@ class RequirementsScreen extends Component {
             adUnitID="ca-app-pub-3940256099942544/6300978111"
             testDeviceID="EMULATOR"
           /> */}
+          {/* <this.AddSemesterModal></this.AddSemesterModal> */}
         </ScrollView>
       </View>
     );
@@ -1224,5 +1602,140 @@ const bigPictureStyles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+const addSemesterModalStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#4E342E",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  form1: {
+    position: "absolute",
+    top: "30%",
+    width: 0.8 * Dimensions.get("window").width,
+  },
+  form2: {
+    position: "absolute",
+    top: "45%",
+    width: 0.8 * Dimensions.get("window").width,
+  },
+  inputTitle: {
+    color: "#fafafa",
+    fontSize: 12,
+    textTransform: "uppercase",
+    fontWeight: "500",
+  },
+  input: {
+    borderBottomColor: "#fafafa",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    height: 40,
+    fontSize: 13,
+    color: "#fafafa",
+  },
+  createProfileButtonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fafafa",
+    borderRadius: 15,
+    paddingVertical: 17,
+    paddingHorizontal: 12,
+    width: "90%",
+    position: "absolute",
+    bottom: 40,
+    zIndex: 3,
+  },
+  createProfileButtonText: {
+    fontSize: 18,
+    color: "#4E342E",
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+  chooseConcentration: {
+    borderBottomColor: "#fafafa",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    width: "100%",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+  },
+  concentrationPicker: {
+    position: "absolute",
+    top: "55%",
+    width: "82%",
+    backgroundColor: "#4E342E",
+    zIndex: 1,
+    height: 250,
+    borderColor: "#fafafa",
+  },
+  cancelButton: {
+    position: "absolute",
+    top: "57%",
+    right: 33,
+    height: 30,
+    width: 50,
+    fontSize: 13,
+    color: "#fafafa",
+    zIndex: 2,
+  },
+  cancelButtonText: {
+    color: "#fafafa",
+    fontSize: 11,
+  },
+  addSemesterButton: {
+    position: "absolute",
+    top: 100,
+  },
+  popUpContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: "#4E342E",
+    padding: 20,
+    alignItems: "center",
+  },
+  header: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  popUpTitle: {
+    fontSize: 30,
+    color: "white",
+    fontWeight: "600",
+    position: "absolute",
+    top: "10%",
+  },
+  backArrow: {
+    position: "absolute",
+    top: "6%",
+    left: "6%",
+  },
+  errorMessage: {
+    flex: 1,
+    position: "absolute",
+    top: "18%",
+    width: 0.8 * Dimensions.get("window").width,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorMessageText: {
+    flex: 1,
+    color: "#fafafa",
+  },
+});
+
+const CreateProfileButton = ({ onPress, title }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={addSemesterModalStyles.createProfileButtonContainer}
+    activeOpacity={0.6}
+  >
+    <Text style={addSemesterModalStyles.createProfileButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
 
 export default RequirementsScreen;

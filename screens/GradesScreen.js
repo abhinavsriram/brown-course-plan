@@ -60,7 +60,7 @@ class GradesScreen extends Component {
             adUnitID="ca-app-pub-3940256099942544/6300978111"
             testDeviceID="EMULATOR"
           /> */}
-          <AdMobBanner
+          {/* <AdMobBanner
             style={styles.banner5}
             bannerSize="largeBanner"
             adUnitID="ca-app-pub-3940256099942544/6300978111"
@@ -75,7 +75,7 @@ class GradesScreen extends Component {
             Alternatively we may charge a very small annual fee of $1 or $2 to
             cover these costs. Please let us know (through the Suggestions Page)
             which model you would prefer.
-          </Text>
+          </Text> */}
         </ScrollView>
       </View>
     );

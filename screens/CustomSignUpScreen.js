@@ -7,6 +7,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Keyboard,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 
 import firebase from "firebase";
@@ -26,6 +28,7 @@ class CustomSignUpScreen extends Component {
     betaAuthUser: true,
     finalAuth: true,
     userCreatedSuccess: false,
+    isLoading: false,
   };
 
   handleSignUp = () => {
@@ -40,6 +43,7 @@ class CustomSignUpScreen extends Component {
             errorMessage:
               "The email address is already in use by another account.",
           });
+          this.setState({ isLoading: false });
           this.setState({ flag: false });
         }
       });
@@ -49,6 +53,7 @@ class CustomSignUpScreen extends Component {
       this.setState({
         errorMessage: "Password must at least be 8 characters long.",
       });
+      this.setState({ isLoading: false });
     }
     var continueOn = false;
     var index = null;
@@ -64,6 +69,7 @@ class CustomSignUpScreen extends Component {
             errorMessage:
               "There is no account associated with the email address. Please sign up to participate in the beta test at www.browncourseplan.com.",
           });
+          this.setState({ isLoading: false });
           this.setState({ betaAuthUser: false });
         } else {
           continueOn = true;
@@ -84,6 +90,7 @@ class CustomSignUpScreen extends Component {
                   errorMessage:
                     "This email address has not been verified to participate in the beta test, though we will be expanding testing soon!",
                 });
+                this.setState({ isLoading: false });
                 this.setState({ betaAuthUser: false });
               }
             });
@@ -110,6 +117,7 @@ class CustomSignUpScreen extends Component {
         .catch((error) => {
           if (this.state.errorMessage === null) {
             this.setState({ errorMessage: error.message });
+            this.setState({ isLoading: false });
           }
         });
     }
@@ -241,27 +249,49 @@ class CustomSignUpScreen extends Component {
         <CustomButton
           title="Sign Up"
           onPress={() => {
-            this.setState({ errorMessage: null });
-            this.handleSignUp();
-            setTimeout(() => {
-              this.handleSignUpHelper();
-            }, 3000);
-            setTimeout(() => {
-              this.writeToDatabase();
-            }, 3500);
-            Keyboard.dismiss();
+            if (
+              this.state.email === "" ||
+              this.state.password === "" ||
+              this.state.firstName === "" ||
+              this.state.lastName === ""
+            ) {
+              this.setState({
+                errorMessage: "Please Fill All Fields Correctly",
+              });
+              this.setState({ isLoading: false });
+            } else {
+              this.setState({ isLoading: true });
+              this.setState({ errorMessage: null });
+              this.handleSignUp();
+              setTimeout(() => {
+                this.handleSignUpHelper();
+              }, 3000);
+              setTimeout(() => {
+                this.writeToDatabase();
+              }, 3500);
+              Keyboard.dismiss();
+            }
           }}
+          disabled={this.state.isLoading}
         ></CustomButton>
+        <View>
+          <ActivityIndicator
+            animating={this.state.isLoading}
+            color="#ffffff"
+            size="large"
+          />
+        </View>
       </View>
     );
   }
 }
 
-const CustomButton = ({ onPress, title }) => (
+const CustomButton = ({ onPress, title, disabled }) => (
   <TouchableOpacity
     onPress={onPress}
     style={styles.customButtonContainer}
     activeOpacity={0.8}
+    disabled={disabled}
   >
     <Text style={styles.customButtonText}>{title}</Text>
   </TouchableOpacity>
@@ -340,7 +370,7 @@ const styles = StyleSheet.create({
   errorMessage: {
     flex: 1,
     position: "absolute",
-    top: "18%",
+    top: "16%",
     width: 0.8 * Dimensions.get("window").width,
     justifyContent: "center",
     alignItems: "center",
@@ -348,6 +378,7 @@ const styles = StyleSheet.create({
   errorMessageText: {
     flex: 1,
     color: "#fafafa",
+    fontWeight: "bold",
   },
   logInContainer: {
     flex: 1,

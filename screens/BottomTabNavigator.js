@@ -59,7 +59,7 @@ export default createBottomTabNavigator(
       inactiveTintColor: "white",
       labelStyle: {
         fontSize: 11,
-        fontWeight: "400",
+        fontWeight: "500",
       },
       style: {
         height: 75,

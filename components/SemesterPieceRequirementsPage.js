@@ -7,6 +7,7 @@ import "firebase/firestore";
 import Colors from "../data/Colors";
 import CourseList from "../data/CourseList";
 import CoursePiece from "./CoursePiece";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 class SemesterPieceRequirementsPage extends Component {
   constructor(props) {
@@ -19,6 +20,8 @@ class SemesterPieceRequirementsPage extends Component {
       currentSemesterCode: 0,
       navprops: this.props.navprops,
       visibility: this.props.visibility,
+      onPress: this.props.onPress,
+      onLongPress: this.props.onLongPress,
     };
   }
 
@@ -238,7 +241,17 @@ class SemesterPieceRequirementsPage extends Component {
     var courseObjects = [];
     var courseNames = [];
     var sortedCourseObjects = [];
-    var concentrationColors = ["#00bcd4", "#ec407a", "#4caf50", "#bdbdbd"];
+    // all3, 1&2, 1, 2, writ, 1&writ, 2&writ, other
+    var concentrationColors = [
+      "#5e35b1",
+      "#00897b",
+      "#00bcd4",
+      "#ec407a",
+      "#6d4c41",
+      "#4caf50",
+      "#f9a825",
+      "#bdbdbd",
+    ];
     if (this.state.trigger) {
       for (let i = 0; i < Object.keys(this.state.data).length; i++) {
         currentCourse = this.state.data[Object.keys(this.state.data)[i]];
@@ -255,13 +268,26 @@ class SemesterPieceRequirementsPage extends Component {
                 key={i}
                 courseCode={currentCourse["course_code"]}
                 color={
-                  currentCourse["concentration_1_requirement"]
+                  currentCourse["concentration_1_requirement"] &&
+                  currentCourse["concentration_2_requirement"] &&
+                  currentCourse["writ_requirement"]
                     ? concentrationColors[0]
-                    : currentCourse["concentration_2_requirement"]
+                    : currentCourse["concentration_1_requirement"] &&
+                      currentCourse["concentration_2_requirement"]
                     ? concentrationColors[1]
-                    : currentCourse["writ_requirement"]
+                    : currentCourse["concentration_1_requirement"] &&
+                      currentCourse["writ_requirement"]
+                    ? concentrationColors[5]
+                    : currentCourse["concentration_2_requirement"] &&
+                      currentCourse["writ_requirement"]
+                    ? concentrationColors[6]
+                    : currentCourse["concentration_1_requirement"]
                     ? concentrationColors[2]
-                    : concentrationColors[3]
+                    : currentCourse["concentration_2_requirement"]
+                    ? concentrationColors[3]
+                    : currentCourse["writ_requirement"]
+                    ? concentrationColors[4]
+                    : concentrationColors[7]
                 }
               ></CoursePiece>
             );
@@ -278,31 +304,62 @@ class SemesterPieceRequirementsPage extends Component {
     return (
       <React.Fragment>
         {this.state.visibility ? (
-          <View style={[styles.mainContainer, { borderColor: "#E3E3E3" }]}>
-            {this.state.visibility ? (
-              <React.Fragment>
-                <Text style={styles.title}>{this.state.title}</Text>
-                <View style={{ flexDirection: "column" }}>
-                  {this.renderCoursePieces()}
-                </View>
-                <Text style={styles.hours1}>Avg. Hrs: 12</Text>
-                <Text style={styles.hours2}>Max. Hrs: 12</Text>
-              </React.Fragment>
-            ) : null}
-          </View>
+          <TouchableOpacity
+            onLongPress={this.state.onLongPress}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.mainContainer, { borderColor: "#E3E3E3" }]}>
+              {this.state.visibility ? (
+                <React.Fragment>
+                  <Text style={styles.title}>{this.state.title}</Text>
+                  <View style={{ flexDirection: "column" }}>
+                    {this.renderCoursePieces()}
+                  </View>
+                  <Text style={styles.hours1}>Avg. Hrs: 12</Text>
+                  <Text style={styles.hours2}>Max. Hrs: 12</Text>
+                </React.Fragment>
+              ) : null}
+            </View>
+          </TouchableOpacity>
         ) : (
-          <View style={[styles.mainContainer, { borderColor: "#fff" }]}>
+          <TouchableOpacity
+            style={[
+              styles.mainContainer,
+              { borderColor: "#E3E3E3", borderStyle: "dashed" },
+            ]}
+            onPress={this.state.onPress}
+          >
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#d6d6d6",
+                  textAlign: "center",
+                  fontStyle: "italic",
+                  fontSize: 10,
+                }}
+              >
+                Add Semesters From Dashboard
+              </Text>
+            </View>
             {this.state.visibility ? (
-              <React.Fragment>
-                <Text style={styles.title}>{this.state.title}</Text>
-                <View style={{ flexDirection: "column" }}>
-                  {this.renderCoursePieces()}
-                </View>
-                <Text style={styles.hours1}>Avg. Hrs: 12</Text>
-                <Text style={styles.hours2}>Max. Hrs: 12</Text>
-              </React.Fragment>
+              <TouchableOpacity onLongPress={this.state.onLongPress}>
+                <React.Fragment>
+                  <Text style={styles.title}>{this.state.title}</Text>
+                  <View style={{ flexDirection: "column" }}>
+                    {this.renderCoursePieces()}
+                  </View>
+                  <Text style={styles.hours1}>Avg. Hrs: 12</Text>
+                  <Text style={styles.hours2}>Max. Hrs: 12</Text>
+                </React.Fragment>
+              </TouchableOpacity>
             ) : null}
-          </View>
+          </TouchableOpacity>
         )}
       </React.Fragment>
     );

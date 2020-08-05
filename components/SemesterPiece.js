@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -13,12 +13,14 @@ class SemesterPiece extends Component {
     super(props);
     this.state = {
       userID: "",
-      title: this.props.title,
       data: {},
       trigger: false,
       currentSemesterCode: 0,
+      title: this.props.title,
       navprops: this.props.navprops,
       visibility: this.props.visibility,
+      onPress: this.props.onPress,
+      onLongPress: this.props.onLongPress,
     };
   }
 
@@ -275,7 +277,11 @@ class SemesterPiece extends Component {
     return (
       <React.Fragment>
         {this.state.visibility ? (
-          <View style={[styles.mainContainer, { borderColor: "#E3E3E3" }]}>
+          <TouchableOpacity
+            style={[styles.mainContainer, { borderColor: "#E3E3E3" }]}
+            onLongPress={this.state.onLongPress}
+            activeOpacity={0.8}
+          >
             {this.state.visibility ? (
               <React.Fragment>
                 <Text style={styles.title}>{this.state.title}</Text>
@@ -286,20 +292,46 @@ class SemesterPiece extends Component {
                 <Text style={styles.hours2}>Max. Hrs: 12</Text>
               </React.Fragment>
             ) : null}
-          </View>
+          </TouchableOpacity>
         ) : (
-          <View style={[styles.mainContainer, { borderColor: "#fff" }]}>
+          <TouchableOpacity
+            style={[
+              styles.mainContainer,
+              { borderColor: "#E3E3E3", borderStyle: "dashed" },
+            ]}
+            onPress={this.state.onPress}
+          >
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#d6d6d6",
+                  textAlign: "center",
+                  fontStyle: "italic",
+                  fontSize: 12,
+                }}
+              >
+                Add Semester
+              </Text>
+            </View>
             {this.state.visibility ? (
-              <React.Fragment>
-                <Text style={styles.title}>{this.state.title}</Text>
-                <View style={{ flexDirection: "column" }}>
-                  {this.renderCoursePieces()}
-                </View>
-                <Text style={styles.hours1}>Avg. Hrs: 12</Text>
-                <Text style={styles.hours2}>Max. Hrs: 12</Text>
-              </React.Fragment>
+              <TouchableOpacity onLongPress={this.state.onLongPress}>
+                <React.Fragment>
+                  <Text style={styles.title}>{this.state.title}</Text>
+                  <View style={{ flexDirection: "column" }}>
+                    {this.renderCoursePieces()}
+                  </View>
+                  <Text style={styles.hours1}>Avg. Hrs: 12</Text>
+                  <Text style={styles.hours2}>Max. Hrs: 12</Text>
+                </React.Fragment>
+              </TouchableOpacity>
             ) : null}
-          </View>
+          </TouchableOpacity>
         )}
       </React.Fragment>
     );

@@ -35,6 +35,7 @@ class DashboardScreen extends Component {
     this.handleRefresh = this.handleRefresh.bind(this);
     this.state = {
       semestersList: [],
+      listOfSemesterObjects: [],
       isAddSemesterModalVisible: false,
       semesterPickerVisible: false,
       semesterPickerValue: "Click to Choose",
@@ -105,6 +106,7 @@ class DashboardScreen extends Component {
                 ),
               },
               () => {
+                this.showHideBigPicturePopUpHelper();
                 this.writeToDatabase();
               }
             );
@@ -413,10 +415,7 @@ class DashboardScreen extends Component {
 
   AddSemesterModal = () => (
     <View style={addSemesterModalStyles.popUpContainer}>
-      <Modal
-        animationType={"fade"}
-        visible={this.state.isAddSemesterModalVisible}
-      >
+      <Modal visible={this.state.isAddSemesterModalVisible}>
         <View style={addSemesterModalStyles.modal}>
           {/* /*–––––––––––––––––––––––––BACK BUTTON–––––––––––––––––––––––––*/}
           <TouchableOpacity
@@ -564,6 +563,62 @@ class DashboardScreen extends Component {
             title={this.state.semestersList[i]}
             navprops={this.props}
             visibility={true}
+            onLongPress={() => {
+              Alert.alert(
+                "Delete Semester",
+                "Are you sure you want to delete the following semester: " +
+                  this.state.semestersList[i] +
+                  "?",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Delete",
+                    onPress: () => {
+                      {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc(this.state.semestersList[i])
+                          .delete()
+                          .then(function () {
+                            console.log("Document successfully deleted!");
+                          })
+                          .catch(function (error) {
+                            console.error("Error removing document: ", error);
+                          });
+                      }
+                      {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc("Semesters List")
+                          .update({
+                            semestersList: firebase.firestore.FieldValue.arrayRemove(
+                              this.state.semestersList[i]
+                            ),
+                          })
+                          .then(() => {
+                            console.log("Document successfully deleted!");
+                            this.props.navigation.navigate("TabNavigator");
+                          })
+                          .catch(function (error) {
+                            console.error("Error removing document: ", error);
+                          });
+                      }
+                    },
+                    style: "destructive",
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -576,6 +631,10 @@ class DashboardScreen extends Component {
             title={this.state.semestersList[0]}
             navprops={this.props}
             visibility={false}
+            onPress={() => {
+              this.showHideSemesterModal();
+              this.showHideBigPicturePopUp();
+            }}
           ></SemesterPiece>
         );
       }
@@ -595,6 +654,62 @@ class DashboardScreen extends Component {
             title={this.state.semestersList[i]}
             navprops={this.props}
             visibility={true}
+            onLongPress={() => {
+              Alert.alert(
+                "Delete Semester",
+                "Are you sure you want to delete the following semester: " +
+                  this.state.semestersList[i] +
+                  "?",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Delete",
+                    onPress: () => {
+                      {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc(this.state.semestersList[i])
+                          .delete()
+                          .then(function () {
+                            console.log("Document successfully deleted!");
+                          })
+                          .catch(function (error) {
+                            console.error("Error removing document: ", error);
+                          });
+                      }
+                      {
+                        firebase
+                          .firestore()
+                          .collection("user-information")
+                          .doc(this.state.userID)
+                          .collection("course-information")
+                          .doc("Semesters List")
+                          .update({
+                            semestersList: firebase.firestore.FieldValue.arrayRemove(
+                              this.state.semestersList[i]
+                            ),
+                          })
+                          .then(() => {
+                            console.log("Document successfully deleted!");
+                            this.props.navigation.navigate("TabNavigator");
+                          })
+                          .catch(function (error) {
+                            console.error("Error removing document: ", error);
+                          });
+                      }
+                    },
+                    style: "destructive",
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           ></SemesterPiece>
         );
       }
@@ -607,6 +722,10 @@ class DashboardScreen extends Component {
             title={this.state.semestersList[0]}
             navprops={this.props}
             visibility={false}
+            onPress={() => {
+              this.showHideSemesterModal();
+              this.showHideBigPicturePopUp();
+            }}
           ></SemesterPiece>
         );
       }
@@ -614,25 +733,135 @@ class DashboardScreen extends Component {
     return results;
   };
 
+  showHideBigPicturePopUpHelper = () => {
+    var result = [];
+    for (let i = 0; i < this.state.semestersList.length; i++) {
+      firebase
+        .firestore()
+        .collection("user-information")
+        .doc(this.state.userID)
+        .collection("course-information")
+        .doc(this.state.semestersList[i])
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            result.push(doc.data());
+          } else {
+            console.log("no data accquired");
+          }
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+    this.setState({ listOfSemesterObjects: result });
+  };
+
   showHideBigPicturePopUp = () => {
+    console.log(
+      "1. the length of semestersList is: ",
+      this.state.semestersList.length
+    );
     if (this.state.semestersList[0]) {
-      if (this.state.isBigPictureModalVisible) {
-        this.setState({ isBigPictureModalVisible: false });
+      console.log(
+        "2. the length of objectsList is: ",
+        this.state.listOfSemesterObjects.length
+      );
+      if (this.state.listOfSemesterObjects.length > 0) {
+        var bool = true;
+        for (let i = 0; i < this.state.listOfSemesterObjects.length; i++) {
+          console.log("3. new for loop starts");
+          console.log("4. the new value of i is: ", i);
+          if (
+            this.getPropertyByIndex(this.state.listOfSemesterObjects[i], 0) !==
+              undefined &&
+            !this.getPropertyByIndex(this.state.listOfSemesterObjects[i], 0)[
+              "shopping"
+            ]
+          ) {
+            console.log("5. enters first if, with i value of: ", i);
+            console.log("6. bool value is: ", bool);
+            if (bool) {
+              console.log("7. enters first bool if, with i value of", i);
+              console.log("8. bool value before re-assignment is: ", bool);
+              bool = false;
+              console.log("9. bool value before re-assignment is: ", bool);
+              console.log(
+                "10. is the modal visible? ",
+                this.state.isBigPictureModalVisible
+              );
+              if (this.state.isBigPictureModalVisible) {
+                console.log("11. the modal should not be visible");
+                this.setState({ isBigPictureModalVisible: false });
+              } else {
+                console.log("12. the modal should be visible");
+                this.setState({ isBigPictureModalVisible: true });
+              }
+              break;
+            } else {
+              if (i === this.state.listOfSemesterObjects.length - 1) {
+                console.log("Alert 1");
+                Alert.alert(
+                  "Add a Semester and Course",
+                  "Please add at least one semester with one course to look at The Big Picture",
+                  [
+                    {
+                      text: "Ok!",
+                    },
+                  ],
+                  { cancelable: false }
+                );
+              }
+            }
+          } else {
+            if (i === this.state.listOfSemesterObjects.length - 1) {
+              console.log("Alert 2");
+              // alerts the user when no courses have ever been added
+              Alert.alert(
+                "Add a Semester and Course",
+                "Please add at least one semester with one course to look at The Big Picture",
+                [
+                  {
+                    text: "Ok!",
+                  },
+                ],
+                { cancelable: false }
+              );
+            }
+          }
+        }
       } else {
-        this.setState({ isBigPictureModalVisible: true });
+        console.log("Alert 3");
+        // alerts the user when no courses have ever been added
+        Alert.alert(
+          "Add a Semester and Course",
+          "Please add at least one semester with one course to look at The Big Picture",
+          [
+            {
+              text: "Ok!",
+            },
+          ],
+          { cancelable: false }
+        );
       }
     } else {
+      console.log("Alert 4");
+      // alerts the user when there are no semesters added
       Alert.alert(
-        "Patience",
-        "Good Things Come To Those Who Wait",
+        "Add a Semester and Course",
+        "Please add at least one semester with one course to look at The Big Picture",
         [
           {
-            text: "I Shall Wait",
+            text: "Ok!",
           },
         ],
         { cancelable: false }
       );
     }
+  };
+
+  closeBigPictureModal = () => {
+    this.setState({ isBigPictureModalVisible: false });
   };
 
   BigPictureModal = () => (
@@ -644,7 +873,7 @@ class DashboardScreen extends Component {
             leftComponent={
               <TouchableOpacity
                 onPress={() => {
-                  this.showHideBigPicturePopUp();
+                  this.closeBigPictureModal();
                 }}
               >
                 <Icon name="ios-arrow-back" color="#fafafa" size={35} />
@@ -1182,6 +1411,7 @@ class DashboardScreen extends Component {
             <AddSemesterCard
               onPress={() => this.showHideSemesterModal()}
             ></AddSemesterCard>
+            {/* this is the add semester card that always exists at the end of all semesters added */}
             <View style={{ alignItems: "center", alignContent: "center" }}>
               {/* <AdMobBanner
                 style={styles.banner1}

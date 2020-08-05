@@ -111,10 +111,18 @@ const DrawerNavigator = createDrawerNavigator(
         <SafeAreaView style={styles.container}>
           <View style={styles.profilePictureContainer}>
             {pullInformationFromDatabase() ? (
-              <Image
-                style={styles.profilePicture}
-                source={{ uri: pullInformationFromDatabase()[2] }}
-              ></Image>
+              pullInformationFromDatabase()[2] ===
+              "./../assets/dp-placeholder.jpg" ? (
+                <Image
+                  style={styles.profilePicture}
+                  source={require("./../assets/dp-placeholder.jpg")}
+                ></Image>
+              ) : (
+                <Image
+                  style={styles.profilePicture}
+                  source={{ uri: pullInformationFromDatabase()[2] }}
+                ></Image>
+              )
             ) : null}
           </View>
           <View style={styles.textContainer}>
@@ -125,6 +133,7 @@ const DrawerNavigator = createDrawerNavigator(
               {pullInformationFromDatabase()
                 ? pullInformationFromDatabase()[0]
                 : ""}
+              !
             </Text>
             <Text style={styles.email}>
               {pullInformationFromDatabase()

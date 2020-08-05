@@ -6,6 +6,7 @@ import {
   TextInput,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 import firebase from "firebase";
@@ -17,6 +18,7 @@ class CustomLoginScreen extends Component {
     email: "",
     password: "",
     errorMessage: null,
+    isLoading: false,
   };
 
   handleLogin = () => {
@@ -25,28 +27,36 @@ class CustomLoginScreen extends Component {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .catch((error) =>
+      .catch((error) => {
         this.setState({
           errorMessage: error.message,
-        })
-      );
+        });
+        this.setState({ isLoading: false });
+      });
   };
 
   navigateToNextScreen = () => {
     if (this.state.email !== "" && this.state.password !== "") {
       firebase.auth().onAuthStateChanged((user) => {
-        if (user.emailVerified) {
-          this.props.navigation.navigate("TabNavigator", {
-            userID: this.state.email,
-          });
-        } else {
-          this.setState({
-            errorMessage: "Verify Your Email Before Attempting To Log-In",
-          });
-        }
+        user.reload();
+        setTimeout(() => {
+          if (user.emailVerified) {
+            this.props.navigation.navigate("TabNavigator", {
+              userID: this.state.email,
+            });
+          } else {
+            if (this.state.errorMessage === null) {
+              this.setState({
+                errorMessage: "Verify Your Email Before Attempting To Log-In",
+              });
+            }
+            this.setState({ isLoading: false });
+          }
+        }, 1000);
       });
     } else {
       this.setState({ errorMessage: "Please Fill All Fields Correctly" });
+      this.setState({ isLoading: false });
     }
   };
 
@@ -128,20 +138,31 @@ class CustomLoginScreen extends Component {
         <CustomButton
           title="Log In"
           onPress={() => {
+            this.setState({ errorMessage: null });
+            this.setState({ isLoading: true });
             this.handleLogin();
             this.navigateToNextScreen();
           }}
+          disabled={this.state.isLoading}
         ></CustomButton>
+        <View>
+          <ActivityIndicator
+            animating={this.state.isLoading}
+            color="#ffffff"
+            size="large"
+          />
+        </View>
       </View>
     );
   }
 }
 
-const CustomButton = ({ onPress, title }) => (
+const CustomButton = ({ onPress, title, disabled }) => (
   <TouchableOpacity
     onPress={onPress}
     style={styles.customButtonContainer}
     activeOpacity={0.8}
+    disabled={disabled}
   >
     <Text style={styles.customButtonText}>{title}</Text>
   </TouchableOpacity>
@@ -210,7 +231,7 @@ const styles = StyleSheet.create({
   errorMessage: {
     flex: 1,
     position: "absolute",
-    top: "18%",
+    top: "17%",
     width: 0.8 * Dimensions.get("window").width,
     justifyContent: "center",
     alignItems: "center",
@@ -218,6 +239,7 @@ const styles = StyleSheet.create({
   errorMessageText: {
     flex: 1,
     color: "#fafafa",
+    fontWeight: "bold",
   },
   signUpMessage: {
     flex: 1,
