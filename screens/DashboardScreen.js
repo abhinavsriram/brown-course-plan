@@ -52,6 +52,12 @@ class DashboardScreen extends Component {
       divisionsOfStudyData: null,
       courseDeptData: null,
       concentrationData: null,
+      initialConcentration1: null,
+      initialConcentration2: null,
+      initialDegree: null,
+      initialProfilePicture: null,
+      initialSemesterLevel: null,
+      initialClassYear: null,
     };
   }
 
@@ -65,6 +71,7 @@ class DashboardScreen extends Component {
         this.setState({ userID: userID }, () => {
           this.pullSemestersFromDatabase();
           this.getAcademicObjective();
+          this.defaultWriteToDatabase();
         });
       } else {
       }
@@ -176,6 +183,63 @@ class DashboardScreen extends Component {
       .catch((error) => {
         console.log(error.message);
       });
+  };
+
+  defaultWriteToDatabase = () => {
+    if (
+      this.state.initialConcentration1 === null &&
+      this.state.initialConcentration2 === null &&
+      this.state.initialDegree === null &&
+      this.state.initialProfilePicture === null &&
+      this.state.initialClassYear === null &&
+      this.state.initialSemesterLevel === null
+    ) {
+      firebase
+        .firestore()
+        .collection("user-information")
+        .doc(this.state.userID)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            this.setState({
+              initialProfilePicture: doc.data().profile_picture_url,
+            });
+            this.setState({ initialConcentration1: doc.data().concentration });
+            this.setState({
+              initialConcentration2: doc.data().second_concentration,
+            });
+            this.setState({ initialDegree: doc.data().degree });
+            this.setState({ initialClassYear: doc.data().class_year });
+            this.setState({ initialSemesterLevel: doc.data().semester_level });
+          }
+        });
+    }
+    setTimeout(() => {
+      if (
+        this.state.initialConcentration1 === undefined ||
+        this.state.initialConcentration2 === undefined ||
+        this.state.initialDegree === undefined ||
+        this.state.initialProfilePicture === undefined ||
+        this.state.initialClassYear === undefined ||
+        this.state.initialSemesterLevel === undefined
+      ) {
+        firebase
+          .firestore()
+          .collection("user-information")
+          .doc(this.state.userID)
+          .set(
+            {
+              class_year: "2021",
+              concentration: "Yet To Declare",
+              second_concentration: "Yet To Declare",
+              degree: "Yet To Declare",
+              profile_picture_url: "./../assets/dp-placeholder.jpg",
+              semester_level: "S01",
+            },
+            { merge: true }
+          );
+      }
+    }, 1000);
   };
 
   componentDidMount() {
@@ -758,20 +822,10 @@ class DashboardScreen extends Component {
   };
 
   showHideBigPicturePopUp = () => {
-    console.log(
-      "1. the length of semestersList is: ",
-      this.state.semestersList.length
-    );
     if (this.state.semestersList[0]) {
-      console.log(
-        "2. the length of objectsList is: ",
-        this.state.listOfSemesterObjects.length
-      );
       if (this.state.listOfSemesterObjects.length > 0) {
         var bool = true;
         for (let i = 0; i < this.state.listOfSemesterObjects.length; i++) {
-          console.log("3. new for loop starts");
-          console.log("4. the new value of i is: ", i);
           if (
             this.getPropertyByIndex(this.state.listOfSemesterObjects[i], 0) !==
               undefined &&
@@ -779,28 +833,17 @@ class DashboardScreen extends Component {
               "shopping"
             ]
           ) {
-            console.log("5. enters first if, with i value of: ", i);
-            console.log("6. bool value is: ", bool);
             if (bool) {
-              console.log("7. enters first bool if, with i value of", i);
-              console.log("8. bool value before re-assignment is: ", bool);
               bool = false;
-              console.log("9. bool value before re-assignment is: ", bool);
-              console.log(
-                "10. is the modal visible? ",
-                this.state.isBigPictureModalVisible
-              );
+
               if (this.state.isBigPictureModalVisible) {
-                console.log("11. the modal should not be visible");
                 this.setState({ isBigPictureModalVisible: false });
               } else {
-                console.log("12. the modal should be visible");
                 this.setState({ isBigPictureModalVisible: true });
               }
               break;
             } else {
               if (i === this.state.listOfSemesterObjects.length - 1) {
-                console.log("Alert 1");
                 Alert.alert(
                   "Add a Semester and Course",
                   "Please add at least one semester with one course to look at The Big Picture",
@@ -815,7 +858,6 @@ class DashboardScreen extends Component {
             }
           } else {
             if (i === this.state.listOfSemesterObjects.length - 1) {
-              console.log("Alert 2");
               // alerts the user when no courses have ever been added
               Alert.alert(
                 "Add a Semester and Course",
@@ -831,7 +873,6 @@ class DashboardScreen extends Component {
           }
         }
       } else {
-        console.log("Alert 3");
         // alerts the user when no courses have ever been added
         Alert.alert(
           "Add a Semester and Course",
@@ -845,7 +886,6 @@ class DashboardScreen extends Component {
         );
       }
     } else {
-      console.log("Alert 4");
       // alerts the user when there are no semesters added
       Alert.alert(
         "Add a Semester and Course",
@@ -1082,6 +1122,7 @@ class DashboardScreen extends Component {
               var totalCourses = 0;
               var totalConcentrationOneReq = 0;
               var totalConcentrationTwoReq = 0;
+              var totalConcentrationOneAndTwoReq = 0;
               var totalHumanitiesCourses = 0;
               var totalLifeSciencesCourses = 0;
               var totalPhysicalSciencesCourses = 0;
@@ -1089,13 +1130,22 @@ class DashboardScreen extends Component {
               for (let i = 0; i < Object.keys(hashMap).length; i++) {
                 totalCourses =
                   totalCourses + hashMap[Object.keys(hashMap)[i]]["deptFreq"];
+                var initialTotalConcentrationOneReq = totalConcentrationOneReq;
                 totalConcentrationOneReq =
                   totalConcentrationOneReq +
                   hashMap[Object.keys(hashMap)[i]]["concentration1Req"];
                 if (this.state.concentration_2_duplicate !== "") {
+                  var initialTotalConcentrationTwoReq = totalConcentrationTwoReq;
                   totalConcentrationTwoReq =
                     totalConcentrationTwoReq +
                     hashMap[Object.keys(hashMap)[i]]["concentration2Req"];
+                }
+                if (
+                  totalConcentrationOneReq > initialTotalConcentrationOneReq &&
+                  totalConcentrationTwoReq > initialTotalConcentrationTwoReq
+                ) {
+                  totalConcentrationOneAndTwoReq =
+                    totalConcentrationOneAndTwoReq + 1;
                 }
                 if (
                   hashMap[Object.keys(hashMap)[i]]["deptAreaOfStudy"] ===

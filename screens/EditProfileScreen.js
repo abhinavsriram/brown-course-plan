@@ -77,23 +77,23 @@ class EditProfileScreen extends Component {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          if (doc.data().concentration !== "Yet To Declare") {
-            this.setState({
-              concentrationPickerValue: doc.data().concentration,
-            });
-            this.setState({
-              initialConcentrationPickerValue: doc.data().concentration,
-            });
-          }
-          if (doc.data().second_concentration !== "Yet To Declare") {
-            this.setState({
-              secondConcentrationPickerValue: doc.data().second_concentration,
-            });
-            this.setState({
-              initialSecondConcentrationPickerValue: doc.data()
-                .second_concentration,
-            });
-          }
+          // if (doc.data().concentration !== "Yet To Declare") {
+          this.setState({
+            concentrationPickerValue: doc.data().concentration,
+          });
+          this.setState({
+            initialConcentrationPickerValue: doc.data().concentration,
+          });
+          // }
+          // if (doc.data().second_concentration !== "Yet To Declare") {
+          this.setState({
+            secondConcentrationPickerValue: doc.data().second_concentration,
+          });
+          this.setState({
+            initialSecondConcentrationPickerValue: doc.data()
+              .second_concentration,
+          });
+          // }
           if (doc.data().concentration === undefined) {
             this.setState({ concentrationPickerValue: "Click to Choose" });
           }
@@ -365,8 +365,9 @@ class EditProfileScreen extends Component {
       this.setState({ concentrationPickerValue: "Yet To Declare" });
     }
     if (this.state.concentrationPickerValue === "Yet To Declare") {
-      this.setState({ secondConcentrationPickerValue: "Click to Choose" });
-      this.setState({ degreePickerValue: "Click to Choose" });
+      this.setState({ secondConcentrationPickerValue: "Yet To Declare" });
+      this.setState({ degreePickerValue: "Yet To Declare" });
+      this.setState({ concentrationTwoReqPickerValue: "N/A" });
     }
   };
 
@@ -377,10 +378,10 @@ class EditProfileScreen extends Component {
     ) {
       this.setState({ secondConcentrationPickerValue: "Yet To Declare" });
     }
-    if (this.state.concentrationPickerValue === "Yet To Declare") {
-      this.setState({ secondConcentrationPickerValue: "Click to Choose" });
-      this.setState({ degreePickerValue: "Click to Choose" });
-    }
+    // if (this.state.concentrationPickerValue === "Yet To Declare") {
+    //   this.setState({ secondConcentrationPickerValue: "Click to Choose" });
+    //   this.setState({ degreePickerValue: "Click to Choose" });
+    // }
   };
 
   defaultDegree = () => {
@@ -564,7 +565,7 @@ class EditProfileScreen extends Component {
             <TouchableOpacity
               style={styles.backArrow}
               onPress={() => {
-                if (!this.state.dataChanged) {
+                if (true) {
                   Alert.alert(
                     "Changes Not Saved",
                     "Are you sure you want to exit without saving your changes to your profile?",
@@ -573,6 +574,7 @@ class EditProfileScreen extends Component {
                         text: "Exit",
                         style: "destructive",
                         onPress: () => {
+                          this.props.navigation.navigate("TabNavigator");
                           this.props.navigation.dispatch(
                             DrawerActions.openDrawer()
                           );
@@ -830,7 +832,8 @@ class EditProfileScreen extends Component {
                     this.determineNumberOfReq2(
                       this.state.secondConcentrationPickerValue
                     );
-                    this.defaultSecondConcentration();
+                    this.defaultConcentration();
+                    // this.defaultSecondConcentration();
                   }}
                 >
                   <Text style={profileStyles.cancelButtonText}>DONE</Text>

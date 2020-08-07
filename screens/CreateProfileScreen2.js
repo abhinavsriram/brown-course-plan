@@ -39,6 +39,7 @@ class CreateProfileScreen2 extends Component {
         degree: this.state.degreePickerValue,
         class_year: this.state.classYearPickerValue,
         semester_level: this.state.semesterLevelPickerValue,
+        second_concentration: "Yet To Declare",
       });
   };
 
