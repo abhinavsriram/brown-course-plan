@@ -28,7 +28,7 @@ class UserProfileCardNetwork extends Component {
   getUserProfilePicture = (userIdent) => {
     firebase
       .storage()
-      .ref("images/" + userIdent)
+      .ref("images/" + userIdent + ".jpg")
       .getDownloadURL()
       .then((downloadURL) => {
         this.setState({ downloadURL: downloadURL });

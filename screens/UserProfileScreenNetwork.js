@@ -105,30 +105,78 @@ class UserProfileScreenNetwork extends Component {
                   ],
                 },
                 () => {
-                  this.setState({
-                    isAboutMeEnabled: this.state.sharingInformation[0],
-                  });
-                  this.setState({
-                    isEmailEnabled: this.state.sharingInformation[1],
-                  });
-                  this.setState({
-                    isConcentrationEnabled: this.state.sharingInformation[2],
-                  });
-                  this.setState({
-                    isCurrentClassesEnabled: this.state.sharingInformation[3],
-                  });
-                  this.setState({
-                    isClassSchedule1Enabled: this.state.sharingInformation[4],
-                  });
-                  this.setState({
-                    isClassSchedule2Enabled: this.state.sharingInformation[5],
-                  });
-                  this.setState({
-                    isTimeEnabled: this.state.sharingInformation[6],
-                  });
-                  this.setState({
-                    is4YearPlanEnabled: this.state.sharingInformation[7],
-                  });
+                  if (this.state.sharingInformation[0] !== undefined) {
+                    this.setState({
+                      isAboutMeEnabled: this.state.sharingInformation[0],
+                    });
+                  } else {
+                    this.setState({
+                      isAboutMeEnabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[1] !== undefined) {
+                    this.setState({
+                      isEmailEnabled: this.state.sharingInformation[1],
+                    });
+                  } else {
+                    this.setState({
+                      isEmailEnabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[2] !== undefined) {
+                    this.setState({
+                      isConcentrationEnabled: this.state.sharingInformation[2],
+                    });
+                  } else {
+                    this.setState({
+                      isConcentrationEnabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[3] !== undefined) {
+                    this.setState({
+                      isCurrentClassesEnabled: this.state.sharingInformation[3],
+                    });
+                  } else {
+                    this.setState({
+                      isCurrentClassesEnabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[4] !== undefined) {
+                    this.setState({
+                      isClassSchedule1Enabled: this.state.sharingInformation[4],
+                    });
+                  } else {
+                    this.setState({
+                      isClassSchedule1Enabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[5] !== undefined) {
+                    this.setState({
+                      isClassSchedule2Enabled: this.state.sharingInformation[5],
+                    });
+                  } else {
+                    this.setState({
+                      isClassSchedule2Enabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[6] !== undefined) {
+                    this.setState({
+                      isTimeEnabled: this.state.sharingInformation[6],
+                    });
+                  } else {
+                    this.setState({
+                      isTimeEnabled: true,
+                    });
+                  }
+                  if (this.state.sharingInformation[7] !== undefined) {
+                    this.setState({
+                      is4YearPlanEnabled: this.state.sharingInformation[7],
+                    });
+                  } else {
+                    this.setState({
+                      is4YearPlanEnabled: true,
+                    });
+                  }
                 }
               );
             }

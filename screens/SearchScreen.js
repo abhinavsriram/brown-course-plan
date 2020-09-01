@@ -299,6 +299,7 @@ class SearchScreen extends Component {
     }
     this.setState({ allReviews: allReviews });
     this.setState({ editions: editions });
+    console.log(allReviews);
   };
 
   createCourseInfoPopUp = () => {
