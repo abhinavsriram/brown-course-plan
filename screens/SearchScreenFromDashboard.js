@@ -140,6 +140,9 @@ class SearchScreen extends Component {
       case "Summer 2020":
         this.setState({ currentSemesterCode: 11 });
         break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 12 });
+        break;
     }
   }
 
@@ -833,6 +836,9 @@ class SearchScreen extends Component {
       case "Summer 2020":
         this.setState({ currentSemesterCode: 11 });
         break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 12 });
+        break;
     }
   };
 
@@ -875,7 +881,7 @@ class SearchScreen extends Component {
           .toLowerCase();
       }
     } else if (
-      parseInt(semesterYear, 10) > 2019 &&
+      parseInt(semesterYear, 10) > 2020 &&
       (semesterSeason === "Fall" || semesterSeason === "Winter")
     ) {
       if (semesterSeason === "Fall") {

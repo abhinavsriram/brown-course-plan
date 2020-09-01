@@ -149,7 +149,6 @@ class SemesterCard extends Component {
         this.setState({ currentSemesterCode: 11 });
         break;
       case "Fall 2019":
-      case "Fall 2020":
       case "Fall 2021":
       case "Fall 2022":
       case "Fall 2023":
@@ -199,6 +198,9 @@ class SemesterCard extends Component {
         break;
       case "Summer 2020":
         this.setState({ currentSemesterCode: 11 });
+        break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 12 });
         break;
     }
   };

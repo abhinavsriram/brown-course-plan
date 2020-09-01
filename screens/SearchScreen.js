@@ -16,6 +16,7 @@ import { Header } from "react-native-elements";
 import SwitchSelector from "react-native-switch-selector";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "react-navigation-drawer";
+import * as Progress from "react-native-progress";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -28,6 +29,7 @@ import StopWordsList from "./../data/StopWordsList";
 import CourseCard from "../components/CourseCardSearch";
 import CourseList from "./../data/CourseList";
 import Colors from "./../data/Colors";
+import CriticalReviewData from "./../data/CriticalReview.json";
 
 class SearchScreen extends Component {
   constructor(props) {
@@ -38,7 +40,7 @@ class SearchScreen extends Component {
       searchBoxValue: "",
       yOffset: 0,
       // here we set the default value to the latest semester
-      semesterPickerValue: "Spring 2020",
+      semesterPickerValue: "Fall 2020",
       semesterPickerVisible: false,
       currentSemesterCode: 0,
       courseCode: "Placeholder Course",
@@ -53,6 +55,8 @@ class SearchScreen extends Component {
       errorMessage: null,
       firstConcentration: null,
       secondConcentartion: null,
+      allReviews: [],
+      editions: [],
     };
   }
 
@@ -142,6 +146,9 @@ class SearchScreen extends Component {
       case "Summer 2020":
         this.setState({ currentSemesterCode: 11 });
         break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 12 });
+        break;
     }
   }
 
@@ -199,14 +206,14 @@ class SearchScreen extends Component {
 
   createKeywordArrayAllCourses = () => {
     let courseKeywordsList = [];
-    for (let i = 0; i < Object.keys(CourseData[7]).length; i++) {
-      const courseCode = this.getPropertyByIndex(CourseData[7], i)[
+    for (let i = 0; i < Object.keys(CourseData[12]).length; i++) {
+      const courseCode = this.getPropertyByIndex(CourseData[12], i)[
         "Course_Code"
       ];
-      const courseName = this.getPropertyByIndex(CourseData[7], i)[
+      const courseName = this.getPropertyByIndex(CourseData[12], i)[
         "Course Name"
       ];
-      const courseInstr = this.getPropertyByIndex(CourseData[7], i)[
+      const courseInstr = this.getPropertyByIndex(CourseData[12], i)[
         "Course Instructor"
       ];
       const courseKeyword = this.createKeywordArrayOneCourse([
@@ -221,11 +228,11 @@ class SearchScreen extends Component {
 
   createFullDatabase = () => {
     const courseKeywordsList = this.createKeywordArrayAllCourses();
-    for (let i = 0; i < Object.keys(CourseData[7]).length; i++) {
-      this.getPropertyByIndex(CourseData[7], i)["Keywords"] =
+    for (let i = 0; i < Object.keys(CourseData[12]).length; i++) {
+      this.getPropertyByIndex(CourseData[12], i)["Keywords"] =
         courseKeywordsList[i];
     }
-    return CourseData[7];
+    return CourseData[12];
   };
 
   writeToFirestore = (data) => {
@@ -233,7 +240,7 @@ class SearchScreen extends Component {
       Object.keys(data).forEach((docKey) => {
         firebase
           .firestore()
-          .collection("summer-2019")
+          .collection("fall-2020")
           .doc(docKey)
           .set(data[docKey])
           .then((res) => {
@@ -260,12 +267,38 @@ class SearchScreen extends Component {
         this.setState({ isCourseInfoModalVisible: true });
       }
     });
+    this.getCriticalReviewInformation(courseCode);
   };
 
   closeCourseInfoPopUp = () => {
     if (this.state.isCourseInfoModalVisible === true) {
       this.setState({ isCourseInfoModalVisible: false });
     }
+  };
+
+  getCriticalReviewInformation = (courseCode) => {
+    let allReviews = [];
+    let editions = [];
+    for (let i = 0; i < CriticalReviewData.length; i++) {
+      let currCourseData = CriticalReviewData[i];
+      let currCourseCode =
+        currCourseData["department_code"] + " " + currCourseData["course_num"];
+      if (courseCode === currCourseCode) {
+        allReviews.push(currCourseData);
+      }
+    }
+    for (let j = 0; j < allReviews.length; j++) {
+      let currReview = allReviews[j];
+      let currEdition =
+        currReview["semester"] +
+        " " +
+        currReview["year"] +
+        " | " +
+        currReview["professor"];
+      editions.push(currEdition);
+    }
+    this.setState({ allReviews: allReviews });
+    this.setState({ editions: editions });
   };
 
   createCourseInfoPopUp = () => {
@@ -349,11 +382,171 @@ class SearchScreen extends Component {
               )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
-              ]["Critical Review"] !== "" && (
+              ]["Critical Review"] !== "" &&
+              this.state.allReviews.length !== 0 ? (
                 <React.Fragment>
                   <Text style={courseInfoPopUpStyles.subHeader}>
                     Critical Review:
                   </Text>
+                  <View style={{ alignItems: "center", marginTop: 7 }}>
+                    <Text
+                      style={{
+                        color: "dimgrey",
+                        fontWeight: "600",
+                        fontSize: 17,
+                      }}
+                    >
+                      {this.state.editions[this.state.editions.length - 1]}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 10,
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={{ width: 0.05 * Dimensions.get("window").width }}
+                    ></View>
+                    <View
+                      style={{ flexDirection: "column", alignItems: "center" }}
+                    >
+                      <Progress.Bar
+                        progress={
+                          this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["course_rating"] / 5
+                        }
+                        width={0.25 * Dimensions.get("window").width}
+                        height={25}
+                        borderRadius={7}
+                        color={"#5ED483"}
+                      />
+                      <Text
+                        style={{
+                          color: "dimgrey",
+                          fontWeight: "bold",
+                          fontSize: 25,
+                        }}
+                      >
+                        {this.state.allReviews[
+                          this.state.allReviews.length - 1
+                        ]["course_rating"].toFixed(2)}
+                      </Text>
+                      <Text style={{ color: "dimgrey" }}>Course</Text>
+                    </View>
+
+                    <View
+                      style={{ width: 0.3 * Dimensions.get("window").width }}
+                    ></View>
+
+                    <View
+                      style={{ flexDirection: "column", alignItems: "center" }}
+                    >
+                      <Progress.Bar
+                        progress={
+                          this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["prof_rating"] / 5
+                        }
+                        width={0.25 * Dimensions.get("window").width}
+                        height={25}
+                        borderRadius={7}
+                        color={"#5ED483"}
+                      />
+                      <Text
+                        style={{
+                          color: "dimgrey",
+                          fontWeight: "bold",
+                          fontSize: 25,
+                        }}
+                      >
+                        {this.state.allReviews[
+                          this.state.allReviews.length - 1
+                        ]["prof_rating"].toFixed(2)}
+                      </Text>
+                      <Text style={{ color: "dimgrey" }}>Professor</Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 10,
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={{ width: 0.05 * Dimensions.get("window").width }}
+                    ></View>
+                    <View
+                      style={{ flexDirection: "column", alignItems: "center" }}
+                    >
+                      <Progress.Bar
+                        progress={
+                          this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["avg_hours"] / 12
+                        }
+                        width={0.25 * Dimensions.get("window").width}
+                        height={25}
+                        borderRadius={7}
+                        color={"#5ED483"}
+                      />
+                      <Text
+                        style={{
+                          color: "dimgrey",
+                          fontWeight: "bold",
+                          fontSize: 25,
+                        }}
+                      >
+                        {this.state.allReviews[
+                          this.state.allReviews.length - 1
+                        ]["avg_hours"]
+                          ? this.state.allReviews[
+                              this.state.allReviews.length - 1
+                            ]["avg_hours"].toFixed(2)
+                          : "N/A"}
+                      </Text>
+                      <Text style={{ color: "dimgrey" }}>Avg Hours</Text>
+                    </View>
+
+                    <View
+                      style={{ width: 0.3 * Dimensions.get("window").width }}
+                    ></View>
+
+                    <View
+                      style={{ flexDirection: "column", alignItems: "center" }}
+                    >
+                      <Progress.Bar
+                        progress={
+                          this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["max_hours"] / 12
+                        }
+                        width={0.25 * Dimensions.get("window").width}
+                        height={25}
+                        borderRadius={7}
+                        color={"#5ED483"}
+                      />
+                      <Text
+                        style={{
+                          color: "dimgrey",
+                          fontWeight: "bold",
+                          fontSize: 25,
+                        }}
+                      >
+                        {this.state.allReviews[
+                          this.state.allReviews.length - 1
+                        ]["max_hours"]
+                          ? this.state.allReviews[
+                              this.state.allReviews.length - 1
+                            ]["max_hours"].toFixed(2)
+                          : "N/A"}
+                      </Text>
+                      <Text style={{ color: "dimgrey" }}>Max Hours</Text>
+                    </View>
+                  </View>
                   <TouchableOpacity
                     onPress={() =>
                       Linking.openURL(
@@ -366,7 +559,7 @@ class SearchScreen extends Component {
                     <Text
                       style={{
                         textDecorationLine: "underline",
-                        marginTop: 3,
+                        marginTop: 10,
                         color: "#757575",
                         fontSize: 17,
                       }}
@@ -378,6 +571,21 @@ class SearchScreen extends Component {
                       }
                     </Text>
                   </TouchableOpacity>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <Text style={courseInfoPopUpStyles.subHeader}>
+                    Critical Review:
+                  </Text>
+                  <Text
+                    style={{
+                      marginTop: 3,
+                      color: "#757575",
+                      fontSize: 17,
+                    }}
+                  >
+                    No Critical Reviews For This Course
+                  </Text>
                 </React.Fragment>
               )}
               {CourseData[this.state.currentSemesterCode][
@@ -835,6 +1043,9 @@ class SearchScreen extends Component {
       case "Summer 2020":
         this.setState({ currentSemesterCode: 11 });
         break;
+      case "Fall 2020":
+        this.setState({ currentSemesterCode: 12 });
+        break;
     }
   };
 
@@ -877,7 +1088,7 @@ class SearchScreen extends Component {
           .toLowerCase();
       }
     } else if (
-      parseInt(semesterYear, 10) > 2019 &&
+      parseInt(semesterYear, 10) > 2020 &&
       (semesterSeason === "Fall" || semesterSeason === "Winter")
     ) {
       if (semesterSeason === "Fall") {
