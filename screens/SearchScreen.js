@@ -57,6 +57,9 @@ class SearchScreen extends Component {
       secondConcentartion: null,
       allReviews: [],
       editions: [],
+      editionsPickerVisible: false,
+      editionsPickerValue: "",
+      editionsPickerIndex: 0,
     };
   }
 
@@ -302,6 +305,14 @@ class SearchScreen extends Component {
     console.log(allReviews);
   };
 
+  showHideEditionsPicker = () => {
+    if (this.state.editionsPickerVisible == true) {
+      this.setState({ editionsPickerVisible: false });
+    } else {
+      this.setState({ editionsPickerVisible: true });
+    }
+  }
+
   createCourseInfoPopUp = () => {
     return (
       <View style={courseInfoPopUpStyles.container}>
@@ -326,7 +337,7 @@ class SearchScreen extends Component {
               <Text style={courseInfoPopUpStyles.courseName}>
                 {
                   CourseData[this.state.currentSemesterCode][
-                    this.state.courseCode
+                  this.state.courseCode
                   ]["Course Name"]
                 }
               </Text>
@@ -336,321 +347,364 @@ class SearchScreen extends Component {
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Capacity"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Course Capacity:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Course Capacity:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Capacity"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Capacity"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Description"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Course Description:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Course Description:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Description"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Description"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Restrictions"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Course Restrictions:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Course Restrictions:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Restrictions"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Restrictions"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Critical Review"] !== "" &&
-              this.state.allReviews.length !== 0 ? (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Critical Review:
-                  </Text>
-                  <View style={{ alignItems: "center", marginTop: 7 }}>
-                    <Text
+                this.state.allReviews.length !== 0 ? (
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Critical Review:
+                    </Text>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      onPress={() => { this.showHideEditionsPicker() }}>
+                      <View
+                        style={{
+                          borderBottomColor: "dimgrey",
+                          borderBottomWidth: StyleSheet.hairlineWidth,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        }}>
+                        <View style={{ marginTop: 7 }}>
+                          <Text
+                            style={{
+                              color: "dimgrey",
+                              fontWeight: "600",
+                              fontSize: 17,
+                            }}
+                          >
+                            {this.state.editionsPickerValue}
+                          </Text>
+                        </View>
+                        {this.state.editionsPickerVisible ? (
+                          <View style={{ marginTop: 7 }}>
+                            <Icon name="ios-arrow-dropup" color="dimgrey" size={20} />
+                          </View>
+                        ) :
+                          <View style={{ marginTop: 7 }}>
+                            <Icon name="ios-arrow-dropdown" color="dimgrey" size={20} />
+                          </View>}
+                      </View>
+                    </TouchableOpacity>
+                    {this.state.editionsPickerVisible ? (
+                      <React.Fragment>
+                        <Picker
+                          style={{ marginTop: 10 }}
+                          selectedValue={this.state.editionsPickerValue}
+                          onValueChange={(itemValue, index) => {
+                            this.setState({ editionsPickerValue: itemValue });
+                            this.setState({ editionsPickerIndex: index })
+                          }}
+                          itemStyle={{ color: "dimgrey", borderColor: "#fafafa" }}
+                        >
+                          {this.state.editions.map((edition, index) => {
+                            return (
+                              <Picker.Item
+                                key={index}
+                                label={edition}
+                                value={edition}
+                              ></Picker.Item>
+                            );
+                          })}
+                        </Picker>
+                      </React.Fragment>
+                    ) : null}
+                    <View
                       style={{
-                        color: "dimgrey",
-                        fontWeight: "600",
-                        fontSize: 17,
+                        flexDirection: "row",
+                        marginTop: 10,
+                        alignItems: "center",
                       }}
                     >
-                      {this.state.editions[this.state.editions.length - 1]}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      marginTop: 10,
-                      alignItems: "center",
-                    }}
-                  >
-                    <View
-                      style={{ width: 0.05 * Dimensions.get("window").width }}
-                    ></View>
-                    <View
-                      style={{ flexDirection: "column", alignItems: "center" }}
-                    >
-                      <Progress.Bar
-                        progress={
-                          this.state.allReviews[
-                            this.state.allReviews.length - 1
-                          ]["course_rating"] / 5
-                        }
-                        width={0.25 * Dimensions.get("window").width}
-                        height={25}
-                        borderRadius={7}
-                        color={"#5ED483"}
-                      />
-                      <Text
-                        style={{
-                          color: "dimgrey",
-                          fontWeight: "bold",
-                          fontSize: 25,
-                        }}
+                      <View
+                        style={{ width: 0.05 * Dimensions.get("window").width }}
+                      ></View>
+                      <View
+                        style={{ flexDirection: "column", alignItems: "center" }}
                       >
-                        {this.state.allReviews[
-                          this.state.allReviews.length - 1
-                        ]["course_rating"].toFixed(2)}
-                      </Text>
-                      <Text style={{ color: "dimgrey" }}>Course</Text>
-                    </View>
+                        <Progress.Bar
+                          progress={
+                            this.state.allReviews[
+                            this.state.editionsPickerIndex
+                            ]["course_rating"] / 5
+                          }
+                          width={0.25 * Dimensions.get("window").width}
+                          height={25}
+                          borderRadius={7}
+                          color={"#5ED483"}
+                        />
+                        <Text
+                          style={{
+                            color: "dimgrey",
+                            fontWeight: "bold",
+                            fontSize: 25,
+                          }}
+                        >
+                          {this.state.allReviews[
+                            this.state.editionsPickerIndex
+                          ]["course_rating"].toFixed(2)}
+                        </Text>
+                        <Text style={{ color: "dimgrey" }}>Course</Text>
+                      </View>
 
-                    <View
-                      style={{ width: 0.3 * Dimensions.get("window").width }}
-                    ></View>
+                      <View
+                        style={{ width: 0.3 * Dimensions.get("window").width }}
+                      ></View>
 
-                    <View
-                      style={{ flexDirection: "column", alignItems: "center" }}
-                    >
-                      <Progress.Bar
-                        progress={
-                          this.state.allReviews[
-                            this.state.allReviews.length - 1
-                          ]["prof_rating"] / 5
-                        }
-                        width={0.25 * Dimensions.get("window").width}
-                        height={25}
-                        borderRadius={7}
-                        color={"#5ED483"}
-                      />
-                      <Text
-                        style={{
-                          color: "dimgrey",
-                          fontWeight: "bold",
-                          fontSize: 25,
-                        }}
+                      <View
+                        style={{ flexDirection: "column", alignItems: "center" }}
                       >
-                        {this.state.allReviews[
-                          this.state.allReviews.length - 1
-                        ]["prof_rating"].toFixed(2)}
-                      </Text>
-                      <Text style={{ color: "dimgrey" }}>Professor</Text>
+                        <Progress.Bar
+                          progress={
+                            this.state.allReviews[
+                            this.state.allReviews.length - 1
+                            ]["prof_rating"] / 5
+                          }
+                          width={0.25 * Dimensions.get("window").width}
+                          height={25}
+                          borderRadius={7}
+                          color={"#5ED483"}
+                        />
+                        <Text
+                          style={{
+                            color: "dimgrey",
+                            fontWeight: "bold",
+                            fontSize: 25,
+                          }}
+                        >
+                          {this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["prof_rating"].toFixed(2)}
+                        </Text>
+                        <Text style={{ color: "dimgrey" }}>Professor</Text>
+                      </View>
                     </View>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      marginTop: 10,
-                      alignItems: "center",
-                    }}
-                  >
                     <View
-                      style={{ width: 0.05 * Dimensions.get("window").width }}
-                    ></View>
-                    <View
-                      style={{ flexDirection: "column", alignItems: "center" }}
+                      style={{
+                        flexDirection: "row",
+                        marginTop: 10,
+                        alignItems: "center",
+                      }}
                     >
-                      <Progress.Bar
-                        progress={
-                          this.state.allReviews[
-                            this.state.allReviews.length - 1
-                          ]["avg_hours"] / 12
-                        }
-                        width={0.25 * Dimensions.get("window").width}
-                        height={25}
-                        borderRadius={7}
-                        color={"#5ED483"}
-                      />
-                      <Text
-                        style={{
-                          color: "dimgrey",
-                          fontWeight: "bold",
-                          fontSize: 25,
-                        }}
+                      <View
+                        style={{ width: 0.05 * Dimensions.get("window").width }}
+                      ></View>
+                      <View
+                        style={{ flexDirection: "column", alignItems: "center" }}
                       >
-                        {this.state.allReviews[
-                          this.state.allReviews.length - 1
-                        ]["avg_hours"]
-                          ? this.state.allReviews[
+                        <Progress.Bar
+                          progress={
+                            this.state.allReviews[
+                            this.state.allReviews.length - 1
+                            ]["avg_hours"] / 12
+                          }
+                          width={0.25 * Dimensions.get("window").width}
+                          height={25}
+                          borderRadius={7}
+                          color={"#5ED483"}
+                        />
+                        <Text
+                          style={{
+                            color: "dimgrey",
+                            fontWeight: "bold",
+                            fontSize: 25,
+                          }}
+                        >
+                          {this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["avg_hours"]
+                            ? this.state.allReviews[
                               this.state.allReviews.length - 1
                             ]["avg_hours"].toFixed(2)
-                          : "N/A"}
-                      </Text>
-                      <Text style={{ color: "dimgrey" }}>Avg Hours</Text>
-                    </View>
+                            : "N/A"}
+                        </Text>
+                        <Text style={{ color: "dimgrey" }}>Avg Hours</Text>
+                      </View>
 
-                    <View
-                      style={{ width: 0.3 * Dimensions.get("window").width }}
-                    ></View>
+                      <View
+                        style={{ width: 0.3 * Dimensions.get("window").width }}
+                      ></View>
 
-                    <View
-                      style={{ flexDirection: "column", alignItems: "center" }}
-                    >
-                      <Progress.Bar
-                        progress={
-                          this.state.allReviews[
-                            this.state.allReviews.length - 1
-                          ]["max_hours"] / 12
-                        }
-                        width={0.25 * Dimensions.get("window").width}
-                        height={25}
-                        borderRadius={7}
-                        color={"#5ED483"}
-                      />
-                      <Text
-                        style={{
-                          color: "dimgrey",
-                          fontWeight: "bold",
-                          fontSize: 25,
-                        }}
+                      <View
+                        style={{ flexDirection: "column", alignItems: "center" }}
                       >
-                        {this.state.allReviews[
-                          this.state.allReviews.length - 1
-                        ]["max_hours"]
-                          ? this.state.allReviews[
+                        <Progress.Bar
+                          progress={
+                            this.state.allReviews[
+                            this.state.allReviews.length - 1
+                            ]["max_hours"] / 12
+                          }
+                          width={0.25 * Dimensions.get("window").width}
+                          height={25}
+                          borderRadius={7}
+                          color={"#5ED483"}
+                        />
+                        <Text
+                          style={{
+                            color: "dimgrey",
+                            fontWeight: "bold",
+                            fontSize: 25,
+                          }}
+                        >
+                          {this.state.allReviews[
+                            this.state.allReviews.length - 1
+                          ]["max_hours"]
+                            ? this.state.allReviews[
                               this.state.allReviews.length - 1
                             ]["max_hours"].toFixed(2)
-                          : "N/A"}
-                      </Text>
-                      <Text style={{ color: "dimgrey" }}>Max Hours</Text>
+                            : "N/A"}
+                        </Text>
+                        <Text style={{ color: "dimgrey" }}>Max Hours</Text>
+                      </View>
                     </View>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() =>
-                      Linking.openURL(
-                        CourseData[this.state.currentSemesterCode][
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL(
+                          CourseData[this.state.currentSemesterCode][
                           this.state.courseCode
-                        ]["Critical Review"]
-                      )
-                    }
-                  >
+                          ]["Critical Review"]
+                        )
+                      }
+                    >
+                      <Text
+                        style={{
+                          textDecorationLine: "underline",
+                          marginTop: 10,
+                          color: "#757575",
+                          fontSize: 17,
+                        }}
+                      >
+                        {
+                          CourseData[this.state.currentSemesterCode][
+                          this.state.courseCode
+                          ]["Critical Review"]
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Critical Review:
+                  </Text>
                     <Text
                       style={{
-                        textDecorationLine: "underline",
-                        marginTop: 10,
+                        marginTop: 3,
                         color: "#757575",
                         fontSize: 17,
                       }}
                     >
-                      {
-                        CourseData[this.state.currentSemesterCode][
-                          this.state.courseCode
-                        ]["Critical Review"]
-                      }
-                    </Text>
-                  </TouchableOpacity>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Critical Review:
+                      No Critical Reviews For This Course
                   </Text>
-                  <Text
-                    style={{
-                      marginTop: 3,
-                      color: "#757575",
-                      fontSize: 17,
-                    }}
-                  >
-                    No Critical Reviews For This Course
-                  </Text>
-                </React.Fragment>
-              )}
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Exam Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Final Exam:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Final Exam:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Exam Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Exam Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Meeting Time"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Schedule and Location:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Schedule and Location:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Meeting Time"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Meeting Time"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Course Instructor"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>
-                    Instructor:
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>
+                      Instructor:
                   </Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Course Instructor"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Course Instructor"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               {CourseData[this.state.currentSemesterCode][
                 this.state.courseCode
               ]["Section(s)"] !== "" && (
-                <React.Fragment>
-                  <Text style={courseInfoPopUpStyles.subHeader}>Sections:</Text>
-                  <Text style={courseInfoPopUpStyles.description}>
-                    {
-                      CourseData[this.state.currentSemesterCode][
+                  <React.Fragment>
+                    <Text style={courseInfoPopUpStyles.subHeader}>Sections:</Text>
+                    <Text style={courseInfoPopUpStyles.description}>
+                      {
+                        CourseData[this.state.currentSemesterCode][
                         this.state.courseCode
-                      ]["Section(s)"]
-                    }
-                  </Text>
-                </React.Fragment>
-              )}
+                        ]["Section(s)"]
+                      }
+                    </Text>
+                  </React.Fragment>
+                )}
               <Text style={courseInfoPopUpStyles.subHeader}>
                 Grade Cutoffs:
               </Text>
@@ -1143,17 +1197,17 @@ class SearchScreen extends Component {
           courseCode={courseCode}
           courseName={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Name"
+            "Course Name"
             ]
           }
           instructor={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Instructor"
+            "Course Instructor"
             ]
           }
           meetingTime={
             CourseData[this.state.currentSemesterCode][courseCode][
-              "Course Meeting Time"
+            "Course Meeting Time"
             ]
           }
           semesterCode={this.state.currentSemesterCode}

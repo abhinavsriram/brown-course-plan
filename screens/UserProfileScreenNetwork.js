@@ -30,6 +30,7 @@ class UserProfileScreenNetwork extends Component {
       recommendedClassesSpring: "",
       currentSemesterData: {},
       currentSemesterCourses: [],
+      timeZone: "",
       userData: {
         class_year: "0...",
         first_name: "Loading...",
@@ -96,6 +97,9 @@ class UserProfileScreenNetwork extends Component {
                   ],
                 });
               }
+            }
+            if (this.state.userData["time_zone"]) {
+              this.setState({ timeZone: this.state.userData["time_zone"] })
             }
             if (this.state.userData["sharing_information"]) {
               this.setState(
@@ -220,7 +224,7 @@ class UserProfileScreenNetwork extends Component {
       ) {
         toReturn.push(
           this.getPropertyByIndex(this.state.currentSemesterData, i)[
-            "course_code"
+          "course_code"
           ]
         );
       }
@@ -260,17 +264,17 @@ class UserProfileScreenNetwork extends Component {
               disabled={true}
             >
               {this.state.profilePicture ===
-              "./../assets/dp-placeholder.jpg" ? (
-                <Image
-                  source={require("./../assets/dp-placeholder.jpg")}
-                  style={styles.profilePicture}
-                ></Image>
-              ) : (
-                <Image
-                  source={{ uri: this.state.profilePicture }}
-                  style={styles.profilePicture}
-                ></Image>
-              )}
+                "./../assets/dp-placeholder.jpg" ? (
+                  <Image
+                    source={require("./../assets/dp-placeholder.jpg")}
+                    style={styles.profilePicture}
+                  ></Image>
+                ) : (
+                  <Image
+                    source={{ uri: this.state.profilePicture }}
+                    style={styles.profilePicture}
+                  ></Image>
+                )}
             </TouchableOpacity>
           </View>
 
@@ -312,7 +316,7 @@ class UserProfileScreenNetwork extends Component {
               </Text>
               <Text style={styles.content}>
                 {this.state.userData["second_concentration"] &&
-                this.state.userData["second_concentration"] !== "Yet To Declare"
+                  this.state.userData["second_concentration"] !== "Yet To Declare"
                   ? this.state.userData["second_concentration"]
                   : null}
               </Text>
@@ -373,12 +377,9 @@ class UserProfileScreenNetwork extends Component {
                 <Text style={styles.subheading}>My Time Zone</Text>
               </View>
               <Text style={styles.content}>
-                {new Date().toLocaleTimeString() +
-                  " (" +
-                  Intl.DateTimeFormat()
-                    .resolvedOptions()
-                    .timeZone.replace("_", " ") +
-                  ") "}
+                {this.state.timeZone !== "" ? new Date().toLocaleTimeString("en-US", {
+                  timeZone: this.state.timeZone,
+                }) + " (" + this.state.timeZone.replace("_", " ") + ") " : null}
               </Text>
               <Text style={styles.content}>
                 {new Date().toLocaleTimeString("en-US", {
@@ -400,11 +401,11 @@ class UserProfileScreenNetwork extends Component {
                 style={bigPictureStyles.summaryButtonContainer}
                 textStyle={bigPictureStyles.summaryButtonText}
                 title={"Click To View"}
-                //   onPress={() => {
-                //     this.showHideBigPicturePopUp();
-                //     this.getAcademicObjective();
-                //     this.getPieChartData();
-                //   }}
+              //   onPress={() => {
+              //     this.showHideBigPicturePopUp();
+              //     this.getAcademicObjective();
+              //     this.getPieChartData();
+              //   }}
               ></CustomButton>
             </View>
             <View style={styles.spacer}>

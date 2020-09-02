@@ -59,6 +59,7 @@ class CreateProfileScreen1 extends Component {
         first_name: this.state.firstName,
         last_name: this.state.lastName,
         profile_picture_url: this.state.profilePicture,
+        time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
       });
   };
 
@@ -73,8 +74,25 @@ class CreateProfileScreen1 extends Component {
 
     if (!result.cancelled) {
       this.setState({ profilePicture: result.uri });
+      this.writeToStorage();
     }
   };
+
+  writeToStorage = async () => {
+    const fetchResponse = await fetch(this.state.profilePicture);
+    const toBlob = await fetchResponse.blob();
+    firebase
+      .storage()
+      .ref()
+      .child("images/" + this.state.userID)
+      .put(toBlob)
+      .then(() => {
+        console.log("Successful")
+      })
+      .catch((error) => {
+        console.log("Error")
+      })
+  }
 
   navigateToNextScreen = () => {
     if (this.state.firstName !== "" && this.state.lastName !== "") {

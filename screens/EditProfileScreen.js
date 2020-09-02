@@ -420,6 +420,22 @@ class EditProfileScreen extends Component {
     }
   };
 
+  writeToStorage = async () => {
+    const fetchResponse = await fetch(this.state.profilePicture);
+    const toBlob = await fetchResponse.blob();
+    firebase
+    .storage()
+    .ref()
+    .child("images/" + this.state.userID)
+    .put(toBlob)
+    .then(() => {
+      console.log("Successful")
+    })
+    .catch((error) => {
+      console.log("Error")
+    })
+  }
+
   // when user hits done, chosen information is written to database
   writeToDatabase = () => {
     this.setState({ dataChanged: true });
@@ -452,18 +468,13 @@ class EditProfileScreen extends Component {
       this.state.classYearPickerValue !== "Click to Choose" &&
       this.state.semesterLevelPickerValue !== "Click to Choose"
     ) {
+      this.writeToStorage();
       this.writeToDatabase();
       if (
         this.state.concentrationPickerValue !==
         this.state.initialConcentrationPickerValue
       ) {
         this.resetDatabase(true, false);
-      }
-      if (
-        this.state.secondConcentrationPickerValue !==
-        this.state.initialSecondConcentrationPickerValue
-      ) {
-        this.resetDatabase(false, true);
       }
       this.props.navigation.navigate("TabNavigator");
       this.props.navigation.dispatch(DrawerActions.openDrawer());
@@ -574,7 +585,7 @@ class EditProfileScreen extends Component {
                         text: "Exit",
                         style: "destructive",
                         onPress: () => {
-                          this.props.navigation.navigate("UserProfileScreen");
+                          this.props.navigation.navigate("MyProfileScreenDashboard");
                         },
                       },
                       {
@@ -599,17 +610,17 @@ class EditProfileScreen extends Component {
                 onPress={this.handlePickProfilePicture}
               >
                 {this.state.profilePicture ===
-                "./../assets/dp-placeholder.jpg" ? (
-                  <Image
-                    source={require("./../assets/dp-placeholder.jpg")}
-                    style={styles.profilePicture}
-                  ></Image>
-                ) : (
-                  <Image
-                    source={{ uri: this.state.profilePicture }}
-                    style={styles.profilePicture}
-                  ></Image>
-                )}
+                  "./../assets/dp-placeholder.jpg" ? (
+                    <Image
+                      source={require("./../assets/dp-placeholder.jpg")}
+                      style={styles.profilePicture}
+                    ></Image>
+                  ) : (
+                    <Image
+                      source={{ uri: this.state.profilePicture }}
+                      style={styles.profilePicture}
+                    ></Image>
+                  )}
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.changeProfilePictureContainer}
